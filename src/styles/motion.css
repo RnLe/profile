@@ -1,0 +1,69 @@
+/*
+ * Motion primitives: the foundation for "alive" visuals.
+ *
+ * Philosophy (see also Reveal.astro, AnimatedMark.astro):
+ *   - Default to NO-JS motion: CSS transitions/animations + animated SVG.
+ *   - Illustrative visuals (waves, lattices, band structures) are inline SVGs
+ *     animated with the `.draw` line-draw pattern below: crisp, tiny, zero JS.
+ *   - Scroll reveals use the tiny `motion` vanilla API (Reveal.astro).
+ *   - Everything is gated behind `prefers-reduced-motion`.
+ */
+
+:root {
+  /* Durations */
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
+  --dur-draw: 1.4s;
+
+  /* Easings */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* decelerate, for entrances */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/*
+ * SVG line-draw pattern.
+ * Give a <path> `pathLength="1"` and class="draw"; it strokes itself on in.
+ * `pathLength="1"` normalizes the geometry so one recipe fits any path.
+ * Stagger siblings with an inline `animation-delay`.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  path.draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-line var(--dur-draw) var(--ease-out) forwards;
+  }
+
+  @keyframes draw-line {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+/*
+ * Reveal targets are hidden from first paint ONLY when JS is active (`.has-js`,
+ * set in a head script) AND motion is allowed. No-JS or reduced-motion users
+ * always see the content: no flash, no dependency on the script running.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .has-js [data-reveal],
+  .has-js [data-draw] {
+    opacity: 0;
+  }
+}
+
+/*
+ * Global reduced-motion guard. Anyone who asks for less motion gets the final
+ * frame instantly: reveals, transitions, and the line-draw all resolve at once.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
