@@ -1,0 +1,78 @@
+{
+  "name": "profile",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "pnpm prepare:public && astro dev",
+    "go": "pnpm prepare:public && astro build && astro preview",
+    "build": "pnpm prepare:public && astro build",
+    "preview": "astro preview",
+    "preview:ci": "astro preview --host 127.0.0.1 --port 4321",
+    "check": "astro check && tsc --noEmit",
+    "prepare:public": "tsx scripts/prepare-public.ts",
+    "check:content": "tsx scripts/validate-content.ts",
+    "check:claims": "tsx scripts/validate-claims.ts",
+    "check:media": "tsx scripts/validate-media.ts",
+    "check:privacy": "tsx scripts/validate-publication.ts",
+    "check:documents": "tsx scripts/validate-documents.ts",
+    "check:html": "html-validate \"dist/**/*.html\"",
+    "check:links": "tsx scripts/check-links.ts",
+    "check:links:external": "start-server-and-test preview:ci http://127.0.0.1:4321 \"linkinator http://127.0.0.1:4321 --recurse\"",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test tests/e2e",
+    "test:a11y": "playwright test tests/accessibility",
+    "test:visual": "playwright test tests/visual",
+    "budget": "tsx scripts/check-route-budgets.ts",
+    "inspect:dist": "tsx scripts/inspect-dist.ts",
+    "audit:lighthouse": "tsx scripts/run-lighthouse.ts",
+    "verify:core": "pnpm check && pnpm test:unit && pnpm check:content && pnpm check:claims && pnpm check:media && pnpm check:privacy && pnpm check:documents && pnpm build && pnpm check:html && pnpm test:e2e && pnpm test:a11y && pnpm check:links && pnpm budget && pnpm inspect:dist",
+    "verify:release": "pnpm verify:core && pnpm test:visual && pnpm audit:lighthouse && tsx scripts/inspect-dist.ts --release && pnpm check:links:external",
+    "verify:predeploy": "pnpm verify:core && pnpm test:visual && pnpm audit:lighthouse",
+    "verify": "pnpm verify:core"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.4",
+    "@astrojs/react": "^6.0.1",
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/source-code-pro": "^5.2.7",
+    "@tailwindcss/vite": "^4.3.2",
+    "astro": "^7.0.6",
+    "katex": "^0.17.0",
+    "motion": "^12.42.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "tailwindcss": "^4.3.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "html-validate": "^11.5.5",
+    "linkinator": "^7.6.1",
+    "sharp": "^0.35.3",
+    "start-server-and-test": "^3.0.12",
+    "svgo": "^4.1.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.11",
+    "yaml": "^2.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  }
+}
