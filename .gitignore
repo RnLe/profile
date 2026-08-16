@@ -1,0 +1,44 @@
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+.generated-public/
+
+# Working notes: useful locally, not part of the published repository
+/AGENTS.md
+/docs/
+
+# Private working material: never published, moved between devices via `make pack`
+# (root-anchored: src/pages/documents/ and friends must stay tracked)
+/documents/
+/thesis/
+
+# Everything under material/ is ignored, with one deliberate exception: the
+# documents the site publishes must be present when CI builds it. The exception
+# is an explicit allowlist, so a new private file there stays ignored by
+# default; add a line here only when its artifact record turns `public`.
+/material/*
+!/material/publication-source/
+/material/publication-source/*
+!/material/publication-source/Lehner_BSc_Thesis.pdf
+!/material/publication-source/Lehner_BSc_Manuscript.pdf
+!/material/publication-source/Lehner_BSc_Slides.pdf
+!/material/publication-source/Lehner_MSc_Thesis_2nd_Edition.pdf
+!/material/publication-source/Lehner_MSc_Manuscript.pdf
+!/material/publication-source/Lehner_MSc_Slides.pdf
+profile-material.tar.gz
+*Implementation_Guide*.md
+
+# Test and audit output
+test-results/
+playwright-report/
+.lighthouseci/
+.staging-manifest.json
+# Visual baselines stay machine-local until CI pins a render environment
+tests/visual/**/*-snapshots/
+
+# Local environment and editor state
+.env
+.env.*
+.DS_Store
+*.local
