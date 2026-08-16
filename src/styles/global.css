@@ -1,0 +1,336 @@
+@import 'tailwindcss';
+
+/*
+ * Bridge the design tokens into Tailwind's theme so any utility that does get
+ * used resolves to the SAME custom properties, so tokens stay the single source
+ * of truth for the whole design system.
+ */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+}
+
+/* ------------------------------------------------------------------ reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-block-start: 5rem;
+}
+
+/* In-page jumps (the projects rail) glide; motion.css forces `auto` under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-optical-sizing: auto;
+}
+
+main {
+  flex: 1;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* --------------------------------------------------------------- elements --- */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 640;
+  letter-spacing: -0.018em;
+  line-height: var(--lh-tight);
+  color: var(--ink-heading);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-3);
+}
+
+h2 {
+  font-size: var(--step-2);
+}
+
+h3 {
+  font-size: var(--step-1);
+}
+
+h4 {
+  font-size: var(--step-0);
+}
+
+p {
+  max-width: var(--w-prose);
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--accent-strong);
+  text-decoration-color: currentColor;
+}
+
+code,
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-alt);
+  border-radius: var(--r-sm);
+  padding: 0.1em 0.35em;
+}
+
+pre {
+  overflow-x: auto;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-block: var(--sp-12);
+}
+
+ul,
+ol {
+  padding-inline-start: 1.25em;
+  list-style: revert;
+  max-width: var(--w-prose);
+}
+
+blockquote {
+  max-width: var(--w-prose);
+  border-inline-start: 3px solid var(--line-strong);
+  padding-inline-start: var(--sp-4);
+  color: var(--ink-muted);
+}
+
+table {
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+th,
+td {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-weight: 620;
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---------------------------------------------------------------- layout --- */
+/* Bounded content rail (default), stage rail for media, prose measure inside. */
+.wrap {
+  width: 100%;
+  max-width: var(--w-content);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap--stage {
+  max-width: var(--w-stage);
+}
+
+.prose {
+  max-width: var(--w-prose);
+}
+
+.prose > * + * {
+  margin-block-start: var(--sp-4);
+}
+
+.prose h2 {
+  margin-block-start: var(--sp-12);
+}
+
+.prose h3 {
+  margin-block-start: var(--sp-8);
+}
+
+.prose li + li {
+  margin-block-start: var(--sp-2);
+}
+
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: var(--sp-2);
+}
+
+/* Vertical rhythm: bands, not sections-with-random-padding. */
+.band {
+  padding-block: clamp(2.25rem, 4.5vw, 4rem);
+}
+
+.band--tight {
+  padding-block: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.band--alt {
+  background: var(--surface-alt);
+  border-block: 1px solid var(--line);
+}
+
+.band--accent {
+  background: var(--accent-wash);
+  border-block: 1px solid var(--line);
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+/* Prevent grid blowout: items must be shrinkable so inner scroll containers
+   (tables, code, math) can actually constrain their content. */
+.grid-12 > * {
+  min-width: 0;
+}
+
+@media (max-width: 63.99rem) {
+  .grid-12 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ typographic --- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 560;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: var(--lh-snug);
+  color: var(--ink-muted);
+  max-width: var(--w-prose);
+  text-wrap: pretty;
+}
+
+.meta {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ---------------------------------------------------------- accessibility --- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: var(--sp-2) var(--sp-4);
+  z-index: 100;
+  border-radius: 0 0 var(--r-md) 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

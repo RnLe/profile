@@ -1,0 +1,52 @@
+/*
+ * Academic palette (default): light, warm-neutral paper, graphite ink, deep
+ * mineral-blue accent. Status colors always pair with text labels;
+ * color never carries meaning alone.
+ */
+:root {
+  color-scheme: light;
+
+  --paper: #f7f6f2;
+  --surface: #ffffff;
+  --surface-alt: #eef1f3;
+  --ink: #182129;
+  /* Headings sit a step off full ink: softer on the page, still about 10:1. */
+  --ink-heading: #2f3a44;
+  --ink-muted: #52606b;
+  --ink-faint: #5f6b75; /* ≥4.5:1 on paper for small text */
+  --line: #d5dce1;
+  --line-strong: #aab5bd;
+
+  --accent: #315d73;
+  --accent-strong: #214659;
+  --accent-wash: #e7eef2;
+  --on-accent: #f7fafc;
+
+  /* Research-arc signal hues (model → learn → robot) */
+  --signal-model: #6d5b46;
+  --signal-learn: #4f66a3; /* nudged darker than spec for AA on paper */
+  --signal-robot: #a34f3d;
+  --signal-model-wash: #f0ebe4;
+  --signal-learn-wash: #e9edf8;
+  --signal-robot-wash: #f6e9e5;
+
+  /* Status tones (chips carry text; color reinforces) */
+  --status-validated: #286247;
+  --status-validated-bg: #e6efe9;
+  --status-active: #6f5518; /* darker than spec for AA on its tint */
+  --status-active-bg: #f5efdc;
+  --status-hardware: #5f4581;
+  --status-hardware-bg: #ece6f4;
+  --status-archive: #4d5860;
+  --status-archive-bg: #e9edef;
+  --status-neutral: #52606b;
+  --status-neutral-bg: #edf0f2;
+
+  /* Project type marks: the glyph carries the meaning, colour reinforces it. */
+  --kind-academic: #3d6f9b;
+  --kind-software: #182129;
+  --kind-hardware: #85511f;
+
+  --shadow-card: 0 1px 2px rgb(24 33 41 / 0.05), 0 4px 14px rgb(24 33 41 / 0.05);
+  --shadow-raised: 0 2px 6px rgb(24 33 41 / 0.07), 0 14px 34px rgb(24 33 41 / 0.09);
+}

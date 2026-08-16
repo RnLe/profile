@@ -1,0 +1,54 @@
+/*
+ * Core design tokens, theme-independent: type scale, measure/width system,
+ * spacing, radii, motion timing, fonts, elevation. The palette lives in
+ * tokens-academic.css.
+ */
+:root {
+  /* Fluid type scale, deliberately compact: this site is dense by design. */
+  --step--2: clamp(0.6875rem, 0.67rem + 0.08vw, 0.75rem);
+  --step--1: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);
+  --step-0: clamp(0.9375rem, 0.9rem + 0.16vw, 1.0625rem);
+  --step-1: clamp(1.0625rem, 1.01rem + 0.22vw, 1.1875rem);
+  --step-2: clamp(1.25rem, 1.15rem + 0.42vw, 1.5rem);
+  --step-3: clamp(1.5rem, 1.33rem + 0.72vw, 1.9375rem);
+  --step-4: clamp(1.875rem, 1.6rem + 1.15vw, 2.5rem);
+
+  --lh-tight: 1.18;
+  --lh-snug: 1.38;
+  --lh-body: 1.6;
+
+  /* Height of the sticky site header, shared so full-viewport surfaces (the
+     project modal) can sit exactly underneath it. */
+  --header-h: 3.5rem;
+
+  /* Measures and grid: prose stays bounded, media may use the stage. */
+  --w-prose: 38rem;
+  --w-content: 74rem;
+  --w-stage: 92rem;
+  --gutter: clamp(1rem, 2.5vw, 3.25rem);
+
+  /* Spacing (4px scale) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+  --sp-24: 6rem;
+
+  /* Radii */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+
+  /* Motion timing lives in motion.css (--dur-*, --ease-*). */
+
+  /* Typography */
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Source Code Pro Variable', ui-monospace, 'Cascadia Code', monospace;
+}
