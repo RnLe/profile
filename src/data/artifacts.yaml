@@ -1,0 +1,170 @@
+# Artifact (document) registry: versioned records behind the staged
+# document CTA. A record renders ONLY when publication is `public` AND its file
+# exists under material/publication-source/ with matching sha256 + bytes
+# (verified by prepare:public and validate-documents).
+#
+# Thesis taxonomy (immutable rules):
+#   msc-submitted-2026        official-submission: the exact examined artifact
+#   msc-reader-v1-1           presentation-corrected: layout/typography only,
+#                             requires a human-reviewed scientific-diff receipt
+#   msc-research-continuation research-continuation: post-submission research,
+#                             never labeled as the examined thesis
+#   msc-manuscript            independent-manuscript: declares its source version
+#   msc-slides                historical-presentation
+records:
+  - id: cv
+    title: Academic CV
+    kind: cv
+    version: '2026-09'
+    publication: draft
+    academicStatus: not-applicable
+    resultChanges: false
+    date: '2026-08-30'
+    description: Research-focused curriculum vitae in English.
+
+  - id: msc-submitted-2026
+    title: 'Photonic Band Theory of Moiré Crystals: A Two-Scale Approach'
+    kind: thesis
+    projectId: envelope-approximation
+    version: submitted-2026
+    publication: draft
+    academicStatus: official-submission
+    resultChanges: false
+    date: '2026-03-31'
+    description: >-
+      Submitted thesis, archival record. The exact examined degree artifact,
+      kept immutable. Conclusions in this version predate the post-thesis
+      audit; see the research continuation for the corrected line of work.
+
+  - id: msc-reader-v1-1
+    title: 'Photonic Band Theory of Moiré Crystals: Reader edition'
+    kind: thesis
+    projectId: envelope-approximation
+    version: '1.1'
+    publication: draft
+    academicStatus: presentation-corrected
+    resultChanges: false
+    sourceArtifactId: msc-submitted-2026
+    changeClasses: [typography, layout, plot-style, editorial]
+    date: '2026-08-30'
+    description: >-
+      Reader edition v1.1: improves layout, typography, and plot legibility
+      without changing the submitted conclusions. Requires a human-reviewed
+      scientific-diff receipt before publication.
+
+  - id: msc-research-continuation
+    title: 'Photonic Band Theory of Moiré Crystals: Second edition'
+    kind: report
+    projectId: envelope-approximation
+    version: second-edition-2026-09
+    publication: public
+    academicStatus: research-continuation
+    resultChanges: true
+    sourceArtifactId: msc-submitted-2026
+    date: '2026-09-02'
+    file: Lehner_MSc_Thesis_2nd_Edition.pdf
+    sha256: 51506e282559bb22950c68b8b0a06d8ebbe89794ae66d639127e86d60270e5ec
+    bytes: 29462146
+    pages: 92
+    description: >-
+      Second edition of the thesis, revised after submission: the derivation
+      of the envelope theory corrected, the validation chapter rebuilt around
+      eigenvalue-exact comparisons, and an errata appendix listing every
+      change against the submitted version. Explicitly not the examined
+      thesis.
+
+  - id: msc-manuscript
+    title: 'Photonic Band Theory of Moiré Crystals: condensed manuscript'
+    kind: manuscript
+    projectId: envelope-approximation
+    version: '2026-09'
+    publication: public
+    academicStatus: independent-manuscript
+    resultChanges: false
+    sourceArtifactId: msc-research-continuation
+    date: '2026-09-02'
+    file: Lehner_MSc_Manuscript.pdf
+    sha256: a51c240596970fcdb2a8798c6e0bcf7fc0f1a6af4bb226144455c069925f0690
+    bytes: 2874664
+    pages: 25
+    description: >-
+      Twelve pages of main text condensed from the second edition of the
+      thesis, with the full effective Hamiltonians, the downfolding
+      identities and the supplementary figures in an appendix.
+
+  - id: msc-slides
+    title: Defense slides
+    kind: slides
+    projectId: envelope-approximation
+    version: defense-2026
+    publication: public
+    academicStatus: historical-presentation
+    resultChanges: false
+    date: '2026-03-31'
+    file: Lehner_MSc_Slides.pdf
+    sha256: 1697f034efab22495575aac9ae70d157520a27a60e87efdbf2374fb8ad4ad04e
+    bytes: 13039516
+    pages: 60
+    description: Historical presentation artifact from the thesis defense.
+
+  - id: ba-thesis
+    title: 'Neural Swarm Dynamics: bachelor thesis'
+    kind: thesis
+    projectId: swarm-dynamics
+    version: '2023'
+    publication: public
+    academicStatus: official-submission
+    resultChanges: false
+    date: '2023-09-30'
+    file: Lehner_BSc_Thesis.pdf
+    sha256: e65f265a54ac1794eb460b96a6a88118298cda647b4571eaf027c72392ecfa3b
+    bytes: 5634577
+    pages: 37
+    description: >-
+      Submitted bachelor thesis on stochastic neighborhood rules and
+      multi-agent reinforcement learning in swarm dynamics.
+
+  - id: ba-manuscript
+    title: 'Neural Swarm Dynamics: 8-page manuscript'
+    kind: manuscript
+    projectId: swarm-dynamics
+    version: '2023'
+    publication: public
+    academicStatus: independent-manuscript
+    resultChanges: false
+    date: '2023-09-30'
+    file: Lehner_BSc_Manuscript.pdf
+    sha256: 6b95759b7d6aa2eb1e5d31a13aa50c8918f7b33dd0a8a21aaed190c7979349bf
+    bytes: 2999149
+    pages: 8
+    description: >-
+      English manuscript summarizing the bachelor-thesis study, including the
+      unsuccessful MARL training attempt.
+
+  - id: ba-slides
+    title: 'Neural Swarm Dynamics: defense slides'
+    kind: slides
+    projectId: swarm-dynamics
+    version: defense-2023
+    publication: public
+    academicStatus: historical-presentation
+    resultChanges: false
+    date: '2023-09-30'
+    file: Lehner_BSc_Slides.pdf
+    sha256: 4237f636dfd556736b2ca880a3512607c72a541b2c220909dbffa5bdc268f1d9
+    bytes: 7118826
+    pages: 54
+    description: Historical presentation artifact from the bachelor-thesis defense.
+
+  - id: blaze2d-report
+    title: Blaze2D technical report
+    kind: report
+    projectId: blaze2d
+    version: '0.6'
+    publication: draft
+    academicStatus: independent-manuscript
+    resultChanges: false
+    date: '2026-08-30'
+    description: >-
+      Methods-and-benchmarks report for Blaze2D with full comparator context
+      for every measurement.
