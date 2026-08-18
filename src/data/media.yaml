@@ -1,0 +1,7 @@
+# Media manifest: provenance, rights, and checksums for every image, poster,
+# video, and diagram the site serves from /media/. Empty until owner masters
+# arrive; layout placeholders are rendered by AssetPlaceholder and carry
+# their asset IDs inline (they are NOT media entries and fail release checks
+# by design). src/assets imports (portrait, existing SVG figures) flow through
+# Astro's image pipeline and are documented in the baseline receipt.
+entries: []

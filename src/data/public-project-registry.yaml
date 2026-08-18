@@ -1,0 +1,82 @@
+# Tracked public project registry: repository visibility, source-link
+# permission, and provenance gates for PUBLIC projects only. Pending private
+# candidates are never listed here (owner-only audit material lives outside the
+# tracked tree). Placement, lifecycle, evidence, status, and copy live in the
+# content entries; this registry never duplicates them.
+schemaVersion: 1
+projects:
+  - id: blaze2d
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: blaze2d
+      visibilityAtAudit: public
+      auditedAt: '2026-08-30'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: true
+    collaboratorPermission: not-applicable
+    notes: Released on PyPI as blaze2d; standalone site and repository are public.
+
+  - id: envelope-approximation
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: msl
+      visibilityAtAudit: public
+      auditedAt: '2026-08-30'
+    sourceVisibility: mixed
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Public MSL framework repository may be linked. The private thesis source
+      repository receives no link and no mention.
+
+  - id: residual-worlds
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: residual-worlds
+      visibilityAtAudit: private
+      auditedAt: '2026-09-02'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Owner decision on 2026-09-02: the repository and its project site are
+      being made public, and their links ship ahead of the flip. Both targets
+      still return 404 logged out until then.
+
+  - id: recover-in-real-time
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: real-time-robot-recovery
+      visibilityAtAudit: private
+      auditedAt: '2026-09-02'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Owner decision on 2026-09-02: the repository is being made public and its
+      link ships ahead of the flip. The target still returns 404 logged out
+      until then.
+
+  - id: swarm-dynamics
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: bachelor_thesis23
+      visibilityAtAudit: public
+      auditedAt: '2026-09-02'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Bachelor-thesis repository is public by owner decision. Logged-out check
+      on 2026-09-02: the repository and its thesis, manuscript, and slide PDFs
+      all resolve, so the CV links them directly.

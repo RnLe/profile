@@ -1,0 +1,238 @@
+# Claim registry: every numerical, comparative, novelty, status, and
+# retraction-sensitive statement the site may (or may not) render.
+# Components never hard-code quantitative prose; they reference claim_ids.
+#
+# evidence_state: draft | prospective | provisional | verified | released | superseded | retracted
+# publication_policy: allowed | scoped | project-only | forbidden
+# Rules enforced by scripts/validate-claims.ts:
+#   - result/comparison claims on 'home' require verified|released
+#   - result/comparison claims need measurement_context unless draft/prospective
+#   - retracted claims must be policy 'forbidden' with empty allowed_surfaces
+claims:
+  - claim_id: BLAZE-SCOPE-001
+    project_id: blaze2d
+    claim_type: scope
+    publication_policy: scoped
+    short_copy: >-
+      Blaze2D solves the two decoupled 2D polarizations (TE/TM) of the Maxwell
+      eigenproblem with a plane-wave basis; 3D and slab geometries are
+      deliberately out of scope.
+    scope: 2D TE/TM only; documented scope boundary.
+    evidence_state: released
+    model_or_artifact_version: blaze2d 0.6.0
+    measurement_context: ''
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project, metadata]
+    notes: Scope statement doubles as the honest limitation.
+
+  - claim_id: BLAZE-MPB-001
+    project_id: blaze2d
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      Validated against MPB under documented matched conditions: eigenvalues
+      agree with MPB reference band structures to a median relative deviation
+      of about 1e-4, and the mixed-precision path differs from full f64 by
+      about 1e-7.
+    scope: >-
+      Accuracy comparison only, on the benchmark configurations published with
+      the repository (canonical square and hexagonal lattices, resolution 64,
+      lowest eight bands).
+    evidence_state: verified
+    model_or_artifact_version: blaze2d 0.6.0
+    measurement_context: >-
+      Comparator: MIT MPB. Matched crystal, resolution, band count, and
+      tolerance settings; configurations and scripts published with the
+      repository.
+    source_urls: ['https://github.com/RnLe/blaze2d']
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+    notes: The validation statement for the flagship feature.
+
+  - claim_id: BLAZE-SPEED-001
+    project_id: blaze2d
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      The technical report measures single-core and sweep-throughput advantages
+      over MPB on its published benchmark configurations.
+    scope: >-
+      Numbers may only render with exact comparator, workload, resolution,
+      precision, and thread context beside the value.
+    evidence_state: provisional
+    model_or_artifact_version: blaze2d 0.6.0
+    measurement_context: >-
+      Native-threaded MPB and process-parallel MPB produce materially different
+      headlines; the benchmark audit that fixes the comparator presentation is
+      pending.
+    last_verified: '2026-08-30'
+    allowed_surfaces: []
+    review_triggers: [benchmark-audit]
+    notes: >-
+      Promote to verified (and widen surfaces) only after the frozen benchmark
+      data and comparator presentation pass audit. Until then the site links to
+      the report instead of quoting numbers.
+
+  - claim_id: BLAZE-GPU-001
+    project_id: blaze2d
+    claim_type: status
+    publication_policy: project-only
+    short_copy: >-
+      A CUDA backend exists in the workspace; the tuned, validated paths are
+      CPU. GPU acceleration is identified future work, not a qualified backend.
+    evidence_state: prospective
+    last_verified: '2026-08-30'
+    allowed_surfaces: [project]
+    notes: No speculative GPU multipliers anywhere.
+
+  - claim_id: MSL-THESIS-001
+    project_id: envelope-approximation
+    claim_type: status
+    publication_policy: allowed
+    short_copy: >-
+      The submitted thesis developed a multiband two-scale envelope approach
+      for photonic moiré crystals, supported by a substantial Rust/Python/WASM
+      research pipeline.
+    evidence_state: verified
+    model_or_artifact_version: msc-submitted-2026
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project, cv, metadata]
+
+  - claim_id: MSL-CONT-001
+    project_id: envelope-approximation
+    claim_type: status
+    publication_policy: scoped
+    short_copy: >-
+      A post-thesis audit exposed invalid comparisons in the submitted
+      validation; I am rebuilding the model and evaluation against
+      independently converged references.
+    scope: >-
+      Disclose the exact audit scope without dramatization; earlier claims are
+      version-specific.
+    evidence_state: verified
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+    notes: The transparent-correction statement. A portfolio strength, not a footnote.
+
+  - claim_id: MSL-MAGIC-070
+    project_id: envelope-approximation
+    claim_type: restriction
+    publication_policy: forbidden
+    short_copy: >-
+      RETRACTED. The approximately 0.7-degree "magic-angle" flat-band result
+      and the unqualified quadratic bandwidth-scaling conclusion were artifacts
+      of a numerical floor in the submitted validation.
+    evidence_state: retracted
+    last_verified: '2026-08-30'
+    allowed_surfaces: []
+    forbidden_surfaces: [home, research-index, project, cv, metadata]
+    forbidden_phrases:
+      - 'magic angle'
+      - 'magic-angle'
+      - "0.7°"
+      - '0.7 degrees'
+      - 'confirms the predicted quadratic bandwidth scaling'
+    notes: >-
+      Must never render anywhere, including metadata, alt text, and Open Graph
+      descriptions. inspect:dist enforces forbidden_phrases against the built
+      artifact.
+
+  - claim_id: GR-NOVELTY-001
+    project_id: grounded-recovery
+    claim_type: limitation
+    publication_policy: allowed
+    short_copy: >-
+      Grounded Recovery builds on established DAgger, recovery, and
+      intervention-learning ideas; no algorithmic novelty is claimed.
+    evidence_state: verified
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+
+  - claim_id: GR-PRIMARY-001
+    project_id: grounded-recovery
+    claim_type: result
+    publication_policy: forbidden
+    short_copy: >-
+      Primary robustness contrast under matched expert-time budgets; no public
+      release has passed the evidence gate; no numerical result may render.
+    evidence_state: draft
+    last_verified: '2026-08-30'
+    allowed_surfaces: []
+    review_triggers: [grounded-recovery-release-gate]
+
+  - claim_id: RW-STATUS-001
+    project_id: residual-worlds
+    claim_type: status
+    publication_policy: allowed
+    short_copy: >-
+      Simulator and preregistered protocol are being implemented; calibration
+      and protected evaluation are pending.
+    evidence_state: verified
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+
+  - claim_id: RW-PRIMARY-001
+    project_id: residual-worlds
+    claim_type: result
+    publication_policy: forbidden
+    short_copy: >-
+      Data-efficiency or MPC-performance superiority of residual dynamics; no
+      evaluation has run; no such claim may render anywhere.
+    evidence_state: draft
+    last_verified: '2026-08-30'
+    allowed_surfaces: []
+    review_triggers: [residual-worlds-result-gate]
+
+  - claim_id: RIR-HW-001
+    project_id: recover-in-real-time
+    claim_type: status
+    publication_policy: scoped
+    short_copy: >-
+      A Waveshare SO-ARM101 SE leader–follower pair is assembled and
+      calibrated; teleoperation has been demonstrated under the recorded
+      conditions. The autonomous recovery-and-delay study is pending.
+    scope: >-
+      Assembly and calibration status only. "Hardware-qualified" wording
+      requires the dated qualification protocol and measurement receipts.
+    evidence_state: provisional
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+    review_triggers: [hardware-qualification-receipt]
+
+  - claim_id: RIR-CONTROLMODE-001
+    project_id: recover-in-real-time
+    claim_type: limitation
+    publication_policy: allowed
+    short_copy: >-
+      All current robot media show the assembled platform under leader–follower
+      teleoperation; none of it is autonomous execution.
+    evidence_state: verified
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project, metadata]
+
+  - claim_id: BA-MC-001
+    project_id: swarm-dynamics
+    claim_type: scope
+    publication_policy: scoped
+    short_copy: >-
+      The uniformly subsampled Cartesian alignment mean is a Monte Carlo
+      estimator of the full Vicsek alignment vector; the final normalized
+      angular update is not claimed to be unbiased.
+    scope: Estimator statement applies to the Cartesian mean only.
+    evidence_state: verified
+    model_or_artifact_version: bachelor-thesis-2023
+    last_verified: '2026-08-30'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: BA-MARL-001
+    project_id: swarm-dynamics
+    claim_type: negative-result
+    publication_policy: allowed
+    short_copy: >-
+      The actor–critic multi-agent RL pipeline ran end to end, but training a
+      policy that reproduces flocking remained unsuccessful.
+    evidence_state: verified
+    model_or_artifact_version: bachelor-thesis-2023
+    last_verified: '2026-08-30'
+    allowed_surfaces: [home, research-index, project]
+    notes: Shown before the fine print, not hidden behind an architecture figure.
