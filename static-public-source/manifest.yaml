@@ -1,0 +1,13 @@
+# Audited allowlist for the unconditional static lane.
+#
+# prepare:public copies ONLY the files listed here into .generated-public/,
+# verifying each sha256. Any file present in static-public-source/ but absent
+# from this manifest fails the staging step (fail-closed). To add a file:
+# audit it, compute `sha256sum <file>`, and register it here.
+files:
+  - path: favicon.svg
+    sha256: 7bb8f070a43839503d6646f618c8ffd3554b8aad3e0708c57f46e0f5d1c544a3
+  - path: icons/blaze.svg
+    sha256: 7a842f172f953ee848417e1947c37436ab05e49c6deb25c4bdbdb333a9f085b7
+  - path: .nojekyll
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
