@@ -1,0 +1,50 @@
+---
+interface Props {
+  /** Optional so a section can show only its eyebrow label. */
+  title?: string;
+  eyebrow?: string;
+  id?: string;
+  /** Short supporting sentence under the title. */
+  support?: string;
+}
+
+const { title, eyebrow, id, support } = Astro.props;
+---
+
+<div class="section-heading" id={id}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  {title && <h2>{title}</h2>}
+  {support && <p class="support">{support}</p>}
+</div>
+
+<style>
+  .section-heading {
+    margin-block-end: var(--sp-8);
+  }
+
+  .eyebrow {
+    margin-block-end: var(--sp-2);
+  }
+
+  h2 {
+    position: relative;
+    display: inline-block;
+    padding-block-end: var(--sp-2);
+  }
+
+  h2::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .support {
+    margin-block-start: var(--sp-3);
+    color: var(--ink-muted);
+    max-width: var(--w-prose);
+  }
+</style>

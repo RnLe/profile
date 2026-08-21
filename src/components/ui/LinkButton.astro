@@ -1,0 +1,84 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './Icon.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  variant?: 'primary' | 'ghost' | 'quiet';
+  external?: boolean;
+  icon?: IconName;
+  /** Image-based icon (e.g. the Blaze2D flame logo); takes precedence over `icon`. */
+  iconSrc?: string;
+}
+
+const { href, label, variant = 'ghost', external = false, icon, iconSrc } = Astro.props;
+---
+
+<a class:list={['button', variant]} href={href} rel={external ? 'noopener' : undefined}>
+  {iconSrc ? <img src={iconSrc} alt="" width="16" height="16" /> : icon && <Icon name={icon} />}
+  <span>{label}</span>
+  {external && <Icon name="arrow-up-right" size={13} />}
+</a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: var(--step--1);
+    font-weight: 560;
+    text-decoration: none;
+    padding: 0.55rem var(--sp-4);
+    min-height: 2.75rem;
+    border-radius: var(--r-md);
+    border: 1px solid var(--accent);
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .button:active {
+    transform: translateY(1px);
+  }
+
+  .button img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+
+  .primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .primary:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+    color: var(--on-accent);
+  }
+
+  .ghost {
+    color: var(--accent);
+    background: transparent;
+  }
+
+  .ghost:hover {
+    background: var(--accent-wash);
+    color: var(--accent-strong);
+  }
+
+  .quiet {
+    border-color: var(--line);
+    color: var(--ink-muted);
+    background: var(--surface);
+  }
+
+  .quiet:hover {
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+</style>

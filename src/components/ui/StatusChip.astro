@@ -1,0 +1,104 @@
+---
+/**
+ * One concise public status chip: text carries the meaning, color
+ * reinforces it, and the evidence level renders as an accessible text line.
+ */
+import { statusChip, evidenceLine } from '../../lib/status';
+import type { EvidenceLevel, Lifecycle, StatusChipModel } from '../../lib/status';
+
+interface Props {
+  lifecycle?: Lifecycle;
+  evidenceLevel?: EvidenceLevel;
+  /** A ready-made chip (route-gated placeholders); bypasses the derivation. */
+  model?: StatusChipModel;
+  statusDate?: string;
+  /** Also render the evidence-level text line under the chip. */
+  showEvidence?: boolean;
+}
+
+const { lifecycle, evidenceLevel, model, statusDate, showEvidence = false } = Astro.props;
+if (!model && (!lifecycle || !evidenceLevel)) {
+  throw new Error('StatusChip needs a model or a lifecycle with an evidence level');
+}
+const chip = model ?? statusChip(lifecycle!, evidenceLevel!);
+
+const formattedDate = statusDate
+  ? new Date(`${statusDate}T00:00:00Z`).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  : undefined;
+---
+
+<div class="status">
+  <span class:list={['chip', `tone-${chip.tone}`]}>
+    <span class="dot" aria-hidden="true"></span>
+    {chip.label}{formattedDate && <span class="date">· {formattedDate}</span>}
+  </span>
+  {showEvidence && evidenceLevel && <span class="evidence">{evidenceLine(evidenceLevel)}</span>}
+</div>
+
+<style>
+  .status {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    align-items: flex-start;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.02em;
+    padding: 0.3em 0.75em;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  }
+
+  .date {
+    font-weight: 440;
+  }
+
+  .dot {
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .tone-validated {
+    color: var(--status-validated);
+    background: var(--status-validated-bg);
+  }
+
+  .tone-active {
+    color: var(--status-active);
+    background: var(--status-active-bg);
+  }
+
+  .tone-hardware {
+    color: var(--status-hardware);
+    background: var(--status-hardware-bg);
+  }
+
+  .tone-archive {
+    color: var(--status-archive);
+    background: var(--status-archive-bg);
+  }
+
+  .tone-neutral {
+    color: var(--status-neutral);
+    background: var(--status-neutral-bg);
+  }
+
+  .evidence {
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+</style>

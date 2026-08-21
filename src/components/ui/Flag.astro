@@ -1,0 +1,86 @@
+---
+/**
+ * Small national flags, drawn inline at 3:2. Used beside a place on the CV and
+ * beside a language, where the flag is decoration on top of text that already
+ * says which country it is, so every one is aria-hidden.
+ *
+ * The Union Jack needs a clip path to counterchange its red diagonals; its id
+ * is made unique per instance so two flags on one page cannot collide.
+ */
+import { nextId } from '../../lib/uid';
+import type { CountryCode } from '../../lib/flags';
+
+export type { CountryCode };
+
+interface Props {
+  country: CountryCode;
+  size?: number;
+}
+
+const { country, size = 15 } = Astro.props;
+const height = Math.round((size / 3) * 2);
+const uid = nextId('flag-clip');
+---
+
+<svg
+  class="flag"
+  width={size}
+  height={height}
+  viewBox="0 0 60 40"
+  aria-hidden="true"
+  focusable="false"
+>
+  {country === 'de' && (
+    <>
+      <rect width="60" height="13.34" fill="#000" />
+      <rect y="13.34" width="60" height="13.33" fill="#DD0000" />
+      <rect y="26.67" width="60" height="13.33" fill="#FFCE00" />
+    </>
+  )}
+
+  {country === 'jp' && (
+    <>
+      <rect width="60" height="40" fill="#fff" />
+      <circle cx="30" cy="20" r="12" fill="#BC002D" />
+    </>
+  )}
+
+  {country === 'es' && (
+    <>
+      <rect width="60" height="10" fill="#AA151B" />
+      <rect y="10" width="60" height="20" fill="#F1BF00" />
+      <rect y="30" width="60" height="10" fill="#AA151B" />
+    </>
+  )}
+
+  {country === 'gb' && (
+    <>
+      <clipPath id={uid}>
+        <path d="M30,20 h30 v20 z v20 h-30 z h-30 v-20 z v-20 h30 z" />
+      </clipPath>
+      <rect width="60" height="40" fill="#012169" />
+      <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8" />
+      <path
+        d="M0,0 L60,40 M60,0 L0,40"
+        clip-path={`url(#${uid})`}
+        stroke="#C8102E"
+        stroke-width="4.8"
+      />
+      <path d="M30,0 v40 M0,20 h60" stroke="#fff" stroke-width="13.34" />
+      <path d="M30,0 v40 M0,20 h60" stroke="#C8102E" stroke-width="8" />
+    </>
+  )}
+</svg>
+
+<style>
+  .flag {
+    display: inline-block;
+    flex: none;
+    vertical-align: -0.1em;
+    border-radius: 1px;
+    /* A crisp one-device-pixel edge, so a mostly-white flag still reads as a
+       flag on a light page. A stroke inside the viewBox would be scaled to a
+       fraction of a pixel and effectively disappear. */
+    box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+  }
+</style>

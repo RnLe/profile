@@ -1,0 +1,123 @@
+---
+/**
+ * DrawFigure: inline an SVG and stroke-draw it when it scrolls into view.
+ *
+ * Use for clean vector line art (band structures, lattices). The figure is
+ * inlined (so CSS/JS can reach its paths), then every stroked path is measured
+ * with getTotalLength() and drawn from a full dash offset to zero, with a light
+ * stagger. Non-stroked parts (fills, text glyphs) simply fade in with the frame.
+ *
+ * Matplotlib exports need sanitizing before they can live in an HTML document:
+ *   - strip the XML prolog / DOCTYPE / <metadata> (invalid or dead weight inline),
+ *   - strip inner <style>: once inlined it is a DOCUMENT-GLOBAL stylesheet, and
+ *     Matplotlib's `*{stroke:none}` would wipe the stroke off every icon on the
+ *     page. Its only effect (linejoin) is restored via the scoped rule below.
+ *   - modernize xlink:href → href,
+ *   - namespace every internal id, because separate exports all reuse
+ *     id="figure_1", id="axes_1", … and would otherwise collide on a shared page.
+ *
+ * No JS / reduced motion: the figure is shown in full (see motion.css guard);
+ * nothing depends on the script running.
+ */
+interface Props {
+  /** Raw SVG markup; import the asset with the `?raw` suffix. */
+  svg: string;
+  /** Accessible description (the former <Image> alt text). */
+  label: string;
+  /** Unique token used to namespace the SVG's internal ids. */
+  name: string;
+  class?: string;
+}
+
+const { svg, label, name, class: className } = Astro.props;
+
+const inlined = svg
+  .replace(/<\?xml[\s\S]*?\?>/g, '')
+  .replace(/<!DOCTYPE[\s\S]*?>/g, '')
+  .replace(/<metadata[\s\S]*?<\/metadata>/gi, '')
+  .replace(/<style[\s\S]*?<\/style>/gi, '')
+  .replace(/xlink:href=/g, 'href=')
+  .replace(/id="([^"]+)"/g, `id="${name}-$1"`)
+  .replace(/url\(#([^)]+)\)/g, `url(#${name}-$1)`)
+  .replace(/href="#([^"]+)"/g, `href="#${name}-$1"`)
+  .trim();
+---
+
+<div class:list={['draw-figure', className]} data-draw role="img" aria-label={label} set:html={inlined} />
+
+<style>
+  .draw-figure {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .draw-figure :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Scoped replacement for the stripped Matplotlib `*{stroke-linejoin:round}`
+     default, which keeps line joins smooth without leaking styles to the page. */
+  .draw-figure :global(svg *) {
+    stroke-linejoin: round;
+  }
+</style>
+
+<script>
+  import { inView } from 'motion';
+  import { animate } from 'motion/mini';
+
+  // A "line" to draw: has geometry, a visible stroke, and no fill.
+  function isStroke(p: Element): p is SVGPathElement {
+    if (!p.getAttribute('d')) return false;
+    const cs = getComputedStyle(p);
+    if (cs.stroke === 'none' || cs.strokeWidth === '0px') return false;
+    return cs.fill === 'none' || cs.fill === 'rgba(0, 0, 0, 0)' || cs.fillOpacity === '0';
+  }
+
+  function initDrawFigures() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document
+      .querySelectorAll<HTMLElement>('[data-draw]:not([data-draw-ready])')
+      .forEach((fig) => {
+        fig.setAttribute('data-draw-ready', '');
+        if (reduce) return;
+
+        const strokes = Array.from(fig.querySelectorAll('path')).filter(isStroke);
+        // Hide strokes up front (behind the frame's opacity:0) so there is no flash.
+        const lengths = strokes.map((p) => {
+          const len = p.getTotalLength();
+          p.style.strokeDasharray = `${len}`;
+          p.style.strokeDashoffset = `${len}`;
+          return len;
+        });
+
+        inView(
+          fig,
+          () => {
+            animate(fig, { opacity: [0, 1] }, { duration: 0.4 });
+            strokes.forEach((p, i) => {
+              if (!lengths[i]) return;
+              const controls = animate(
+                p,
+                { strokeDashoffset: [lengths[i], 0] },
+                { duration: 1.1, delay: Math.min(i * 0.015, 0.6), ease: [0.22, 1, 0.36, 1] }
+              );
+              controls.finished?.then(() => {
+                // Restore the figure's natural stroke once drawn.
+                p.style.strokeDasharray = '';
+                p.style.strokeDashoffset = '';
+              });
+            });
+          },
+          { amount: 0.3 }
+        );
+      });
+  }
+
+  document.addEventListener('astro:page-load', initDrawFigures);
+</script>
