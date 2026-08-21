@@ -1,0 +1,60 @@
+---
+/**
+ * Reveal: scroll-into-view entrance for any block of content.
+ *
+ * Renders a single element (default <div>) with a `data-reveal` hook and passes
+ * through `class`, so it can stand in for an existing wrapper without adding a
+ * nesting level, e.g. `<Reveal class="wrap">…</Reveal>`.
+ *
+ * Motion is applied in JS (not CSS) so content stays visible if JS never runs,
+ * and is skipped entirely under `prefers-reduced-motion: reduce`. The init runs
+ * on `astro:page-load`, so it also works after View Transitions navigations.
+ */
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+const { as = 'div', class: className }: Props = Astro.props;
+const Tag = as;
+---
+
+<Tag class={className} data-reveal><slot /></Tag>
+
+<script>
+  import { inView } from 'motion';
+  import { animate } from 'motion/mini';
+
+  function initReveals() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const els = document.querySelectorAll<HTMLElement>('[data-reveal]:not([data-reveal-ready])');
+
+    els.forEach((el) => {
+      el.setAttribute('data-reveal-ready', '');
+      // Under reduced motion the CSS never hides it, so there is nothing to do.
+      if (reduce) return;
+
+      // Hidden state comes from CSS (`.has-js [data-reveal]`), so no flash before
+      // this runs. We only drive the entrance.
+      el.style.willChange = 'opacity, transform';
+
+      inView(
+        el,
+        () => {
+          const controls = animate(
+            el,
+            { opacity: [0, 1], y: [20, 0] },
+            { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+          );
+          controls.finished?.then(() => {
+            el.style.willChange = 'auto';
+          });
+          // Reveal once; do not re-hide on scroll-out.
+        },
+        { amount: 0.15 }
+      );
+    });
+  }
+
+  document.addEventListener('astro:page-load', initReveals);
+</script>

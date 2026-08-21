@@ -1,0 +1,94 @@
+---
+/**
+ * Asset placeholder: stabilizes layout for a pending asset without
+ * ever looking like a result. Carries a unique asset ID (data-asset-id), the
+ * exact required form, and the intended aspect ratio. Release validation
+ * (inspect:dist --release) fails while any of these remain in the artifact.
+ */
+interface Props {
+  assetId: string;
+  /** What exact asset is required, in one production-ticket sentence. */
+  spec?: string;
+  ratio?: string;
+  caption?: string;
+  /** Card-sized variant: the ID only, no production spec. */
+  compact?: boolean;
+}
+
+const { assetId, spec, ratio = '16 / 9', caption, compact = false } = Astro.props;
+---
+
+<figure class:list={['placeholder', compact && 'placeholder--compact']} data-asset-id={assetId}>
+  <div class="frame" style={`aspect-ratio: ${ratio};`}>
+    {!compact && <span class="badge">Awaiting asset</span>}
+    <span class="asset-id">{assetId}</span>
+    {!compact && spec && <span class="spec">{spec}</span>}
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .placeholder {
+    margin: 0;
+  }
+
+  .frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-2);
+    text-align: center;
+    background:
+      repeating-linear-gradient(
+        -45deg,
+        transparent 0 14px,
+        color-mix(in srgb, var(--line) 40%, transparent) 14px 15px
+      ),
+      var(--surface-alt);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r-md);
+    padding: var(--sp-6);
+    min-height: 8rem;
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .asset-id {
+    font-family: var(--font-mono);
+    font-weight: 620;
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .spec {
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    max-width: 36rem;
+    text-wrap: pretty;
+  }
+
+  figcaption {
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    margin-block-start: var(--sp-2);
+    max-width: var(--w-prose);
+  }
+
+  .placeholder--compact .frame {
+    min-height: 0;
+    padding: var(--sp-3);
+    border-radius: var(--r-md) var(--r-md) 0 0;
+  }
+
+  .placeholder--compact .asset-id {
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+</style>
