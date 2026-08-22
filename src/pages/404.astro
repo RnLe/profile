@@ -1,0 +1,29 @@
+---
+import AcademicLayout from '../layouts/AcademicLayout.astro';
+import LinkButton from '../components/ui/LinkButton.astro';
+import { withBase } from '../lib/routes';
+---
+
+<AcademicLayout title="Page not found" description="This page does not exist." noindex>
+  <section class="band">
+    <div class="wrap prose">
+      <p class="eyebrow">404</p>
+      <h1>Page not found</h1>
+      <p class="lead">
+        This route does not exist; it may have moved during the site's restructuring.
+      </p>
+      <div class="actions">
+        <LinkButton href={withBase('/')} label="Home" variant="primary" />
+        <LinkButton href={withBase('/projects/')} label="Projects" />
+      </div>
+    </div>
+  </section>
+</AcademicLayout>
+
+<style>
+  .actions {
+    display: flex;
+    gap: var(--sp-3);
+    margin-block-start: var(--sp-6);
+  }
+</style>

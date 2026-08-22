@@ -1,0 +1,606 @@
+---
+/**
+ * Hero portrait with a real signal-processing view.
+ *
+ * "Real" shows the photograph. "Fourier" runs an actual 2D FFT of its
+ * luminance and splits the frame: the magnitude spectrum on the left (paint
+ * on it) and the live inverse transform on the right. Painting sets a
+ * normalized amplitude on a frequency disc (mirrored to the conjugate bin so
+ * the reconstruction stays real) and the eraser restores the original values.
+ *
+ * The whole instrument occupies a fixed square: both modes are absolutely
+ * positioned layers inside it and the tool rail lives in the same box, so
+ * switching modes never moves anything else on the page.
+ *
+ * Implemented as a plain module script rather than a React island: the hero is
+ * the most performance-critical surface on the site, and a canvas painting
+ * loop gains nothing from a virtual DOM.
+ */
+import { getImage } from 'astro:assets';
+import portrait from '../../assets/Profile_Lehner.webp';
+import { site } from '../../data/site';
+
+const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
+---
+
+<div class="portrait-lab" data-portrait-lab data-src={optimized.src}>
+  <div class="stage">
+    <div class="layer layer--real" data-layer="real">
+      <img src={optimized.src} alt={`Portrait of ${site.name}`} width="640" height="800" />
+    </div>
+
+    <div class="layer layer--fourier" data-layer="fourier" hidden>
+      <div class="panes">
+        <figure class="pane">
+          <div class="canvas-wrap" data-canvas-wrap>
+            <canvas
+              data-spectrum
+              width="256"
+              height="256"
+              role="img"
+              aria-label="Fourier magnitude of the portrait, log-scaled with the zero frequency at the centre. Paint on it to attenuate frequency bands."></canvas>
+            <span class="brush-ring" data-brush-ring aria-hidden="true"></span>
+          </div>
+          <figcaption>log magnitude</figcaption>
+        </figure>
+
+        <figure class="pane">
+          <canvas
+            data-recon
+            width="256"
+            height="256"
+            role="img"
+            aria-label="The portrait reconstructed by inverse transform from the edited spectrum."></canvas>
+          <figcaption>inverse FFT</figcaption>
+        </figure>
+      </div>
+
+      <div class="tools">
+        <div class="tool-row">
+          <div class="segmented" role="group" aria-label="Tool">
+            <button type="button" data-tool="pen" aria-pressed="true">Pen</button>
+            <button type="button" data-tool="eraser" aria-pressed="false">Eraser</button>
+          </div>
+          <button type="button" class="restore" data-restore>Restore</button>
+        </div>
+        <label class="field">
+          <span class="field-name">Size</span>
+          <input type="range" data-size min="2" max="56" step="1" value="14" />
+          <span class="field-value" data-size-out>14&thinsp;px</span>
+        </label>
+        <label class="field" data-amp-field>
+          <span class="field-name">Amp</span>
+          <input type="range" data-amp min="0" max="1" step="0.01" value="0" />
+          <span class="field-value" data-amp-out>0.00</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  {/* Script capitals, the way the two views are written in maths. The glyph is
+      decorative; the button's name stays the word, for assistive technology and
+      for anything that searches the page. */}
+  <div class="modes" role="group" aria-label="Portrait view">
+    <button type="button" data-mode="real" aria-pressed="true">
+      <span class="glyph" aria-hidden="true">&#8475;</span>
+      <span class="visually-hidden">Real</span>
+    </button>
+    <button type="button" data-mode="fourier" aria-pressed="false">
+      <span class="glyph" aria-hidden="true">&#8497;</span>
+      <span class="visually-hidden">Fourier</span>
+    </button>
+  </div>
+
+  {/* No visible caption: the mode buttons say what the two views are. The
+      transform's progress and failure still need announcing, so they go to a
+      screen-reader-only live region instead. */}
+  <p class="visually-hidden" role="status" data-note></p>
+</div>
+
+<style>
+  /* One fixed square, whatever the mode: nothing below it ever moves. */
+  .portrait-lab {
+    --lab-size: 20.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    inline-size: min(var(--lab-size), 100%);
+    margin-inline-start: auto;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 1;
+  }
+
+  .layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .layer--fourier {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+
+  .layer--real img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Matches the crop the transform takes, so the two views frame alike. */
+    object-position: 50% 12%;
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .panes {
+    display: flex;
+    gap: var(--sp-2);
+  }
+
+  .pane {
+    margin: 0;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .pane canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    background: #0b0e13;
+    touch-action: none;
+  }
+
+  .canvas-wrap {
+    position: relative;
+  }
+
+  .canvas-wrap canvas {
+    cursor: crosshair;
+  }
+
+  .brush-ring {
+    position: absolute;
+    border: 1px solid rgb(255 255 255 / 0.75);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .canvas-wrap:hover .brush-ring {
+    opacity: 1;
+  }
+
+  figcaption {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    color: var(--ink-faint);
+    margin-block-start: var(--sp-1);
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------ controls --- */
+  .modes {
+    display: flex;
+    gap: var(--sp-2);
+  }
+
+  .modes button,
+  .segmented button,
+  .restore {
+    font: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    padding: 0 var(--sp-4);
+    min-height: 2rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  .modes button {
+    flex: 1 1 0;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Letterlike Symbols are rare in UI faces, so ask for a face that has them
+     before falling back; the browser substitutes per glyph either way. */
+  .glyph {
+    font-family: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', Cambria, Georgia, serif;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .modes button:hover,
+  .segmented button:hover,
+  .restore:hover {
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+
+  .modes button[aria-pressed='true'],
+  .segmented button[aria-pressed='true'] {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+
+  .tools {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    padding: var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface-alt);
+  }
+
+  .tool-row {
+    display: flex;
+    gap: var(--sp-2);
+    justify-content: space-between;
+  }
+
+  .segmented {
+    display: flex;
+    gap: var(--sp-1);
+  }
+
+  /* Label, slider, readout on one line: the rail has to fit the square. */
+  .field {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr 3rem;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .field-name,
+  .field-value {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+  }
+
+  .field-value {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .field input[type='range'] {
+    accent-color: var(--accent);
+    width: 100%;
+    min-height: 1.35rem;
+    margin: 0;
+  }
+
+  /* The eraser restores original values, so amplitude does not apply. Dim it
+     in place rather than removing it, which would resize the rail. */
+  .field[data-inactive] {
+    opacity: 0.45;
+  }
+
+  @media (max-width: 63.99rem) {
+    .portrait-lab {
+      margin-inline-start: 0;
+    }
+  }
+</style>
+
+<script>
+  import { FFT2D, shiftTable } from '../../lib/fft';
+
+  const N = 256;
+
+  function setupPortraitLab(root: HTMLElement): void {
+    const el = <T extends Element>(sel: string) => root.querySelector<T>(sel);
+
+    const spectrumCanvas = el<HTMLCanvasElement>('[data-spectrum]');
+    const reconCanvas = el<HTMLCanvasElement>('[data-recon]');
+    const canvasWrap = el<HTMLElement>('[data-canvas-wrap]');
+    const brushRing = el<HTMLElement>('[data-brush-ring]');
+    const note = el<HTMLElement>('[data-note]');
+    const ampField = el<HTMLElement>('[data-amp-field]');
+    const sizeInput = el<HTMLInputElement>('[data-size]');
+    const sizeOut = el<HTMLElement>('[data-size-out]');
+    const ampInput = el<HTMLInputElement>('[data-amp]');
+    const ampOut = el<HTMLElement>('[data-amp-out]');
+    const layers = {
+      real: el<HTMLElement>('[data-layer="real"]'),
+      fourier: el<HTMLElement>('[data-layer="fourier"]'),
+    };
+
+    if (!spectrumCanvas || !reconCanvas || !sizeInput || !ampInput) return;
+
+    const spectrumCtx = spectrumCanvas.getContext('2d');
+    const reconCtx = reconCanvas.getContext('2d');
+    if (!spectrumCtx || !reconCtx) return;
+
+    const fft = new FFT2D(N);
+    const shift = shiftTable(N);
+    const total = N * N;
+
+    /** Unshifted spectrum of the source luminance (computed once). */
+    let specRe: Float64Array | null = null;
+    let specIm: Float64Array | null = null;
+    /** Log-magnitude, normalized to 0..1, unshifted. */
+    let baseMag: Float32Array | null = null;
+    /** Per-frequency multiplier, unshifted; 1 means untouched. */
+    const mask = new Float32Array(total).fill(1);
+    const workRe = new Float64Array(total);
+    const workIm = new Float64Array(total);
+    const spectrumImage = spectrumCtx.createImageData(N, N);
+    const reconImage = reconCtx.createImageData(N, N);
+
+    let tool: 'pen' | 'eraser' = 'pen';
+    const sizes = { pen: 14, eraser: 20 };
+    let amplitude = 0;
+    let loading = false;
+    let frame = 0;
+    let needsSpectrumDraw = false;
+    let needsRecon = false;
+
+    /* ------------------------------------------------------------ compute --- */
+
+    const computeSpectrum = async (src: string): Promise<void> => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+      await image.decode();
+
+      const scratch = document.createElement('canvas');
+      scratch.width = N;
+      scratch.height = N;
+      const scratchCtx = scratch.getContext('2d', { willReadFrequently: true });
+      if (!scratchCtx) throw new Error('2D context unavailable');
+
+      // Square crop biased upward so the face fills the frame; the same crop
+      // the CSS object-position gives the "Real" layer.
+      const side = Math.min(image.naturalWidth, image.naturalHeight);
+      const sx = (image.naturalWidth - side) / 2;
+      const sy = (image.naturalHeight - side) * 0.12;
+      scratchCtx.drawImage(image, sx, sy, side, side, 0, 0, N, N);
+      const { data } = scratchCtx.getImageData(0, 0, N, N);
+
+      const re = new Float64Array(total);
+      const im = new Float64Array(total);
+      for (let i = 0; i < total; i += 1) {
+        const p = i * 4;
+        // Rec. 709 luminance, normalized.
+        re[i] = (0.2126 * data[p] + 0.7152 * data[p + 1] + 0.0722 * data[p + 2]) / 255;
+      }
+      fft.forward(re, im);
+      specRe = re;
+      specIm = im;
+
+      const mag = new Float32Array(total);
+      let peak = 0;
+      for (let i = 0; i < total; i += 1) {
+        const value = Math.log1p(Math.hypot(re[i], im[i]));
+        mag[i] = value;
+        if (value > peak) peak = value;
+      }
+      const norm = peak > 0 ? 1 / peak : 1;
+      for (let i = 0; i < total; i += 1) mag[i] *= norm;
+      baseMag = mag;
+    };
+
+    const drawSpectrum = (): void => {
+      if (!baseMag) return;
+      const pixels = spectrumImage.data;
+      for (let y = 0; y < N; y += 1) {
+        const v = shift[y];
+        for (let x = 0; x < N; x += 1) {
+          const source = v * N + shift[x];
+          // Gamma lift so the mid-range structure stays readable.
+          const value = Math.pow(baseMag[source] * mask[source], 0.85);
+          const p = (y * N + x) * 4;
+          pixels[p] = value * 232;
+          pixels[p + 1] = value * 240;
+          pixels[p + 2] = value * 255;
+          pixels[p + 3] = 255;
+        }
+      }
+      spectrumCtx.putImageData(spectrumImage, 0, 0);
+    };
+
+    const drawReconstruction = (): void => {
+      if (!specRe || !specIm) return;
+      for (let i = 0; i < total; i += 1) {
+        const m = mask[i];
+        workRe[i] = specRe[i] * m;
+        workIm[i] = specIm[i] * m;
+      }
+      fft.inverse(workRe, workIm);
+
+      const pixels = reconImage.data;
+      for (let i = 0; i < total; i += 1) {
+        let value = workRe[i] * 255;
+        value = value < 0 ? 0 : value > 255 ? 255 : value;
+        const p = i * 4;
+        pixels[p] = value;
+        pixels[p + 1] = value;
+        pixels[p + 2] = value;
+        pixels[p + 3] = 255;
+      }
+      reconCtx.putImageData(reconImage, 0, 0);
+    };
+
+    const schedule = (): void => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (!root.isConnected) return;
+        if (needsSpectrumDraw) {
+          needsSpectrumDraw = false;
+          drawSpectrum();
+        }
+        if (needsRecon) {
+          needsRecon = false;
+          drawReconstruction();
+        }
+      });
+    };
+
+    /* -------------------------------------------------------------- paint --- */
+
+    const paintAt = (clientX: number, clientY: number): void => {
+      const rect = spectrumCanvas.getBoundingClientRect();
+      const cx = Math.round(((clientX - rect.left) / rect.width) * N);
+      const cy = Math.round(((clientY - rect.top) / rect.height) * N);
+      const radius = sizes[tool];
+      const value = tool === 'pen' ? amplitude : 1;
+      const r2 = radius * radius;
+
+      for (let dy = -radius; dy <= radius; dy += 1) {
+        const y = cy + dy;
+        if (y < 0 || y >= N) continue;
+        for (let dx = -radius; dx <= radius; dx += 1) {
+          if (dx * dx + dy * dy > r2) continue;
+          const x = cx + dx;
+          if (x < 0 || x >= N) continue;
+          const u = shift[x];
+          const v = shift[y];
+          mask[v * N + u] = value;
+          // Mirror onto the conjugate bin so the inverse stays real-valued.
+          mask[((N - v) % N) * N + ((N - u) % N)] = value;
+        }
+      }
+      needsSpectrumDraw = true;
+      needsRecon = true;
+      schedule();
+    };
+
+    const moveBrushRing = (clientX: number, clientY: number): void => {
+      if (!brushRing || !canvasWrap) return;
+      const rect = spectrumCanvas.getBoundingClientRect();
+      const scale = rect.width / N;
+      const diameter = sizes[tool] * 2 * scale;
+      brushRing.style.width = `${diameter}px`;
+      brushRing.style.height = `${diameter}px`;
+      brushRing.style.left = `${clientX - rect.left}px`;
+      brushRing.style.top = `${clientY - rect.top}px`;
+    };
+
+    let painting = false;
+
+    spectrumCanvas.addEventListener('pointerdown', (event) => {
+      painting = true;
+      spectrumCanvas.setPointerCapture(event.pointerId);
+      paintAt(event.clientX, event.clientY);
+    });
+
+    spectrumCanvas.addEventListener('pointermove', (event) => {
+      moveBrushRing(event.clientX, event.clientY);
+      if (painting) paintAt(event.clientX, event.clientY);
+    });
+
+    const stopPainting = (event: PointerEvent) => {
+      painting = false;
+      if (spectrumCanvas.hasPointerCapture(event.pointerId)) {
+        spectrumCanvas.releasePointerCapture(event.pointerId);
+      }
+    };
+    spectrumCanvas.addEventListener('pointerup', stopPainting);
+    spectrumCanvas.addEventListener('pointercancel', stopPainting);
+
+    /* ------------------------------------------------------------ controls --- */
+
+    const setMode = async (next: 'real' | 'fourier'): Promise<void> => {
+      root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === next));
+      });
+
+      const fourier = next === 'fourier';
+      layers.real?.toggleAttribute('hidden', fourier);
+      layers.fourier?.toggleAttribute('hidden', !fourier);
+      if (note) note.textContent = '';
+
+      if (!fourier || specRe || loading) return;
+
+      loading = true;
+      if (note) note.textContent = 'Transforming the portrait…';
+      try {
+        await computeSpectrum(root.dataset.src ?? '');
+        needsSpectrumDraw = true;
+        needsRecon = true;
+        schedule();
+        if (note) note.textContent = 'Fourier view ready.';
+      } catch {
+        if (note) note.textContent = 'The transform could not run in this browser.';
+        layers.real?.toggleAttribute('hidden', false);
+        layers.fourier?.toggleAttribute('hidden', true);
+      } finally {
+        loading = false;
+      }
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((button) => {
+      button.addEventListener('click', () => {
+        void setMode(button.dataset.mode === 'fourier' ? 'fourier' : 'real');
+      });
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach((button) => {
+      button.addEventListener('click', () => {
+        tool = button.dataset.tool === 'eraser' ? 'eraser' : 'pen';
+        root.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach((other) => {
+          other.setAttribute('aria-pressed', String(other.dataset.tool === tool));
+        });
+        ampField?.toggleAttribute('data-inactive', tool === 'eraser');
+        ampInput.disabled = tool === 'eraser';
+        sizeInput.value = String(sizes[tool]);
+        if (sizeOut) sizeOut.textContent = `${sizes[tool]} px`;
+      });
+    });
+
+    sizeInput.addEventListener('input', () => {
+      sizes[tool] = Number(sizeInput.value);
+      if (sizeOut) sizeOut.textContent = `${sizeInput.value} px`;
+    });
+
+    ampInput.addEventListener('input', () => {
+      amplitude = Number(ampInput.value);
+      if (ampOut) ampOut.textContent = amplitude.toFixed(2);
+    });
+
+    el<HTMLButtonElement>('[data-restore]')?.addEventListener('click', () => {
+      mask.fill(1);
+      needsSpectrumDraw = true;
+      needsRecon = true;
+      schedule();
+    });
+  }
+
+  function initPortraitLabs(): void {
+    document
+      .querySelectorAll<HTMLElement>('[data-portrait-lab]:not([data-ready])')
+      .forEach((root) => {
+        root.dataset.ready = 'true';
+        setupPortraitLab(root);
+      });
+  }
+
+  document.addEventListener('astro:page-load', initPortraitLabs);
+</script>
