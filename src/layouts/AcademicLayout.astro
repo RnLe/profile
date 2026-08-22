@@ -1,0 +1,31 @@
+---
+/** Academic shell: BaseLayout + header (CV action only when the artifact exists) + footer. */
+import BaseLayout from './BaseLayout.astro';
+import AcademicHeader from '../components/academic/AcademicHeader.astro';
+import Footer from '../components/academic/Footer.astro';
+import { getRegistries } from '../lib/content';
+import { withBase } from '../lib/routes';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+  ogType?: 'website' | 'profile';
+}
+
+const { title, description, noindex, jsonLd, ogType } = Astro.props;
+
+const cvRecord = getRegistries().artifacts.find(
+  (record) => record.kind === 'cv' && record.publication === 'public' && record.file,
+);
+const cvHref = cvRecord ? withBase(`/documents/cv/${cvRecord.file}`) : undefined;
+---
+
+<BaseLayout {title} {description} {noindex} {jsonLd} {ogType}>
+  <AcademicHeader {cvHref} />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+</BaseLayout>

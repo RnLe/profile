@@ -1,0 +1,321 @@
+---
+/**
+ * Academic header: compact, surface-matched, sticky. Wordmark →
+ * `/`; the two primary routes; a CV download button only when a public CV
+ * artifact exists.
+ *
+ * Mobile navigation is a semantic <details> that works with no JavaScript.
+ * With JS, the summary click is upgraded to a native <dialog> (focus trap,
+ * Escape, focus return, 44px targets).
+ */
+import { academicNav } from '../../data/navigation';
+import { site } from '../../data/site';
+import { withBase } from '../../lib/routes';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  /** Direct CV href: pass only when the artifact resolves (never a dead end). */
+  cvHref?: string;
+}
+
+const { cvHref } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const isCurrent = (href: string): boolean =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="wrap inner">
+    <a class="wordmark" href={withBase('/')}>{site.name}</a>
+
+    <nav class="desktop-nav" aria-label="Primary">
+      <ul>
+        {academicNav.map((item) => (
+          <li>
+            <a
+              href={withBase(item.href)}
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+        {cvHref && (
+          <li>
+            <a class="cv-button" href={cvHref}>
+              <Icon name="file-text" size={14} /> CV PDF
+            </a>
+          </li>
+        )}
+      </ul>
+    </nav>
+
+    <details class="mobile-nav" id="mobile-nav-details">
+      <summary>
+        <Icon name="menu" size={20} />
+        <span class="visually-hidden">Menu</span>
+      </summary>
+      <nav aria-label="Primary (mobile)">
+        <ul>
+          {academicNav.map((item) => (
+            <li>
+              <a href={withBase(item.href)}>{item.label}</a>
+            </li>
+          ))}
+          {cvHref && (
+            <li>
+              <a href={cvHref}>CV PDF</a>
+            </li>
+          )}
+        </ul>
+      </nav>
+    </details>
+
+    <dialog class="nav-dialog" id="mobile-nav-dialog" aria-label="Navigation">
+      <div class="dialog-head">
+        <span class="dialog-title">{site.name}</span>
+        <button class="dialog-close" type="button" data-nav-close autofocus>
+          <Icon name="x" size={20} />
+          <span class="visually-hidden">Close menu</span>
+        </button>
+      </div>
+      <nav aria-label="Primary (dialog)">
+        <ul>
+          {academicNav.map((item) => (
+            <li>
+              <a href={withBase(item.href)}>{item.label}</a>
+            </li>
+          ))}
+          {cvHref && (
+            <li>
+              <a href={cvHref}>Download CV</a>
+            </li>
+          )}
+        </ul>
+      </nav>
+    </dialog>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-6);
+    min-height: var(--header-h);
+  }
+
+  .wordmark {
+    font-weight: 640;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .wordmark:hover {
+    color: var(--accent-strong);
+  }
+
+  .desktop-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .desktop-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    text-decoration: none;
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+    font-weight: 540;
+    padding: 0.45rem var(--sp-3);
+    border-radius: var(--r-md);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  .desktop-nav a:hover {
+    color: var(--ink);
+    background: var(--surface-alt);
+  }
+
+  .desktop-nav a[aria-current='page'] {
+    color: var(--accent-strong);
+    background: var(--accent-wash);
+  }
+
+  .cv-button {
+    border: 1px solid var(--accent);
+    color: var(--accent) !important;
+  }
+
+  /* ------------------------------------------------------------- mobile --- */
+  .mobile-nav {
+    display: none;
+    position: relative;
+  }
+
+  .mobile-nav summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    list-style: none;
+    cursor: pointer;
+    padding: var(--sp-3);
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-size: var(--step--1);
+  }
+
+  .mobile-nav summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* No-JS baseline: the details panel drops below the header. */
+  .mobile-nav nav {
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + 0.5rem);
+    min-width: 14rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-raised);
+    padding: var(--sp-2);
+  }
+
+  .mobile-nav ul,
+  .nav-dialog ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+
+  .mobile-nav a,
+  .nav-dialog a {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 2.75rem;
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--r-md);
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 540;
+  }
+
+  .mobile-nav a:hover,
+  .nav-dialog a:hover {
+    background: var(--surface-alt);
+  }
+
+  @media (max-width: 47.99rem) {
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-nav {
+      display: block;
+    }
+  }
+
+  /* ------------------------------------------------------------- dialog --- */
+  .nav-dialog {
+    border: none;
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-raised);
+    background: var(--surface);
+    color: var(--ink);
+    padding: var(--sp-4);
+    width: min(22rem, calc(100vw - 2rem));
+    margin: 4.5rem auto auto;
+  }
+
+  .nav-dialog::backdrop {
+    background: rgb(16 21 33 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  .dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-2) var(--sp-2) var(--sp-4);
+  }
+
+  .dialog-title {
+    font-weight: 640;
+  }
+
+  .dialog-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .dialog-close:hover {
+    background: var(--surface-alt);
+  }
+</style>
+
+<script>
+  /**
+   * Enhance the <details> baseline into a native <dialog>: focus trapping,
+   * Escape, and focus return come from the platform. The details element
+   * remains the no-JS fallback and is inert while enhanced.
+   */
+  function initMobileNav() {
+    const details = document.getElementById('mobile-nav-details') as HTMLDetailsElement | null;
+    const dialog = document.getElementById('mobile-nav-dialog') as HTMLDialogElement | null;
+    if (!details || !dialog || details.dataset.enhanced) return;
+    details.dataset.enhanced = 'true';
+
+    const summary = details.querySelector('summary');
+    summary?.addEventListener('click', (event) => {
+      event.preventDefault();
+      dialog.showModal();
+    });
+
+    dialog.addEventListener('click', (event) => {
+      // Click on the backdrop closes; clicks inside the panel don't.
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.querySelector('[data-nav-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => dialog.close()));
+  }
+
+  document.addEventListener('astro:page-load', initMobileNav);
+</script>

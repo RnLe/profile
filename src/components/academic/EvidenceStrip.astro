@@ -1,0 +1,91 @@
+---
+/**
+ * Compact evidence strip: verified background facts, the languages I actually
+ * build in (with their marks), and the domains the work sits in. Grouped so
+ * the three registers stay visually distinct without extra prose.
+ */
+import type { StripGroup } from '../../data/site';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  groups: StripGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<div class="evidence-strip">
+  {groups.map((group) => (
+    <ul>
+      {group.items.map((item) => (
+        <li>
+          {item.icon && <Icon name={item.icon} size={14} />}
+          <span>{item.label}</span>
+        </li>
+      ))}
+    </ul>
+  ))}
+</div>
+
+<style>
+  .evidence-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-8);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-1) var(--sp-3);
+  }
+
+  /* Pipe between items inside a register; hairline between the registers. The
+     alt-text form keeps assistive technology from reading the pipe out, since
+     each item is already its own list item. */
+  li + li::before {
+    content: '|';
+    content: '|' / '';
+    margin-inline-end: var(--sp-2);
+    color: var(--line);
+    font-weight: 400;
+  }
+
+  ul + ul {
+    padding-inline-start: var(--sp-8);
+    border-inline-start: 1px solid var(--line-strong);
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 540;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  li :global(svg) {
+    color: var(--ink-faint);
+  }
+
+  @media (max-width: 47.99rem) {
+    .evidence-strip {
+      gap: var(--sp-2) var(--sp-4);
+    }
+
+    ul + ul {
+      padding-inline-start: 0;
+      border-inline-start: none;
+    }
+  }
+</style>
