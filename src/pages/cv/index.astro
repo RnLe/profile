@@ -1,0 +1,422 @@
+---
+/**
+ * The curriculum vitae: education, teaching, programs, service, awards,
+ * languages. The page opens straight on Education; the page heading exists for
+ * the document outline, not for the reader.
+ *
+ * Each section carries one label, set large and uppercase. The old
+ * eyebrow-plus-title pair said the same thing twice.
+ *
+ * Entries use the full content rail rather than the prose measure. A CV is a
+ * record, not an essay, so its descriptions should run wide and break rarely.
+ */
+import AcademicLayout from '../../layouts/AcademicLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import Flag from '../../components/ui/Flag.astro';
+import { awards, education, programs, service, teaching } from '../../data/about';
+import type { AboutEntry } from '../../data/about';
+import { languages } from '../../data/site';
+import type { ArtifactLink } from '../../data/about';
+import { getRegistries } from '../../lib/content';
+import { documentMeta, resolveDocument } from '../../lib/artifact-links';
+import { breadcrumbSchema } from '../../lib/seo';
+import { withBase } from '../../lib/routes';
+
+const origin = Astro.site?.href ?? 'https://rnle.github.io/';
+const jsonLd = [
+  breadcrumbSchema(origin, [
+    { name: 'Home', path: '/' },
+    { name: 'Curriculum Vitae', path: '/cv/' },
+  ]),
+];
+
+const sections: Array<{ id?: string; label: string; entries: AboutEntry[] }> = [
+  { label: 'Education', entries: education },
+  { label: 'Teaching', entries: teaching },
+  { label: 'Programs', entries: programs },
+  { id: 'teaching-service', label: 'Academic leadership & service', entries: service },
+  { label: 'Awards', entries: awards },
+];
+
+const markerFor = (kind: ArtifactLink['kind']) =>
+  kind === 'pdf' ? 'file-pdf' : kind === 'repo' ? 'github' : 'globe';
+
+const artifacts = getRegistries().artifacts;
+
+/**
+ * Where a link points and how large its file is. An external link carries both
+ * itself; a document this site stages takes both from its artifact record, so
+ * the registry stays the single source of truth and the gate: without a public,
+ * checksummed file there is no href, and the link renders as pending.
+ */
+const resolve = (link: ArtifactLink): { href?: string; pages?: number; sizeMb?: number } => {
+  if (!link.artifactId) return { href: link.href, pages: link.pages, sizeMb: link.sizeMb };
+  const facts = resolveDocument(artifacts.find((r) => r.id === link.artifactId));
+  return facts ? { href: withBase(facts.path), pages: facts.pages, sizeMb: facts.sizeMb } : {};
+};
+
+/**
+ * Flattens an entry's artifacts into a render list, inserting a rule wherever
+ * the run of artifacts switches to another project's.
+ */
+type Row = { rule: true; group?: ArtifactLink['group'] } | { rule: false; link: ArtifactLink };
+
+const rows = (links: ArtifactLink[]): Row[] => {
+  const out: Row[] = [];
+  links.forEach((link, index) => {
+    if (index > 0 && link.group !== links[index - 1].group) {
+      out.push({ rule: true, group: link.group });
+    }
+    out.push({ rule: false, link });
+  });
+  return out;
+};
+---
+
+<AcademicLayout
+  title="Curriculum Vitae"
+  description="Curriculum vitae of a computational physicist moving toward reliable robot learning: education, teaching, academic service, programs, and awards."
+  {jsonLd}
+>
+  <h1 class="visually-hidden">Curriculum Vitae</h1>
+
+  {sections.map((section, index) => (
+    <section class:list={['band', 'band--tight', index % 2 === 0 && 'band--alt']}>
+      <div class="wrap">
+        <h2 class="section-label" id={section.id}>{section.label}</h2>
+        <ul class="entries">
+          {section.entries.map((entry) => (
+            <li>
+              <div class="entry-head">
+                <h3>
+                  {entry.title}
+                  {entry.org && <span class="org">{entry.org}</span>}
+                </h3>
+                <span class:list={['period', entry.location && 'period--split']}>
+                  <span>{entry.period}</span>
+                  {entry.location && (
+                    <span class="where">
+                      {entry.location}
+                      {entry.country && <Flag country={entry.country} />}
+                    </span>
+                  )}
+                </span>
+              </div>
+              <p class="description">{entry.description}</p>
+              {entry.items && (
+                <ul class="sub-items">
+                  {entry.items.map((item) => (
+                    <li>
+                      <span>{item.name}</span>
+                      <span class="period">{item.period}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {entry.links && entry.links.length > 0 && (
+                <p class="artifacts">
+                  {rows(entry.links).map((row) => {
+                    if (row.rule) {
+                      return (
+                        <>
+                          <span class="break" aria-hidden="true"></span>
+                          <span class="rule">
+                            {row.group === 'blaze2d' && (
+                              <>
+                                <img class="mark" src={withBase('/icons/blaze.svg')} alt="" />
+                                <span class="group-name">Blaze2D</span>
+                              </>
+                            )}
+                          </span>
+                        </>
+                      );
+                    }
+                    const { href, pages, sizeMb } = resolve(row.link);
+                    const meta = documentMeta(pages, sizeMb);
+                    return (
+                      <span>
+                        {row.link.state === 'live' && href ? (
+                          <a href={href} rel="noopener" class:list={[row.link.emphasis && 'is-primary']}>
+                            <Icon name={markerFor(row.link.kind)} size={14} />
+                            <span class="text">{row.link.label}{meta && <span class="size">&nbsp;({meta})</span>}</span>
+                          </a>
+                        ) : (
+                          <span class:list={['pending', row.link.emphasis && 'is-primary']}>
+                            <Icon name={markerFor(row.link.kind)} size={14} />
+                            <span class="text">{row.link.label}{meta && <span class="size">&nbsp;({meta})</span>}</span>
+                            <span class="visually-hidden"> (not yet available)</span>
+                          </span>
+                        )}
+                      </span>
+                    );
+                  })}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))}
+
+  <section class="band band--tight">
+    <div class="wrap">
+      <h2 class="section-label">Languages</h2>
+      <ul class="languages">
+        {languages.map((language) => (
+          <li>
+            <Flag country={language.country} />
+            <span>
+              {language.name} <span class="level">({language.level}{language.note ? `, ${language.note}` : ''})</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="cv-tail">
+        Documents not linked above (transcripts, certificates, the academic CV as a PDF) are
+        provided on request by email; contact details are in the footer of every page.
+      </p>
+    </div>
+  </section>
+</AcademicLayout>
+
+<style>
+  /* The section label is the heading: uppercase, at heading size. */
+  .section-label {
+    display: inline-block;
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    font-weight: 560;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-heading);
+    margin-block-end: var(--sp-6);
+    padding-block-end: var(--sp-2);
+  }
+
+  .section-label::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* The full content rail, not the prose measure: a CV reads as a record. */
+  .entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+  }
+
+  .entry-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-1) var(--sp-6);
+  }
+
+  h3 {
+    font-size: var(--step-0);
+  }
+
+  /* Organisation rides on the title line instead of claiming its own. */
+  .org {
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  .org::before {
+    content: '·';
+    margin-inline: 0.5em;
+    color: var(--ink-faint);
+  }
+
+  .period {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+
+  /*
+   * A fixed-width rail, so the column reads down the page: every date starts at
+   * the same x and every place ends at the same x, whatever their lengths.
+   */
+  .period--split {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-4);
+    inline-size: 19rem;
+    max-inline-size: 100%;
+  }
+
+  .where {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    white-space: nowrap;
+  }
+
+  .description {
+    max-width: none;
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    margin-block-start: var(--sp-1);
+  }
+
+  .sub-items {
+    list-style: none;
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    border-inline-start: 2px solid var(--line);
+    padding-inline-start: var(--sp-4);
+  }
+
+  .sub-items li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-1) var(--sp-4);
+    max-inline-size: 34rem;
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+  }
+
+  /* ------------------------------------------------------------ artifacts --- */
+  .artifacts {
+    max-width: none;
+    margin-block-start: var(--sp-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    font-size: var(--step--2);
+  }
+
+  .artifacts a,
+  .artifacts .pending {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  .artifacts .is-primary {
+    font-weight: 640;
+  }
+
+  /*
+   * Label and size are one inline run inside the link, not two flex items:
+   * flex items are blockified, so each would carry its own underline and the
+   * flex gap between them would sit undecorated. A single run underlines
+   * continuously, and the space between them is a plain non-breaking space.
+   */
+  .text {
+    text-decoration: inherit;
+  }
+
+  .size {
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Where one project's artifacts end and another's begin: the break forces
+   * the wrapping flex row to start over, so the other project's artifacts sit
+   * on a row of their own, opened by its mark and name.
+   *
+   * `align-self: start` matters: the artifact row is a wrapping flex line whose
+   * height exceeds a link's own box, and a stretched rule would centre itself
+   * in that extra leading and hang below the links it sits beside.
+   */
+  .break {
+    flex-basis: 100%;
+    block-size: 0;
+  }
+
+  .rule {
+    display: inline-flex;
+    align-self: start;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  /*
+   * Kept under the line box so a larger mark cannot grow the row. The flame's
+   * mass sits low in its own artboard, so centring it geometrically reads as
+   * sitting low; the nudge is optical and deliberately outside layout.
+   */
+  .mark {
+    display: block;
+    height: 1.5em;
+    width: auto;
+    transform: translateY(-0.2em);
+  }
+
+  .group-name {
+    font-weight: 640;
+    color: var(--ink-muted);
+  }
+
+  /* Weight alone cannot carry emphasis at the faint end of the palette. */
+  .artifacts .pending.is-primary {
+    color: var(--ink-muted);
+  }
+
+  /* An artifact that exists but is not reachable yet: shown, not linked, so the
+     record stays complete without putting a dead link on the page. */
+  .artifacts .pending {
+    color: var(--ink-faint);
+    cursor: default;
+    text-decoration: underline dashed 1px;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 0.22em;
+  }
+
+  .artifacts :global(svg) {
+    flex: none;
+    opacity: 0.75;
+  }
+
+  /* ------------------------------------------------------------ languages --- */
+  .languages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .languages li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .level {
+    color: var(--ink-faint);
+  }
+
+  .cv-tail {
+    max-width: 46rem;
+    margin-block-start: var(--sp-6);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+</style>
