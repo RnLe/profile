@@ -1,0 +1,119 @@
+---
+/**
+ * Full-page host of a case study: site header, a breadcrumb rail back to the
+ * projects index, the article, the site footer. The landing page shows the
+ * same article inside its overlay modal by fetching this route, so this layout
+ * carries only page furniture; everything about the case study itself lives
+ * in ProjectArticle.
+ */
+import 'katex/dist/katex.min.css';
+import AcademicLayout from './AcademicLayout.astro';
+import ProjectArticle from '../components/project/ProjectArticle.astro';
+import ProjectParked from '../components/project/ProjectParked.astro';
+import { breadcrumbSchema, projectSchema } from '../lib/seo';
+import { withBase } from '../lib/routes';
+import type { ResolvedProject } from '../lib/publication';
+
+interface Props {
+  project: ResolvedProject;
+  /** Route staged, case study still being written: show the notice instead. */
+  parked?: boolean;
+}
+
+const { project, parked = false } = Astro.props;
+const { data } = project;
+
+const origin = Astro.site?.href ?? 'https://rnle.github.io/';
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const jsonLd = [
+  projectSchema(project, canonical),
+  breadcrumbSchema(origin, [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects/' },
+    { name: data.title, path: `/projects/${data.slug}/` },
+  ]),
+];
+---
+
+<AcademicLayout title={data.title} description={data.summary} {jsonLd}>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <div class="wrap">
+      <ol>
+        <li><a href={withBase('/')}>Home</a></li>
+        <li><a href={withBase('/projects/')}>Projects</a></li>
+        <li aria-current="page">{data.title}</li>
+      </ol>
+    </div>
+  </nav>
+
+  {parked ? (
+    <ProjectParked {project} />
+  ) : (
+    <ProjectArticle {project}>
+      <slot />
+    </ProjectArticle>
+  )}
+</AcademicLayout>
+
+<style>
+  .crumbs {
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-alt);
+  }
+
+  .crumbs ol {
+    list-style: none;
+    margin: 0;
+    padding: var(--sp-2) 0;
+    max-width: none;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-1) 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+  }
+
+  .crumbs li {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  /* The separator is decoration; the alt-text form keeps it out of the reading order. */
+  .crumbs li + li::before {
+    content: '/' / '';
+    margin-inline: var(--sp-2);
+    color: var(--line-strong);
+  }
+
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.65rem;
+    padding-inline: var(--sp-1);
+    border-radius: var(--r-sm);
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .crumbs [aria-current='page'] {
+    color: var(--ink-muted);
+    overflow-wrap: anywhere;
+  }
+
+  @media print {
+    .crumbs {
+      display: none;
+    }
+  }
+</style>

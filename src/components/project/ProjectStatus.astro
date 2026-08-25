@@ -1,0 +1,43 @@
+---
+/** Dated status callout: always present, always honest. */
+interface Props {
+  statusDate: string;
+  statusNote: string;
+}
+
+const { statusDate, statusNote } = Astro.props;
+
+const formatted = new Date(`${statusDate}T00:00:00Z`).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<aside class="project-status" aria-label="Project status">
+  <p>
+    <strong>Status as of {formatted}:</strong>{' '}
+    {statusNote}
+  </p>
+</aside>
+
+<style>
+  .project-status {
+    max-width: var(--w-prose);
+    border: 1px solid var(--line);
+    border-inline-start: 3px solid var(--accent);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: var(--sp-4) var(--sp-6);
+  }
+
+  p {
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  strong {
+    color: var(--ink);
+  }
+</style>

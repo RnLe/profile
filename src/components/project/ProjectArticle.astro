@@ -1,0 +1,152 @@
+---
+/**
+ * The case study itself, the single source for both of its hosts: the full
+ * page at /projects/<slug>/ renders it directly, and the landing-page modal
+ * fetches that page and shows this very element. Layout inside responds to
+ * the article's own width (a container), not the viewport's, so the same
+ * markup sits correctly in a panel and on a page.
+ *
+ * Contract around the rendered Markdown body: hero → hero figure → prose
+ * (problem → context → contribution → method → decisions → evaluation →
+ * results-or-current-state → limitations) → remaining figures → registered
+ * claims → dated status → artifacts → primary references.
+ */
+import ProjectHero from './ProjectHero.astro';
+import ProjectStatus from './ProjectStatus.astro';
+import ClaimList from './ClaimList.astro';
+import ArtifactList from './ArtifactList.astro';
+import FigureRenderer from './FigureRenderer.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import type { ResolvedProject } from '../../lib/publication';
+
+interface Props {
+  project: ResolvedProject;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+
+const [heroFigureId, ...secondaryFigureIds] = data.figureIds;
+---
+
+<article
+  class="project-article"
+  data-project-article
+  data-project-slug={data.slug}
+  data-project-title={data.title}
+>
+  <ProjectHero {project} />
+
+  {heroFigureId && (
+    <div class="band band--tight">
+      <div class="wrap wrap--stage">
+        <FigureRenderer figureId={heroFigureId} />
+      </div>
+    </div>
+  )}
+
+  <div class="band band--tight">
+    <div class="wrap">
+      <div class="prose project-body">
+        <slot />
+      </div>
+    </div>
+  </div>
+
+  {secondaryFigureIds.length > 0 && (
+    <div class="band band--alt">
+      <div class="wrap">
+        <SectionHeading eyebrow="Figures" title="Method and evidence material" />
+        <div class="figure-stack">
+          {secondaryFigureIds.map((figureId) => (
+            <FigureRenderer {figureId} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div class="band">
+    <div class="wrap">
+      <ClaimList
+        claims={project.claims}
+        surface="project"
+        heading="Registered claims and measurements"
+      />
+      <div class="status-slot">
+        <ProjectStatus statusDate={data.statusDate} statusNote={data.statusNote} />
+      </div>
+      {project.artifacts.length > 0 && (
+        <div class="artifact-slot">
+          <SectionHeading title="Artifacts" />
+          <ArtifactList records={project.artifacts} />
+        </div>
+      )}
+    </div>
+  </div>
+
+  {data.citations.length > 0 && (
+    <div class="band band--tight article-tail">
+      <div class="wrap">
+        <SectionHeading eyebrow="Context" title="Primary references" />
+        <ol class="citations">
+          {data.citations.map((citation) => (
+            <li>
+              {citation.href ? (
+                <a href={citation.href} rel="noopener">{citation.label}</a>
+              ) : (
+                citation.label
+              )}
+              {citation.note && <span class="cite-note"> · {citation.note}</span>}
+            </li>
+          ))}
+        </ol>
+        <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>
+      </div>
+    </div>
+  )}
+</article>
+
+<style>
+  /* The article is the container its parts respond to, whichever host it is in. */
+  .project-article {
+    container-type: inline-size;
+  }
+
+  .figure-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-8);
+  }
+
+  .status-slot,
+  .artifact-slot {
+    margin-block-start: var(--sp-8);
+  }
+
+  .citations {
+    max-width: var(--w-prose);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .cite-note {
+    color: var(--ink-faint);
+  }
+
+  .novelty {
+    margin-block-start: var(--sp-5);
+    max-width: var(--w-prose);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    border-inline-start: 3px solid var(--line-strong);
+    padding-inline-start: var(--sp-4);
+  }
+
+  .article-tail {
+    border-bottom: none;
+  }
+</style>

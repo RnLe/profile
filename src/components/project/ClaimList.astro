@@ -1,0 +1,75 @@
+---
+/**
+ * Renders registered claims for a surface. Components never hard-code
+ * quantitative prose: every measured or comparative statement on the site
+ * comes through here, with its scope and measurement context beside it.
+ * Only claims whose allowed_surfaces include this surface render.
+ */
+import type { ClaimRecord } from '../../lib/schemas';
+
+interface Props {
+  claims: ClaimRecord[];
+  surface: 'home' | 'research-index' | 'project' | 'cv' | 'metadata';
+  heading?: string;
+}
+
+const { claims, surface, heading } = Astro.props;
+
+const visible = claims.filter(
+  (claim) =>
+    claim.allowed_surfaces.includes(surface) && !claim.forbidden_surfaces.includes(surface),
+);
+---
+
+{visible.length > 0 && (
+  <section class="claims">
+    {heading && <h2>{heading}</h2>}
+    <ul>
+      {visible.map((claim) => (
+        <li>
+          <p class="copy">{claim.short_copy}</p>
+          {(claim.measurement_context || claim.scope) && (
+            <p class="context">
+              {claim.scope && <span>{claim.scope}</span>}
+              {claim.scope && claim.measurement_context && ' '}
+              {claim.measurement_context && <span>{claim.measurement_context}</span>}
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .claims ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-width: var(--w-prose);
+  }
+
+  .claims h2 {
+    margin-block-end: var(--sp-6);
+  }
+
+  li {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: var(--sp-4) var(--sp-6);
+  }
+
+  .copy {
+    color: var(--ink);
+  }
+
+  .context {
+    margin-block-start: var(--sp-2);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+</style>

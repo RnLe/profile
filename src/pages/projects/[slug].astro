@@ -1,0 +1,24 @@
+---
+import { render } from 'astro:content';
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+import { getProjectEntry, getPublishedProject, getPublishedProjects } from '../../lib/content';
+import { isParked } from '../../lib/parked';
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.map((project) => ({ params: { slug: project.data.slug } }));
+}
+
+const { slug } = Astro.params;
+const project = await getPublishedProject(slug!);
+if (!project) throw new Error(`Route generated for unresolved project '${slug}'`);
+
+// A parked route never renders its body, so the Markdown is not read at all.
+const parked = isParked(project.data.id);
+const entry = parked ? undefined : await getProjectEntry(project.data.id);
+const Content = entry ? (await render(entry)).Content : undefined;
+---
+
+<ProjectLayout {project} {parked}>
+  {Content && <Content />}
+</ProjectLayout>
