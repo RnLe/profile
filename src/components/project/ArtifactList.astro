@@ -1,0 +1,135 @@
+---
+/**
+ * Version-aware artifact list: renders ONLY records that are public
+ * with an existing staged file; a card never promises a file that is not
+ * there. Each row: title, kind, version, date, academic status, scope,
+ * pages/size, and the download link into the staged documents tree.
+ */
+import type { ArtifactRecord } from '../../lib/schemas';
+import { withBase } from '../../lib/routes';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  records: ArtifactRecord[];
+}
+
+const { records } = Astro.props;
+
+const publicRecords = records.filter((record) => record.publication === 'public' && record.file);
+
+const academicStatusLabel: Record<ArtifactRecord['academicStatus'], string> = {
+  'official-submission': 'Submitted thesis, archival record',
+  'presentation-corrected': 'Reader edition: presentation corrected, conclusions unchanged',
+  'research-continuation': 'Post-thesis research continuation',
+  'independent-manuscript': 'Independent manuscript',
+  'historical-presentation': 'Historical presentation artifact',
+  'not-applicable': '',
+};
+
+const formatBytes = (bytes?: number): string | undefined => {
+  if (!bytes) return undefined;
+  if (bytes > 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${Math.round(bytes / 1024)} KB`;
+};
+---
+
+{publicRecords.length > 0 && (
+  <ul class="artifacts">
+    {publicRecords.map((record) => (
+      <li>
+        <div class="head">
+          <h3>{record.title}</h3>
+          <span class="version">v{record.version}</span>
+        </div>
+        {academicStatusLabel[record.academicStatus] && (
+          <p class="academic-status">{academicStatusLabel[record.academicStatus]}</p>
+        )}
+        <p class="description">{record.description}</p>
+        <p class="meta-row">
+          <span>{record.kind.toUpperCase()}</span>
+          <span>{record.date}</span>
+          {record.pages && <span>{record.pages} pages</span>}
+          {formatBytes(record.bytes) && <span>{formatBytes(record.bytes)}</span>}
+        </p>
+        <p class="actions">
+          <a href={withBase(`/documents/${record.kind}/${record.file}`)}>
+            <Icon name="download" size={14} /> View / download
+          </a>
+          {record.changelogHref && <a href={record.changelogHref}>Change log</a>}
+        </p>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .artifacts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-width: var(--w-prose);
+  }
+
+  li {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: var(--sp-4) var(--sp-6);
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-4);
+  }
+
+  h3 {
+    font-size: var(--step-0);
+  }
+
+  .version {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+
+  .academic-status {
+    font-size: var(--step--2);
+    color: var(--status-hardware);
+    margin-block-start: var(--sp-1);
+  }
+
+  .description {
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    margin-block-start: var(--sp-2);
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    margin-block-start: var(--sp-3);
+  }
+
+  .actions {
+    margin-block-start: var(--sp-3);
+    display: flex;
+    gap: var(--sp-6);
+  }
+
+  .actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+</style>

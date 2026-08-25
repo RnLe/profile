@@ -1,0 +1,109 @@
+---
+/**
+ * A project thumbnail, edge to edge in its frame: an owned image, an
+ * animation or vector (served untouched: the image service would flatten an
+ * animation to one frame, and a vector gains nothing from raster variants), a
+ * placeholder for a pending owner asset, or an empty hatched frame for a
+ * route-gated entry with nothing to show yet.
+ *
+ * `ratio` fixes the frame for the compact list; the card leaves it open so a
+ * wide figure keeps its own proportions instead of being cropped.
+ */
+import { Image } from 'astro:assets';
+import { getThumb, type Thumb } from '../../lib/thumbs';
+import AssetPlaceholder from '../ui/AssetPlaceholder.astro';
+
+interface Props {
+  /** Project id, looked up in the thumbnail registry when no thumb is given. */
+  id?: string;
+  thumb?: Thumb;
+  widths: number[];
+  sizes: string;
+  /** Aspect ratio of the frame; omit to let the image set its own height. */
+  ratio?: string;
+}
+
+const { id, thumb: given, widths, sizes, ratio } = Astro.props;
+const thumb = given ?? (id ? getThumb(id) : undefined);
+// An animation would be flattened by the image service, and a vector needs no
+// raster variants: both are served exactly as they are.
+const asIs = thumb?.kind === 'image' && (thumb.animated || thumb.src.format === 'svg');
+---
+
+<div class="thumb" style={ratio ? `aspect-ratio: ${ratio};` : undefined}>
+  {thumb?.kind === 'image' && asIs ? (
+    <img
+      src={thumb.src.src}
+      width={thumb.src.width}
+      height={thumb.src.height}
+      alt={thumb.alt}
+      loading="lazy"
+      decoding="async"
+      data-fit={thumb.fit ?? 'cover'}
+      data-pad={thumb.src.format === 'svg' ? '' : undefined}
+    />
+  ) : thumb?.kind === 'image' ? (
+    <Image
+      src={thumb.src}
+      alt={thumb.alt}
+      {widths}
+      {sizes}
+      loading="lazy"
+      decoding="async"
+      data-fit={thumb.fit ?? 'cover'}
+    />
+  ) : thumb?.kind === 'placeholder' ? (
+    <AssetPlaceholder assetId={thumb.assetId} ratio={ratio ?? '16 / 9'} compact />
+  ) : (
+    <span class="thumb--none" aria-hidden="true"></span>
+  )}
+</div>
+
+<style>
+  .thumb {
+    display: block;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .thumb :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* A mark or a diagram shows whole, on whatever the card's own colour is. */
+  .thumb :global(img[data-fit='contain']) {
+    object-fit: contain;
+  }
+
+  /* A drawn mark needs room around it; a framed figure already has its own. */
+  .thumb :global(img[data-pad]) {
+    padding: var(--sp-3);
+    box-sizing: border-box;
+  }
+
+  .thumb :global(.placeholder) {
+    margin: 0;
+    height: 100%;
+  }
+
+  .thumb :global(.placeholder .frame) {
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .thumb--none {
+    display: block;
+    height: 100%;
+    min-height: 4rem;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      color-mix(in srgb, var(--line) 45%, transparent) 10px 11px
+    );
+  }
+</style>

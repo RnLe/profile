@@ -1,0 +1,66 @@
+---
+/**
+ * The link row of a project, in the CV's vocabulary: one marker glyph per
+ * link, and a document's length and size in the same underlined run as its
+ * label. Same markup and classes as the CV artifact row so the two read as one.
+ */
+import type { ProjectLinkItem } from '../../lib/projects';
+import { withBase } from '../../lib/routes';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  links: ProjectLinkItem[];
+}
+
+const { links } = Astro.props;
+---
+
+{links.length > 0 && (
+  <p class="artifacts" data-project-links>
+    {links.map((link) => (
+      <span>
+        <a href={link.external ? link.href : withBase(link.href)} rel="noopener">
+          <Icon name={link.icon} size={14} />
+          <span class="text">{link.label}{link.meta && <span class="size">&nbsp;({link.meta})</span>}</span>
+        </a>
+      </span>
+    ))}
+  </p>
+)}
+
+<style>
+  .artifacts {
+    max-width: none;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    font-size: var(--step--2);
+  }
+
+  .artifacts a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  /*
+   * Label and size are one inline run inside the link, not two flex items:
+   * flex items are blockified, so each would carry its own underline and the
+   * flex gap between them would sit undecorated. A single run underlines
+   * continuously, and the space between them is a plain non-breaking space.
+   */
+  .text {
+    text-decoration: inherit;
+  }
+
+  .size {
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .artifacts :global(svg) {
+    flex: none;
+    opacity: 0.75;
+  }
+</style>

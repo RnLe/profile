@@ -1,0 +1,144 @@
+---
+/**
+ * Project-page hero: title, one-line question, status + date, range,
+ * role, collaborators, domain, evidence type, and the project's link row
+ * (documents first). Links render only what the resolver allowed.
+ */
+import type { ResolvedProject } from '../../lib/publication';
+import { buildProjectLinks } from '../../lib/projects';
+import StatusChip from '../ui/StatusChip.astro';
+import ProjectLinks from './ProjectLinks.astro';
+
+interface Props {
+  project: ResolvedProject;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const links = buildProjectLinks(project);
+---
+
+<header class="project-hero">
+  <div class="wrap hero-grid">
+    <div class="headline">
+      <p class="eyebrow">{data.domain}</p>
+      <h1>{data.title}</h1>
+      <p class="lead">{data.oneLine}</p>
+
+      <div class="status-row">
+        <StatusChip
+          lifecycle={data.lifecycle}
+          evidenceLevel={data.evidenceLevel}
+          statusDate={data.statusDate}
+          showEvidence
+        />
+        <span class="range">{data.dateRange}</span>
+      </div>
+
+      {links.length > 0 && (
+        <div class="actions">
+          <ProjectLinks {links} />
+        </div>
+      )}
+    </div>
+
+    <dl class="facts">
+      <div>
+        <dt>Role</dt>
+        <dd>{data.role}</dd>
+      </div>
+      {data.collaborators.length > 0 && (
+        <div>
+          <dt>Collaborators</dt>
+          <dd>{data.collaborators.join(', ')}</dd>
+        </div>
+      )}
+      {data.methods.length > 0 && (
+        <div>
+          <dt>Methods</dt>
+          <dd>{data.methods.join(' · ')}</dd>
+        </div>
+      )}
+    </dl>
+  </div>
+</header>
+
+<style>
+  .project-hero {
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(50rem 26rem at 90% -10%, var(--accent-wash), transparent 65%),
+      var(--paper);
+  }
+
+  /* Question and status on the left, the record on the right. The modal is
+     wide, so the facts sit beside the headline instead of below it. Driven by
+     the panel's width (a container query), not the viewport's. */
+  .hero-grid {
+    display: grid;
+    gap: var(--sp-6) var(--sp-10);
+    align-items: start;
+  }
+
+  @container (min-width: 46rem) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 19rem);
+    }
+  }
+
+  h1 {
+    margin-block-start: var(--sp-2);
+    max-width: 34rem;
+  }
+
+  .lead {
+    margin-block-start: var(--sp-4);
+  }
+
+  .status-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-6);
+    margin-block-start: var(--sp-6);
+  }
+
+  .range {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+
+  .facts {
+    display: grid;
+    gap: var(--sp-4);
+    align-content: start;
+    max-width: var(--w-prose);
+  }
+
+  .facts div {
+    display: grid;
+    gap: var(--sp-1);
+  }
+
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .facts dd {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .actions {
+    margin-block-start: var(--sp-6);
+  }
+
+</style>
