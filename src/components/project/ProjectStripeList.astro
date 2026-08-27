@@ -1,0 +1,32 @@
+---
+/**
+ * The landing-page project list: one full-width stripe per project, latest
+ * first. Ordered by date, never numbered.
+ */
+import type { ProjectListEntry } from '../../lib/projects';
+import ProjectStripe from './ProjectStripe.astro';
+
+interface Props {
+  entries: ProjectListEntry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<ol class="stripes" data-project-list>
+  {entries.map((entry) => (
+    <ProjectStripe {entry} />
+  ))}
+</ol>
+
+<style>
+  .stripes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+</style>
