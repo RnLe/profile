@@ -1,0 +1,143 @@
+---
+/**
+ * Academic homepage: an evidence funnel, deliberately terse. The work carries
+ * the argument, the copy stays out of its way.
+ *
+ * 1 hero + evidence strip · 2 projects, latest first, each opening its case
+ * study in an overlay modal · 3 a short note that the site is still growing
+ *
+ * Contact lives in the footer alone; a "get in touch" band here would repeat
+ * it a screen earlier.
+ */
+import AcademicLayout from '../layouts/AcademicLayout.astro';
+import PortraitLab from '../components/academic/PortraitLab.astro';
+import EvidenceStrip from '../components/academic/EvidenceStrip.astro';
+import ProjectStripeList from '../components/project/ProjectStripeList.astro';
+import ProjectModal from '../components/project/ProjectModal.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import ExpansionNote from '../components/ui/ExpansionNote.astro';
+import LinkButton from '../components/ui/LinkButton.astro';
+import { site, evidenceStrip } from '../data/site';
+import { getPublishedProjects } from '../lib/content';
+import { buildProjectList } from '../lib/projects';
+import { personSchema, defaultDescription } from '../lib/seo';
+import { withBase } from '../lib/routes';
+
+const entries = buildProjectList(await getPublishedProjects());
+
+const origin = Astro.site?.href ?? 'https://rnle.github.io/';
+const jsonLd = [personSchema(origin)];
+---
+
+<AcademicLayout description={defaultDescription} ogType="profile" {jsonLd}>
+  {/* ------------------------------------------------ 1 · hero + evidence --- */}
+  <section class="band hero-band">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">{site.eyebrow}</p>
+          <h1>{site.statement}</h1>
+          <div class="actions">
+            <LinkButton
+              href={withBase('/projects/')}
+              label="Projects"
+              variant="primary"
+              icon="arrow-right"
+            />
+            <LinkButton href={withBase('/cv/')} label="Curriculum Vitae" variant="quiet" />
+          </div>
+        </div>
+        <div class="hero-portrait">
+          <PortraitLab />
+        </div>
+      </div>
+      <div class="strip">
+        <EvidenceStrip groups={evidenceStrip} />
+      </div>
+    </div>
+  </section>
+
+  {/* --------------------------------------------------- 2 · the projects --- */}
+  <section class="band band--alt" aria-labelledby="projects-heading">
+    <div class="wrap wrap--stage">
+      <SectionHeading title="Projects" id="projects-heading" />
+      <ExpansionNote />
+      <ProjectStripeList {entries} />
+    </div>
+  </section>
+
+  {/* --------------------------------------------------- 3 · what is next --- */}
+  <section class="band" aria-labelledby="expanding-heading">
+    <div class="wrap">
+      <SectionHeading title="This site is being expanded" id="expanding-heading" />
+      <ExpansionNote variant="band" />
+    </div>
+  </section>
+
+  <ProjectModal />
+</AcademicLayout>
+
+<style>
+  .hero-band {
+    background:
+      radial-gradient(46rem 26rem at 100% -20%, var(--accent-wash), transparent 62%),
+      var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero-grid {
+    display: grid;
+    /* The portrait lab is a fixed square; reserve its width plus a little slack. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
+    gap: var(--sp-12);
+    align-items: center;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    align-items: flex-start;
+  }
+
+  /* The statement is the page's H1: read as prose, sized well below a slogan. */
+  .hero-text h1 {
+    font-size: var(--step-1);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: var(--lh-snug);
+    max-width: 42rem;
+    text-wrap: pretty;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-block-start: var(--sp-1);
+  }
+
+  .hero-portrait {
+    width: 100%;
+    justify-self: end;
+  }
+
+  .strip {
+    margin-block-start: var(--sp-10);
+    border-top: 1px solid var(--line);
+    padding-block-start: var(--sp-4);
+  }
+
+  @media (max-width: 63.99rem) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: var(--sp-8);
+    }
+
+    /* Text before portrait; portrait bounded. */
+    .hero-portrait {
+      justify-self: start;
+      max-width: 24rem;
+    }
+  }
+</style>

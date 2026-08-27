@@ -1,0 +1,70 @@
+---
+/**
+ * The one place that says this site is still growing. Used as an inline note
+ * under a section heading and as its own short band on the landing page, so
+ * the wording cannot drift between the two.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** 'inline': a quiet line under a heading. 'band': the standalone section. */
+  variant?: 'inline' | 'band';
+}
+
+const { variant = 'inline' } = Astro.props;
+
+const bandCopy =
+  'This portfolio is being expanded. More projects, fuller case studies, documents, and other supporting material are being added.';
+const inlineCopy = 'Being expanded: more projects, fuller case studies, and documents are being added.';
+---
+
+{variant === 'band' ? (
+  <div class="note note--band">
+    <Icon name="arrow-right" size={15} />
+    <p>
+      {bandCopy} What is published today is dated and complete as it stands; the
+      remaining entries follow as their material passes review.
+    </p>
+  </div>
+) : (
+  <p class="note note--inline" data-expansion-note>
+    <Icon name="arrow-right" size={14} />
+    <span>{inlineCopy}</span>
+  </p>
+)}
+
+<style>
+  .note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    color: var(--ink-muted);
+  }
+
+  .note :global(svg) {
+    flex: none;
+    margin-block-start: 0.15em;
+    color: var(--ink-faint);
+  }
+
+  .note--inline {
+    max-width: none;
+    margin-block-start: calc(-1 * var(--sp-5));
+    margin-block-end: var(--sp-6);
+    font-size: var(--step--1);
+  }
+
+  .note--band {
+    gap: var(--sp-3);
+    padding: var(--sp-4) var(--sp-5);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r-md);
+    background: var(--surface-alt);
+  }
+
+  .note--band p {
+    max-width: var(--w-prose);
+    margin: 0;
+    font-size: var(--step--1);
+  }
+</style>

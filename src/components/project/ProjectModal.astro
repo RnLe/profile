@@ -1,0 +1,523 @@
+---
+/**
+ * The landing page's case-study modal. Clicking a list entry opens this
+ * <dialog> over the list and loads the entry's own page (/projects/<slug>/),
+ * then shows that page's article inside the panel: one source for both
+ * presentations. The page behind keeps its scroll position; Escape, the close
+ * control, and the scrim all close it; the bar links to the full page.
+ *
+ * Progressive: without JavaScript, or below the tablet breakpoint, an entry
+ * link simply navigates to the full page.
+ *
+ * The panel runs on a deliberately smaller type scale than the rest of the
+ * site (see `.modal-scale`).
+ */
+import Icon from '../ui/Icon.astro';
+import { withBase } from '../../lib/routes';
+---
+
+<dialog class="project-modal" data-project-modal aria-label="Project case study">
+  <div class="modal-panel modal-scale" data-project-panel>
+    <div class="panel-bar">
+      <div class="bar-inner">
+        <a class="panel-full" href={withBase('/projects/')} data-project-full>
+          <Icon name="arrow-up-right" size={13} /> Open full page
+        </a>
+        <button
+          class="panel-close"
+          type="button"
+          data-project-close
+          aria-label="Close this case study"
+        >
+          <Icon name="x" size={15} />
+        </button>
+      </div>
+    </div>
+
+    {/* A named <section> is the region landmark; tabindex makes the panel's
+        scroll container reachable from the keyboard. */}
+    <section
+      class="panel-body"
+      tabindex="0"
+      data-project-body
+      aria-label="Case study"
+      aria-busy="false"
+    >
+      <p class="panel-status" data-project-status hidden>Loading the case study.</p>
+      <div data-project-content></div>
+    </section>
+  </div>
+</dialog>
+
+<style is:global>
+  /* The page behind the open modal stays put; the reserved gutter avoids a jump. */
+  html:has(dialog[data-project-modal][open]) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+</style>
+
+<style>
+  /* ------------------------------------------------------------ the frame --- */
+  /* The dialog is the whole viewport; its backdrop is the scrim, and the
+     panel sits in the middle. */
+  .project-modal {
+    position: fixed;
+    inset: 0;
+    inline-size: 100vw;
+    block-size: 100dvh;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding: var(--sp-4);
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+
+  .project-modal[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .project-modal::backdrop {
+    background: rgb(24 33 41 / 0.42);
+    backdrop-filter: blur(2px);
+  }
+
+  /* 80% of the viewport, capped so the measure stays readable on wide screens. */
+  .modal-panel {
+    inline-size: min(80vw, 80rem);
+    block-size: min(80dvh, 100%);
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow:
+      0 1px 2px rgb(16 21 33 / 0.06),
+      0 24px 60px -12px rgb(16 21 33 / 0.28);
+    overflow: hidden;
+  }
+
+  /* -------------------------------------------------------------- the bar --- */
+  .panel-bar {
+    position: relative;
+    flex: none;
+    padding-block: var(--sp-2);
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-alt);
+  }
+
+  .bar-inner {
+    display: flex;
+    align-items: center;
+    max-width: var(--w-content);
+    margin-inline: auto;
+    padding-inline: calc(var(--gutter) - var(--sp-2));
+  }
+
+  .panel-close {
+    position: absolute;
+    inset-inline-end: var(--sp-3);
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+  }
+
+  .panel-full,
+  .panel-close {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 1.65rem;
+    padding-inline: var(--sp-2);
+    border: 0;
+    border-radius: var(--r-sm);
+    background: transparent;
+    font: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+  }
+
+  .panel-full:hover,
+  .panel-close:hover {
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .panel-close {
+    min-inline-size: 1.65rem;
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  /* ------------------------------------------------------------- the body --- */
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .panel-status {
+    max-width: none;
+    padding: var(--sp-8) var(--gutter);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  /*
+   * A deliberately smaller ramp for everything inside the panel. Because the
+   * whole design system reads its sizes and spacing from these custom
+   * properties, redefining them here compacts every nested component at once
+   * with no per-component overrides.
+   */
+  .modal-scale {
+    --step--2: 0.625rem;
+    --step--1: 0.75rem;
+    --step-0: 0.8125rem;
+    --step-1: 0.9375rem;
+    --step-2: 1.0625rem;
+    --step-3: 1.25rem;
+    --step-4: 1.5rem;
+    --lh-snug: 1.35;
+    --lh-body: 1.55;
+    --w-prose: 34rem;
+    /* The panel is already the measure; content rails fill it and only prose
+       stays bounded, so body text lines up with the title bar above it. */
+    --w-content: 58rem;
+    /* Figures get a bounded rail: at full panel width a single hero figure
+       would fill the whole modal. */
+    --w-stage: 44rem;
+    --gutter: clamp(1rem, 2vw, 1.75rem);
+    --sp-8: 1.25rem;
+    --sp-10: 1.5rem;
+    --sp-12: 1.75rem;
+    --sp-16: 2.25rem;
+    --sp-20: 2.75rem;
+    --sp-24: 3.25rem;
+    font-size: var(--step-0);
+  }
+
+  /* Band rhythm is a fixed clamp rather than a token, so it is retuned here. */
+  .modal-scale :global(.band) {
+    padding-block: var(--sp-6);
+  }
+
+  .modal-scale :global(.band--tight) {
+    padding-block: var(--sp-4);
+  }
+
+  /* Figure rails align with the text rather than centring in the panel. */
+  .modal-scale :global(.wrap--stage) {
+    margin-inline: 0;
+  }
+
+  .modal-scale :global(.project-hero) {
+    padding-block: var(--sp-6) var(--sp-5);
+    border-radius: 0;
+  }
+
+  /* ------------------------------------------------------------ responsive --- */
+  /* Below the tablet breakpoint the panel takes the whole viewport: 80% of a
+     phone screen is not enough to read a case study in. (Entry links bypass
+     the modal there; this covers a window resized after opening.) */
+  @media (max-width: 47.99rem) {
+    .project-modal {
+      padding: 0;
+    }
+
+    .modal-panel {
+      inline-size: 100%;
+      block-size: 100%;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+
+  /* Print gets the document, not the furniture. */
+  @media print {
+    .project-modal[open] {
+      position: static;
+      block-size: auto;
+      padding: 0;
+    }
+
+    .modal-panel {
+      inline-size: 100%;
+      block-size: auto;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .panel-bar {
+      display: none;
+    }
+
+    .panel-body {
+      overflow: visible;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Opens a project entry's own page inside the dialog.
+   *
+   * Everything is delegated on `document` and the dialog is looked up at
+   * event time, so a body swapped by the client router needs no rebinding.
+   * The "bound once" flag lives on `window`: the router re-executes this
+   * inline script when the landing page is reached from a page without it,
+   * and it strips custom attributes from <html> on every swap.
+   *
+   * Click interception runs in the capture phase: the client router's own
+   * click listener sits on `document` in the bubble phase and steps aside only
+   * when the event is already defaultPrevented.
+   */
+  type ModalWindow = Window & { __projectModalBound?: boolean };
+
+  const NARROW = '(max-width: 47.99rem)';
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const projectRoute = new RegExp(`^${escapedBase}/projects/[a-z0-9-]+/$`);
+
+  const cache = new Map<string, Document>();
+  let requestId = 0;
+  let abort: AbortController | null = null;
+  let trigger: HTMLElement | null = null;
+
+  const dialogEl = (): HTMLDialogElement | null =>
+    document.querySelector<HTMLDialogElement>('dialog[data-project-modal]');
+
+  function parts() {
+    const dialog = dialogEl();
+    const body = dialog?.querySelector<HTMLElement>('[data-project-body]') ?? null;
+    const content = dialog?.querySelector<HTMLElement>('[data-project-content]') ?? null;
+    const status = dialog?.querySelector<HTMLElement>('[data-project-status]') ?? null;
+    const full = dialog?.querySelector<HTMLAnchorElement>('[data-project-full]') ?? null;
+    return dialog && body && content && status && full
+      ? { dialog, body, content, status, full }
+      : null;
+  }
+
+  async function fetchDocument(url: URL, signal: AbortSignal): Promise<Document> {
+    const response = await fetch(url.href, { headers: { Accept: 'text/html' }, signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+    if (!doc.querySelector('[data-project-article]')) throw new Error('no article in response');
+    return doc;
+  }
+
+  /**
+   * Brings the fetched page's stylesheets onto this page: the article's own
+   * scoped CSS and the KaTeX sheet live in the case-study page's chunk. Sheets
+   * are awaited before the article is shown, so it never paints unstyled.
+   */
+  async function mergeHead(doc: Document): Promise<void> {
+    const waits: Promise<unknown>[] = [];
+    const have = new Set(
+      Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'), (l) => l.href),
+    );
+    for (const link of doc.querySelectorAll<HTMLLinkElement>('head link[rel="stylesheet"]')) {
+      const href = new URL(link.getAttribute('href') ?? '', location.href).href;
+      if (have.has(href)) continue;
+      const el = document.createElement('link');
+      el.rel = 'stylesheet';
+      el.href = href;
+      el.dataset.projectModalAsset = '';
+      waits.push(new Promise((resolve) => {
+        el.onload = resolve;
+        el.onerror = resolve;
+      }));
+      document.head.append(el);
+      have.add(href);
+    }
+    const texts = new Set(Array.from(document.querySelectorAll('style'), (s) => s.textContent));
+    for (const style of doc.querySelectorAll('head style')) {
+      if (texts.has(style.textContent)) continue;
+      const el = document.createElement('style');
+      el.textContent = style.textContent;
+      el.dataset.projectModalAsset = '';
+      document.head.append(el);
+      texts.add(el.textContent);
+    }
+    await Promise.all(waits);
+  }
+
+  /**
+   * Scripts that arrive by parsing never execute; a freshly created element
+   * with the same attributes and text does. The island runtime, the
+   * client:visible directive, and figure scripts all sit inside the article.
+   */
+  async function runScripts(root: ParentNode): Promise<void> {
+    const loads: Promise<unknown>[] = [];
+    for (const old of Array.from(root.querySelectorAll('script'))) {
+      const type = old.getAttribute('type');
+      if (type && type !== 'module' && type !== 'text/javascript') continue;
+      const script = document.createElement('script');
+      for (const { name, value } of Array.from(old.attributes)) script.setAttribute(name, value);
+      script.textContent = old.textContent;
+      if (old.hasAttribute('src')) {
+        loads.push(new Promise((resolve) => {
+          script.onload = resolve;
+          script.onerror = resolve;
+        }));
+      }
+      old.replaceWith(script);
+    }
+    await Promise.all(loads);
+  }
+
+  /** Never leave the reader in a broken overlay: go to the real page instead. */
+  function fail(url: URL): void {
+    dialogEl()?.close();
+    location.assign(url.href);
+  }
+
+  async function openProject(url: URL, from: HTMLElement | null): Promise<void> {
+    const p = parts();
+    if (!p) return;
+    const { dialog, body, content, status, full } = p;
+    const token = ++requestId;
+    abort?.abort();
+    abort = new AbortController();
+    const { signal } = abort;
+
+    full.href = url.href;
+    dialog.dataset.state = 'loading';
+    dialog.setAttribute('aria-label', 'Loading case study');
+    body.setAttribute('aria-busy', 'true');
+    status.hidden = false;
+    unmount(content);
+
+    if (!dialog.open) {
+      trigger = from;
+      dialog.addEventListener('close', onClose, { once: true });
+      dialog.showModal();
+    }
+    // Arrow keys scroll the article rather than the first link taking focus.
+    body.focus({ preventScroll: true });
+
+    let doc = cache.get(url.pathname);
+    if (!doc) {
+      try {
+        doc = await fetchDocument(url, signal);
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+        fail(url);
+        return;
+      }
+      cache.set(url.pathname, doc);
+    }
+    if (token !== requestId) return;
+
+    try {
+      await mergeHead(doc);
+      if (token !== requestId) return;
+      const source = doc.querySelector('[data-project-article]');
+      if (!source) throw new Error('no article');
+      // Imported, never adopted: the cached document stays intact for the next open.
+      const article = document.importNode(source, true) as HTMLElement;
+      content.replaceChildren(article);
+      status.hidden = true;
+      body.scrollTop = 0;
+      await runScripts(article);
+      if (article.querySelector('astro-island') && !customElements.get('astro-island')) {
+        throw new Error('island runtime missing');
+      }
+      // Component scripts initialise on page load; the injected article is a
+      // new page's worth of them (drawn figures stay hidden until theirs runs).
+      document.dispatchEvent(new Event('astro:page-load'));
+      if (token !== requestId) return;
+      const title =
+        article.dataset.projectTitle ?? article.querySelector('h1')?.textContent?.trim() ?? 'Case study';
+      dialog.setAttribute('aria-label', title);
+      body.setAttribute('aria-label', title);
+      body.setAttribute('aria-busy', 'false');
+      dialog.dataset.state = 'ready';
+      if (!dialog.contains(document.activeElement)) body.focus({ preventScroll: true });
+    } catch {
+      fail(url);
+    }
+  }
+
+  /**
+   * Empties the content slot. Islands only unmount on this event; without it
+   * an animation loop would keep running in a detached tree.
+   */
+  function unmount(content: HTMLElement): void {
+    const islands = Array.from(content.querySelectorAll('astro-island'));
+    content.replaceChildren();
+    for (const island of islands) island.dispatchEvent(new CustomEvent('astro:unmount'));
+  }
+
+  function onClose(): void {
+    abort?.abort();
+    abort = null;
+    requestId += 1;
+    const p = parts();
+    if (p) {
+      const { dialog, body, content, status } = p;
+      unmount(content);
+      status.hidden = true;
+      delete dialog.dataset.state;
+      body.setAttribute('aria-busy', 'false');
+      body.setAttribute('aria-label', 'Case study');
+      dialog.setAttribute('aria-label', 'Project case study');
+    }
+    trigger?.focus();
+    trigger = null;
+  }
+
+  function onClickCapture(event: MouseEvent): void {
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const link = target.closest('a[href]');
+    if (!(link instanceof HTMLAnchorElement)) return;
+    if (link.target || link.hasAttribute('download')) return;
+    const dialog = dialogEl();
+    if (!dialog) return;
+    const url = new URL(link.href, location.href);
+    if (url.origin !== location.origin) return;
+    const isEntry = link.hasAttribute('data-project-link');
+    const isInner =
+      dialog.open &&
+      dialog.contains(link) &&
+      !link.hasAttribute('data-project-full') &&
+      projectRoute.test(url.pathname);
+    if (!isEntry && !isInner) return;
+    // Phones get the full page: 80% of a small screen is no place to read.
+    if (window.matchMedia(NARROW).matches) return;
+    event.preventDefault();
+    void openProject(url, isEntry ? link : trigger);
+  }
+
+  function onClickBubble(event: MouseEvent): void {
+    const dialog = dialogEl();
+    if (!dialog?.open) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    // The close control, or the scrim (a click on the dialog outside its panel).
+    if (target.closest('[data-project-close]') || target === dialog) dialog.close();
+  }
+
+  function init(): void {
+    const w = window as ModalWindow;
+    if (w.__projectModalBound) return;
+    w.__projectModalBound = true;
+    document.addEventListener('click', onClickCapture, true);
+    document.addEventListener('click', onClickBubble);
+    document.addEventListener('astro:before-swap', () => {
+      const dialog = dialogEl();
+      if (dialog?.open) dialog.close();
+    });
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>
