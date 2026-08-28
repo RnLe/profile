@@ -1,0 +1,297 @@
+---
+/**
+ * The projects index's left rail: every project as a row, with its title on the
+ * left, three fixed columns of type marks, and its start year on the right.
+ * The columns are always in the same order and stay empty when a type does not
+ * apply, so the marks read down the rail as three clean lines.
+ *
+ * The rail sticks beside the cards and never scrolls itself. An accent bar
+ * spans the rows whose cards are in view, kept in step by an
+ * IntersectionObserver; a row is a plain anchor to its card, so the rail works
+ * without JavaScript and the bar simply stays hidden.
+ */
+import type { ProjectListEntry } from '../../lib/projects';
+import type { ProjectKind } from '../../lib/schemas';
+import Icon from '../ui/Icon.astro';
+import type { IconName } from '../../lib/icons';
+
+interface Props {
+  entries: ProjectListEntry[];
+}
+
+const { entries } = Astro.props;
+
+/** Fixed column order; the glyph carries the meaning, colour reinforces it. */
+const KIND_COLUMNS: Array<{ kind: ProjectKind; icon: IconName; label: string }> = [
+  { kind: 'academic', icon: 'graduation-cap', label: 'Academic' },
+  { kind: 'software', icon: 'code', label: 'Software' },
+  { kind: 'hardware', icon: 'wrench', label: 'Hardware' },
+];
+
+const kindSentence = (kinds: ProjectKind[]): string =>
+  KIND_COLUMNS.filter((column) => kinds.includes(column.kind))
+    .map((column) => column.label)
+    .join(', ');
+---
+
+<nav class="rail" aria-label="Projects on this page" data-project-rail>
+  <div class="rail-inner">
+    <span class="rail-indicator" data-rail-indicator aria-hidden="true"></span>
+    <ol class="rail-list">
+      {entries.map((entry) => (
+        <li>
+          <a
+            class="rail-row"
+            href={`#${entry.id}`}
+            data-rail-link={entry.id}
+            data-gated={entry.kind === 'gated' ? '' : undefined}
+          >
+            <span class="rail-title">{entry.title}</span>
+            <span class="rail-kinds" aria-hidden="true">
+              {KIND_COLUMNS.map((column) => (
+                <span class:list={['rail-kind', `kind-${column.kind}`]} title={column.label}>
+                  {entry.kinds.includes(column.kind) && <Icon name={column.icon} size={14} />}
+                </span>
+              ))}
+            </span>
+            {kindSentence(entry.kinds) && (
+              <span class="visually-hidden">{kindSentence(entry.kinds)}</span>
+            )}
+            <span class="rail-year">{entry.yearStart}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>
+
+<style>
+  .rail {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-4));
+    align-self: start;
+  }
+
+  .rail-inner {
+    position: relative;
+    --rail-top: 0px;
+    --rail-height: 0px;
+    --rail-visible: 0;
+  }
+
+  .rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .rail-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+    min-height: 2.25rem;
+    padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
+    border-radius: var(--r-sm);
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+    line-height: var(--lh-snug);
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  .rail-row:hover {
+    background: var(--surface-alt);
+    color: var(--ink);
+  }
+
+  .rail-row[aria-current='true'] {
+    color: var(--ink-heading);
+    font-weight: 600;
+  }
+
+  .rail-row[data-gated] .rail-title {
+    color: var(--ink-faint);
+  }
+
+  .rail-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Three fixed slots, so a mark always sits in its own column, and an empty
+     slot still holds its place. */
+  .rail-kinds {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(3, 0.95rem);
+    gap: var(--sp-1);
+    /* Icons are boxes; nudge them onto the text baseline of the row. */
+    transform: translateY(0.15em);
+  }
+
+  .rail-kind {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+  }
+
+  .kind-academic {
+    color: var(--kind-academic);
+  }
+
+  .kind-software {
+    color: var(--kind-software);
+  }
+
+  .kind-hardware {
+    color: var(--kind-hardware);
+  }
+
+  .rail-year {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The bar spans the rows whose cards are in view; motion.css stills it under reduced motion. */
+  .rail-indicator {
+    position: absolute;
+    inset-inline-start: 0;
+    top: var(--rail-top);
+    height: var(--rail-height);
+    width: 3px;
+    border-radius: 999px;
+    background: var(--accent);
+    opacity: var(--rail-visible);
+    pointer-events: none;
+    transition:
+      top var(--dur-base) var(--ease-out),
+      height var(--dur-base) var(--ease-out),
+      opacity var(--dur-fast) var(--ease-out);
+  }
+
+  /* Narrow: a wrapping jump list above the cards; nothing sticks, no bar. */
+  @media (max-width: 63.99rem) {
+    .rail {
+      position: static;
+    }
+
+    .rail-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+    }
+
+    .rail-row {
+      gap: var(--sp-2);
+      min-height: 2.5rem;
+      padding-inline: var(--sp-3);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .rail-title {
+      flex: 0 1 auto;
+    }
+
+    .rail-indicator {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Keeps the rail in step with the cards: a row is active while any part of
+   * its card is below the header line, and the bar spans the first to the
+   * last active row. Bound on every page load, torn down before a page swap.
+   */
+  let cleanup: (() => void) | undefined;
+
+  function initRail(): void {
+    cleanup?.();
+    cleanup = undefined;
+    const rail = document.querySelector<HTMLElement>('[data-project-rail] .rail-inner');
+    if (!rail) return;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-project-card]'));
+    const rows = new Map(
+      Array.from(rail.querySelectorAll<HTMLAnchorElement>('[data-rail-link]'), (row) => [
+        row.dataset.railLink ?? '',
+        row,
+      ]),
+    );
+    const visible = new Set<string>();
+
+    const paint = (): void => {
+      const active = cards
+        .map((card) => card.dataset.projectCard ?? '')
+        .filter((id) => visible.has(id))
+        .map((id) => rows.get(id))
+        .filter((row): row is HTMLAnchorElement => Boolean(row));
+      rows.forEach((row) => {
+        if (active.includes(row)) row.setAttribute('aria-current', 'true');
+        else row.removeAttribute('aria-current');
+      });
+      if (active.length === 0) {
+        rail.style.setProperty('--rail-visible', '0');
+        return;
+      }
+      const box = rail.getBoundingClientRect();
+      const first = active[0].getBoundingClientRect();
+      const last = active[active.length - 1].getBoundingClientRect();
+      rail.style.setProperty('--rail-top', `${first.top - box.top}px`);
+      rail.style.setProperty('--rail-height', `${last.bottom - first.top}px`);
+      rail.style.setProperty('--rail-visible', '1');
+    };
+
+    const rootStyle = getComputedStyle(document.documentElement);
+    const rem = parseFloat(rootStyle.fontSize) || 16;
+    const headerLine = (parseFloat(rootStyle.getPropertyValue('--header-h')) || 3.5) * rem + rem;
+    const observer = new IntersectionObserver(
+      (records) => {
+        for (const record of records) {
+          const id = (record.target as HTMLElement).dataset.projectCard ?? '';
+          if (record.isIntersecting) visible.add(id);
+          else visible.delete(id);
+        }
+        paint();
+      },
+      { rootMargin: `-${headerLine}px 0px 0px 0px`, threshold: 0 },
+    );
+    cards.forEach((card) => observer.observe(card));
+
+    let frame = 0;
+    const onResize = (): void => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(paint);
+    };
+    window.addEventListener('resize', onResize);
+
+    cleanup = () => {
+      observer.disconnect();
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(frame);
+    };
+  }
+
+  type RailWindow = Window & { __projectRailBound?: boolean };
+  const w = window as RailWindow;
+  if (!w.__projectRailBound) {
+    w.__projectRailBound = true;
+    document.addEventListener('astro:page-load', initRail);
+    document.addEventListener('astro:before-swap', () => {
+      cleanup?.();
+      cleanup = undefined;
+    });
+  }
+</script>

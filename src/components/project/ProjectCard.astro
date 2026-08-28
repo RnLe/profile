@@ -1,0 +1,208 @@
+---
+/**
+ * One project as a larger card on the projects index: thumbnail plus an
+ * optional second image, year, status, title, subtitle, two short paragraphs
+ * (summary and contribution), the link row, and the way to the full page.
+ * A route-gated entry renders as a dashed placeholder with no link.
+ */
+import type { ProjectListEntry } from '../../lib/projects';
+import { withBase } from '../../lib/routes';
+import { getCardThumb, getSecondaryThumb } from '../../lib/thumbs';
+import Icon from '../ui/Icon.astro';
+import StatusChip from '../ui/StatusChip.astro';
+import ProjectLinks from './ProjectLinks.astro';
+import ProjectThumb from './ProjectThumb.astro';
+
+interface Props {
+  entry: ProjectListEntry;
+}
+
+const { entry } = Astro.props;
+const gated = entry.kind === 'gated';
+const thumb = getCardThumb(entry.id);
+const secondary = entry.kind === 'project' ? getSecondaryThumb(entry.id) : undefined;
+const titleId = `${entry.id}-title`;
+const sizes = '(max-width: 64rem) calc(100vw - 2rem), 20rem';
+---
+
+<article
+  class:list={['pcard', gated && 'pcard--gated']}
+  id={entry.id}
+  data-project-card={entry.id}
+  data-gated={gated ? '' : undefined}
+  aria-labelledby={titleId}
+>
+  <div class="pcard-media">
+    <ProjectThumb {thumb} widths={[360, 720, 1080]} {sizes} />
+    {secondary && <ProjectThumb thumb={secondary} widths={[360, 720]} {sizes} />}
+  </div>
+
+  <div class="pcard-body">
+    <div class="pcard-meta">
+      <span class="pcard-year">{entry.yearLabel}</span>
+      <StatusChip model={entry.status} />
+    </div>
+    <h2 class="pcard-title" id={titleId}>
+      {entry.kind === 'project' ? <a href={withBase(entry.href)}>{entry.title}</a> : entry.title}
+    </h2>
+    <p class="pcard-subtitle">{entry.kind === 'project' ? entry.subtitle : entry.question}</p>
+
+    {entry.kind === 'project' ? (
+      <>
+        <p class="pcard-summary">{entry.summary}</p>
+        <p class="pcard-role">{entry.role}</p>
+        <ProjectLinks links={entry.links} />
+        <p class="pcard-read">
+          <a href={withBase(entry.href)}>
+            Read the case study <Icon name="arrow-right" size={14} />
+          </a>
+        </p>
+      </>
+    ) : (
+      <>
+        <p class="pcard-summary">{entry.statusText}</p>
+        <ProjectLinks links={entry.links} />
+      </>
+    )}
+  </div>
+</article>
+
+<style>
+  .pcard {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: var(--sp-6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    /* The images run into the card's own corners; the text side is padded. */
+    overflow: hidden;
+  }
+
+  .pcard--gated {
+    background: var(--surface-alt);
+    border-style: dashed;
+    border-color: var(--line-strong);
+    box-shadow: none;
+  }
+
+  /* Runs into the card's own corners and down its full height: the text
+     decides how tall the card is, the images fit themselves into what is
+     left. */
+  .pcard-media {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 11rem;
+  }
+
+  /* One image takes the column; with two, the mark sits above the figure and
+     the figure keeps the larger share. */
+  .pcard-media > :global(*) {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* Grow ratios, never a percentage: a percentage of an indefinite height
+     falls back to the image's own, which would let a tall mark stretch the
+     card past what the text needs. */
+  .pcard-media > :global(*:first-child:not(:last-child)) {
+    flex: 38 1 0;
+  }
+
+  .pcard-media > :global(*:last-child:not(:first-child)) {
+    flex: 62 1 0;
+  }
+
+  .pcard-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    min-width: 0;
+    padding: var(--sp-5) var(--sp-5) var(--sp-5) 0;
+  }
+
+  .pcard-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-4);
+  }
+
+  .pcard-year {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pcard-title {
+    font-size: var(--step-1);
+  }
+
+  .pcard-title a {
+    color: var(--ink-heading);
+    text-decoration: none;
+  }
+
+  .pcard-title a:hover {
+    color: var(--accent-strong);
+  }
+
+  .pcard--gated .pcard-title {
+    color: var(--ink-muted);
+  }
+
+  .pcard-subtitle {
+    max-width: none;
+    margin-block-start: calc(-1 * var(--sp-1));
+    font-size: var(--step-0);
+    line-height: var(--lh-snug);
+    color: var(--ink-muted);
+  }
+
+  .pcard-summary,
+  .pcard-role {
+    max-width: none;
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .pcard-role {
+    color: var(--ink-faint);
+  }
+
+  .pcard-read {
+    margin-block-start: auto;
+  }
+
+  .pcard-read a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-weight: 600;
+    font-size: var(--step--1);
+    text-decoration: none;
+  }
+
+  .pcard-read a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 63.99rem) {
+    .pcard {
+      grid-template-columns: 1fr;
+      gap: var(--sp-5);
+    }
+
+    .pcard-body {
+      padding: 0 var(--sp-5) var(--sp-5);
+    }
+
+    /* Stacked: nothing above to take its height from, so it states one. */
+    .pcard-media {
+      height: 15rem;
+    }
+  }
+</style>
