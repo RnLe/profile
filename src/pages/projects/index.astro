@@ -1,0 +1,74 @@
+---
+/**
+ * The projects index: every project as a card, latest first, with a sticky
+ * rail on the left that follows the reader's place in the list. A card leads
+ * to its full page.
+ */
+import AcademicLayout from '../../layouts/AcademicLayout.astro';
+import ProjectCard from '../../components/project/ProjectCard.astro';
+import ProjectRail from '../../components/project/ProjectRail.astro';
+import ExpansionNote from '../../components/ui/ExpansionNote.astro';
+import { getPublishedProjects } from '../../lib/content';
+import { buildProjectList } from '../../lib/projects';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const entries = buildProjectList(await getPublishedProjects());
+
+const origin = Astro.site?.href ?? 'https://rnle.github.io/';
+const jsonLd = [
+  breadcrumbSchema(origin, [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects/' },
+  ]),
+];
+---
+
+<AcademicLayout
+  title="Projects"
+  description="All projects, latest first: validated simulation software, archived thesis research, and in-progress robot-learning studies with explicit maturity states."
+  {jsonLd}
+>
+  <section class="band band--tight">
+    <div class="wrap wrap--stage">
+      <h1 class="page-title">Projects</h1>
+      <ExpansionNote />
+      <div class="layout">
+        <ProjectRail {entries} />
+        <div class="cards">
+          {entries.map((entry) => (
+            <ProjectCard {entry} />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</AcademicLayout>
+
+<style>
+  .page-title {
+    margin-block-end: var(--sp-4);
+  }
+
+  /* The rail carries title, type marks and year, so it gets its own width
+     rather than taking any from the cards: the page runs on the wide rail. */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    gap: var(--sp-10);
+    align-items: start;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+    min-width: 0;
+  }
+
+  @media (max-width: 63.99rem) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: var(--sp-6);
+    }
+  }
+</style>
