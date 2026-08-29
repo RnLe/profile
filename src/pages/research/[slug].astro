@@ -1,0 +1,15 @@
+---
+/** Legacy case-study paths: each one redirects to its /projects/ route. */
+import AliasStub from '../../components/ui/AliasStub.astro';
+import { legacyAliases, legacyAliasTitles } from '../../lib/routes';
+
+export function getStaticPaths() {
+  return Object.keys(legacyAliases)
+    .filter((from) => /^\/research\/[^/]+\/$/.test(from))
+    .map((from) => ({ params: { slug: from.split('/')[2] } }));
+}
+
+const from = `/research/${Astro.params.slug}/`;
+---
+
+<AliasStub to={legacyAliases[from]} title={legacyAliasTitles[from] ?? 'Project'} />
