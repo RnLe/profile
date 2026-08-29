@@ -1,0 +1,52 @@
+---
+/**
+ * Legacy alias stub: canonical → new route, noindex, immediate meta
+ * refresh, inline location.replace fallback, and a visible link. No site
+ * chrome, no duplicated content, never in the sitemap.
+ */
+import { withBase } from '../../lib/routes';
+
+interface Props {
+  /** Root-relative target, may include an anchor (e.g. "/about/#teaching-service"). */
+  to: string;
+  title: string;
+}
+
+const { to, title } = Astro.props;
+const target = withBase(to);
+const canonical = new URL(to.split('#')[0], Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} (moved)</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <script is:inline define:vars={{ target }}>
+      location.replace(target);
+    </script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background: #f7f6f2;
+        color: #182129;
+      }
+      a {
+        color: #315d73;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      This page has moved. Continue to <a href={target}>{title}</a>.
+    </p>
+  </body>
+</html>
