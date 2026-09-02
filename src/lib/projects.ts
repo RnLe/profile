@@ -96,7 +96,10 @@ const documentLabel = (record: ArtifactRecord): string => {
     case 'manuscript':
       return 'Manuscript';
     case 'report':
-      return 'Report';
+      // The post-submission edition is the thesis a reader is looking for, and
+      // the CV names it the same way. Its own record and page state plainly
+      // that it is not the examined submission.
+      return record.academicStatus === 'research-continuation' ? 'Thesis' : 'Report';
     case 'slides':
       return record.academicStatus === 'historical-presentation' ? 'Defense slides' : 'Slides';
     default:

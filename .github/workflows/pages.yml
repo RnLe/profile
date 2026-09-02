@@ -1,0 +1,106 @@
+# Manual-only deploy to GitHub Pages (§106). Deployment stays a manual owner
+# gate: nothing runs on push.
+#
+# The site is served from a project page, so the deployed artifact is built a
+# second time with the path prefix applied. Verification runs first against the
+# root build, because the test suite addresses routes from the site root; the
+# prefixed artifact is then re-checked for HTML validity, internal links, and
+# release-mode inspection before it is uploaded. Nothing but that artifact
+# reaches Pages.
+name: Deploy site
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  SITE_URL: https://rnle.github.io
+  # Project page: https://rnle.github.io/profile/. Applied to the deployed
+  # build only, never to the verification build.
+  PAGES_BASE: /profile/
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm check
+
+      - run: pnpm test:unit
+
+      - name: Registry validation
+        run: pnpm check:content && pnpm check:claims && pnpm check:media && pnpm check:privacy && pnpm check:documents
+
+      - run: pnpm build
+
+      - run: pnpm check:html
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm test:e2e
+
+      - run: pnpm test:a11y
+
+      - run: pnpm check:links
+
+      - run: pnpm budget
+
+      - name: Release-mode artifact inspection (placeholders block deployment)
+        run: pnpm inspect:dist && pnpm exec tsx scripts/inspect-dist.ts --release
+
+      - name: Rebuild with the project-page path prefix
+        env:
+          SITE_BASE: ${{ env.PAGES_BASE }}
+        run: pnpm build
+
+      - name: Re-check the prefixed artifact
+        env:
+          SITE_BASE: ${{ env.PAGES_BASE }}
+        run: |
+          pnpm check:html
+          pnpm check:links
+          pnpm inspect:dist
+          pnpm exec tsx scripts/inspect-dist.ts --release
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: verify-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Smoke test deployed URL
+        run: |
+          sleep 10
+          curl --fail --silent --show-error "${{ steps.deployment.outputs.page_url }}" > /dev/null
+          curl --fail --silent --show-error "${{ steps.deployment.outputs.page_url }}robots.txt" > /dev/null

@@ -112,7 +112,7 @@ test('link rows read like the CV: one marker each, documents with length and siz
 
   const envelope = page.locator('[data-project-list] li[data-project-id="envelope-approximation"]');
   expect(flat(await envelope.locator('.artifacts .text').allTextContents())).toEqual([
-    'Report (92p, 28.1 MB)',
+    'Thesis (92p, 28.1 MB)',
     'Manuscript (25p, 2.7 MB)',
     'Defense slides (12.4 MB)',
     'MSL framework source',
