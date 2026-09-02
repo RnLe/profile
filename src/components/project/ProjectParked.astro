@@ -1,0 +1,98 @@
+---
+/**
+ * A staged case study whose content is still being written: the same article
+ * element both hosts expect (page and overlay modal), carrying the project's
+ * identity, its status, its public links, and one line about what is coming.
+ */
+import type { ResolvedProject } from '../../lib/publication';
+import { buildProjectLinks } from '../../lib/projects';
+import StatusChip from '../ui/StatusChip.astro';
+import ProjectLinks from './ProjectLinks.astro';
+
+interface Props {
+  project: ResolvedProject;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const links = buildProjectLinks(project);
+---
+
+<article
+  class="project-article"
+  data-project-article
+  data-project-parked
+  data-project-slug={data.slug}
+  data-project-title={data.title}
+>
+  <div class="band band--tight">
+    <div class="wrap">
+      <p class="eyebrow">{data.domain}</p>
+      <h1>{data.title}</h1>
+      <p class="lead">{data.oneLine}</p>
+
+      <div class="status-row">
+        <StatusChip
+          lifecycle={data.lifecycle}
+          evidenceLevel={data.evidenceLevel}
+          statusDate={data.statusDate}
+        />
+        <span class="range">{data.dateRange}</span>
+      </div>
+
+      <p class="notice">This case study is being written and goes up very shortly.</p>
+
+      {links.length > 0 && (
+        <div class="actions">
+          <ProjectLinks {links} />
+        </div>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .project-article {
+    container-type: inline-size;
+  }
+
+  h1 {
+    margin-block-start: var(--sp-1);
+  }
+
+  .lead {
+    margin-block-start: var(--sp-3);
+    max-width: var(--w-prose);
+    font-size: var(--step-0);
+    color: var(--ink-muted);
+  }
+
+  .status-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-4);
+    margin-block-start: var(--sp-5);
+  }
+
+  .range {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+
+  .notice {
+    margin-block-start: var(--sp-6);
+    max-width: var(--w-prose);
+    padding: var(--sp-4) var(--sp-5);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r-md);
+    background: var(--surface-alt);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .actions {
+    margin-block-start: var(--sp-5);
+  }
+</style>
