@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
-import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeScrollableRegions from './scripts/rehype-scrollable-regions.mjs';
@@ -60,7 +59,15 @@ export default defineConfig({
     rehypePlugins: [[rehypeKatex, { output: 'html' }], rehypeScrollableRegions],
   },
   vite: {
-    plugins: [tailwindcss()],
-    build: { sourcemap: false },
+    build: {
+      sourcemap: false,
+      // Vite 8 minifies CSS with Lightning CSS, which rewrites `max-width` into
+      // the range syntax `(width<=40rem)` whenever the target floor allows it.
+      // A browser below that floor discards the whole query rather than part of
+      // it, so every phone layout on the site would silently revert to the
+      // desktop grid. Naming an older floor keeps min/max in the output; a
+      // dist-level check in inspect:dist asserts it.
+      cssTarget: ['chrome87', 'edge88', 'firefox78', 'safari14'],
+    },
   },
 });

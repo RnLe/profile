@@ -7,6 +7,7 @@
  *   - institution names (the public site is institution-neutral)
  *   - retracted-claim phrases (from claims.yaml forbidden_phrases) and the
  *     quarantined stale-copy phrases
+ *   - media queries in range syntax (see the check for why)
  *   - addressable files that no staging-manifest record accounts for
  *   - sitemap drift: the sitemap must equal the canonical route set
  *     (all dist routes minus legacy aliases minus 404)
@@ -152,6 +153,21 @@ for (const file of files) {
   }
   if (/(?<![\w.])\.env(?:\.\w+)?\b/.test(content)) {
     report.fail(`${rel}: .env reference`);
+  }
+
+  // A browser that predates the range syntax discards such a query whole rather
+  // than ignoring part of it, so a single `(width<=40rem)` costs the site every
+  // narrow layout at once and leaves a 390 px screen rendering the desktop grid.
+  // build.cssTarget in astro.config.mjs holds the minifier to min/max; this is
+  // the check that notices if that ever stops being true.
+  if (rel.endsWith('.css') || rel.endsWith('.html')) {
+    const range = raw.match(/@media[^{]*\(\s*width\s*[<>]=?/);
+    if (range) {
+      report.fail(
+        `${rel}: media query in range syntax ("${range[0].trim()}"), which older browsers ` +
+          'drop entirely; see build.cssTarget in astro.config.mjs',
+      );
+    }
   }
 
   if (releaseMode && rel.endsWith('.html')) {

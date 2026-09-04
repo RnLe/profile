@@ -36,7 +36,6 @@ const gated = entry.kind === 'gated';
       ratio="16 / 9"
     />
   </div>
-  <span class="stripe-year">{entry.yearLabel}</span>
   <div class="stripe-text">
     <h3 class="stripe-title">
       {entry.kind === 'project' ? (
@@ -47,8 +46,11 @@ const gated = entry.kind === 'gated';
     </h3>
     <p class="stripe-subtitle">{entry.kind === 'project' ? entry.subtitle : entry.statusText}</p>
   </div>
-  <div class="stripe-status">
-    <StatusChip model={entry.status} />
+  <div class="stripe-meta">
+    <span class="stripe-year">{entry.yearLabel}</span>
+    <div class="stripe-status">
+      <StatusChip model={entry.status} />
+    </div>
   </div>
   {entry.links.length > 0 && (
     <div class="stripe-links">
@@ -98,6 +100,12 @@ const gated = entry.kind === 'gated';
     align-self: stretch;
     margin: calc(-1 * var(--sp-3)) 0;
     min-height: 4.25rem;
+  }
+
+  /* The two carry their own grid areas until the narrowest layout, where they
+     become one wrapping line: a box here would break those placements. */
+  .stripe-meta {
+    display: contents;
   }
 
   .stripe-year {
@@ -192,7 +200,7 @@ const gated = entry.kind === 'gated';
       grid-template-columns: 5.5rem minmax(0, 1fr);
       grid-template-areas:
         'thumb text'
-        'year status'
+        'meta meta'
         'links links';
     }
 
@@ -201,16 +209,19 @@ const gated = entry.kind === 'gated';
       margin-block-end: 0;
     }
 
-    .stripe-year {
+    /* The thumbnail column is 5.5rem: too narrow for a period, which ran under
+       the chip beside it. Both sit on one wrapping line across the stripe. */
+    .stripe-meta {
+      grid-area: meta;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--sp-2) var(--sp-3);
       padding-inline-start: var(--sp-3);
     }
 
     .stripe-links {
       padding-inline-start: var(--sp-3);
-    }
-
-    .stripe-status {
-      justify-self: start;
     }
   }
 </style>

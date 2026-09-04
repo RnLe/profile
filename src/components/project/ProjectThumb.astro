@@ -6,8 +6,12 @@
  * placeholder for a pending owner asset, or an empty hatched frame for a
  * route-gated entry with nothing to show yet.
  *
- * `ratio` fixes the frame for the compact list; the card leaves it open so a
- * wide figure keeps its own proportions instead of being cropped.
+ * The frame always fills its column, and `ratio` only ever sets its height,
+ * as a fallback for a parent that leaves the height indefinite: the compact
+ * list gets a fixed frame, the card leaves it open so a wide figure keeps its
+ * own proportions instead of being cropped. Stating a ratio without an inline
+ * size lets the ratio run backwards, computing the width from a stretched
+ * parent's height and overflowing the column it was given.
  */
 import { Image } from 'astro:assets';
 import { getThumb, type Thumb } from '../../lib/thumbs';
@@ -19,7 +23,7 @@ interface Props {
   thumb?: Thumb;
   widths: number[];
   sizes: string;
-  /** Aspect ratio of the frame; omit to let the image set its own height. */
+  /** Height of the frame, used only where the parent leaves it indefinite. */
   ratio?: string;
 }
 
@@ -63,6 +67,8 @@ const asIs = thumb?.kind === 'image' && (thumb.animated || thumb.src.format === 
   .thumb {
     display: block;
     overflow: hidden;
+    /* Never derived from the ratio: the frame is as wide as its column. */
+    inline-size: 100%;
     height: 100%;
   }
 
