@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { breakpoints } from '../../src/lib/breakpoints';
 
 const root = join(__dirname, '../..');
 
@@ -31,6 +32,34 @@ describe('source discipline', () => {
     for (const file of listFiles(join(root, 'src'), ['.astro', '.ts', '.tsx'])) {
       const content = readFileSync(file, 'utf8');
       if (/from ['"](pixi\.js|three)['"]/.test(content)) offenders.push(file);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  // Only @media preludes: an image `sizes` attribute describes the layout
+  // rather than deciding it, and a @container query is measured against its
+  // own container, so neither is bound to the viewport ladder.
+  it('every viewport media query uses a value from the breakpoint ladder', () => {
+    const offenders: string[] = [];
+    for (const file of listFiles(join(root, 'src'), ['.astro', '.css'])) {
+      const content = readFileSync(file, 'utf8');
+      for (const query of content.matchAll(/@media([^{]+)\{/g)) {
+        for (const match of query[1].matchAll(/\((?:min|max)-width:\s*([^)]+)\)/g)) {
+          const value = match[1].trim();
+          if (!(breakpoints as readonly string[]).includes(value)) {
+            offenders.push(`${relative(root, file)}: ${match[0]}`);
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('no width media query uses the range syntax older browsers discard whole', () => {
+    const offenders: string[] = [];
+    for (const file of listFiles(join(root, 'src'), ['.astro', '.css'])) {
+      const content = readFileSync(file, 'utf8');
+      if (/@media[^{]*\(\s*width\s*[<>]=?/.test(content)) offenders.push(relative(root, file));
     }
     expect(offenders).toEqual([]);
   });

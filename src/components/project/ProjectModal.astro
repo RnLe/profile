@@ -143,16 +143,32 @@ import { withBase } from '../../lib/routes';
     cursor: pointer;
   }
 
-  .panel-full:hover,
-  .panel-close:hover {
-    background: var(--surface);
-    color: var(--ink);
+  /* Hover is a pointer's feedback. A touch device that applies it keeps it
+     applied after the tap, leaving the last thing touched looking active. */
+  @media (hover: hover) {
+    .panel-full:hover,
+    .panel-close:hover {
+      background: var(--surface);
+      color: var(--ink);
+    }
   }
 
   .panel-close {
     min-inline-size: 1.65rem;
     justify-content: center;
     padding-inline: 0;
+  }
+
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .panel-full,
+    .panel-close {
+      min-height: 2.75rem;
+    }
+
+    .panel-close {
+      min-inline-size: 2.75rem;
+    }
   }
 
   /* ------------------------------------------------------------- the body --- */
@@ -222,10 +238,12 @@ import { withBase } from '../../lib/routes';
   }
 
   /* ------------------------------------------------------------ responsive --- */
-  /* Below the tablet breakpoint the panel takes the whole viewport: 80% of a
-     phone screen is not enough to read a case study in. (Entry links bypass
-     the modal there; this covers a window resized after opening.) */
-  @media (max-width: 47.99rem) {
+  /* Below the tablet breakpoint, and on any short viewport, the panel takes
+     the whole thing: 80% of a phone screen is not enough to read a case study
+     in, and a phone held sideways is only about 300 px tall. (Entry links
+     bypass the modal there; this covers a window resized after opening.)
+     Kept in step with NARROW in src/lib/breakpoints.ts. */
+  @media (max-width: 47.99rem), (max-height: 30rem) {
     .project-modal {
       padding: 0;
     }
@@ -278,9 +296,9 @@ import { withBase } from '../../lib/routes';
    * click listener sits on `document` in the bubble phase and steps aside only
    * when the event is already defaultPrevented.
    */
-  type ModalWindow = Window & { __projectModalBound?: boolean };
+  import { NARROW } from '../../lib/breakpoints';
 
-  const NARROW = '(max-width: 47.99rem)';
+  type ModalWindow = Window & { __projectModalBound?: boolean };
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const projectRoute = new RegExp(`^${escapedBase}/projects/[a-z0-9-]+/$`);

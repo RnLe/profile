@@ -1,33 +1,3 @@
-@import 'tailwindcss';
-
-/*
- * Bridge the design tokens into Tailwind's theme so any utility that does get
- * used resolves to the SAME custom properties, so tokens stay the single source
- * of truth for the whole design system.
- */
-@theme inline {
-  --color-paper: var(--paper);
-  --color-surface: var(--surface);
-  --color-surface-alt: var(--surface-alt);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-ink-faint: var(--ink-faint);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-
-  --radius-sm: var(--r-sm);
-  --radius-md: var(--r-md);
-  --radius-lg: var(--r-lg);
-
-  --shadow-card: var(--shadow-card);
-  --shadow-raised: var(--shadow-raised);
-}
-
 /* ------------------------------------------------------------------ reset --- */
 *,
 *::before,
