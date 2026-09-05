@@ -114,7 +114,7 @@ const rows = (links: ArtifactLink[]): Row[] => {
                 </ul>
               )}
               {entry.links && entry.links.length > 0 && (
-                <p class="artifacts">
+                <p class="artifacts link-row">
                   {rows(entry.links).map((row) => {
                     if (row.rule) {
                       return (
@@ -266,6 +266,14 @@ const rows = (links: ArtifactLink[]): Row[] => {
     white-space: nowrap;
   }
 
+  /* The longest period and location pair together outrun a small phone, and a
+     line that wraps reads better than one that pushes the page sideways. */
+  @media (max-width: 40rem) {
+    .where {
+      white-space: normal;
+    }
+  }
+
   .description {
     max-width: none;
     font-size: var(--step--1);
@@ -297,20 +305,9 @@ const rows = (links: ArtifactLink[]): Row[] => {
   }
 
   /* ------------------------------------------------------------ artifacts --- */
+  /* Geometry, spacing and touch sizing come from .link-row in global.css. */
   .artifacts {
-    max-width: none;
     margin-block-start: var(--sp-3);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-1) var(--sp-4);
-    font-size: var(--step--2);
-  }
-
-  .artifacts a,
-  .artifacts .pending {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
   }
 
   .artifacts .is-primary {
@@ -351,6 +348,15 @@ const rows = (links: ArtifactLink[]): Row[] => {
     align-self: start;
     align-items: center;
     gap: var(--sp-2);
+  }
+
+  /* On touch the links open up to 44 px and centre their text in it, so the
+     rule beside them has a line to centre in too and no leading to hang below. */
+  @media (pointer: coarse) {
+    .rule {
+      align-self: auto;
+      min-height: 2.75rem;
+    }
   }
 
   /*

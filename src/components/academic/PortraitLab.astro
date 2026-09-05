@@ -158,6 +158,11 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     border-radius: var(--r-sm);
     border: 1px solid var(--line);
     background: #0b0e13;
+  }
+
+  /* Only the spectrum is painted on. Claiming the gesture on the read-only
+     reconstruction beside it would cost a vertical swipe over half the hero. */
+  .pane canvas[data-spectrum] {
     touch-action: none;
   }
 
@@ -293,6 +298,18 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     width: 100%;
     min-height: 1.35rem;
     margin: 0;
+  }
+
+  /* The mode buttons sit below the square and can take the 44 px guideline.
+     The pen, eraser, restore and sliders cannot: they live in the tool rail
+     inside the stage, whose height is fixed by the square's aspect ratio, and
+     at 44 px apiece the rail runs 35 px past the bottom of it. Measured, not
+     assumed. Giving them a proper target means finding the height somewhere,
+     which is a change to the instrument rather than to its styling. */
+  @media (pointer: coarse) {
+    .modes button {
+      min-height: 2.75rem;
+    }
   }
 
   /* The eraser restores original values, so amplitude does not apply. Dim it

@@ -265,32 +265,27 @@ export default function TwoLinkPreview() {
           strokeDasharray="3 4"
         />
         <circle cx={ox} cy={oy} r={7} fill="var(--ink)" />
-        <g fontFamily="var(--font-mono)" fontSize={13.5} fill="var(--ink-muted)">
-          <text x={W - 52} y={32} textAnchor="end" fill="var(--signal-model)">nominal plan</text>
-          <line
-            x1={W - 44}
-            x2={W - 24}
-            y1={27}
-            y2={27}
-            stroke="var(--signal-model)"
-            strokeWidth={3}
-            strokeLinecap="round"
-          />
-          <text x={W - 52} y={54} textAnchor="end" fill="var(--signal-robot)">
-            target world, same commands
-          </text>
-          <line
-            x1={W - 44}
-            x2={W - 24}
-            y1={49}
-            y2={49}
-            stroke="var(--signal-robot)"
-            strokeWidth={3}
-            strokeLinecap="round"
-          />
-          <text x={W - 24} y={ARM_H - 22} textAnchor="end">t = {sim.t.toFixed(1)} s</text>
-        </g>
       </svg>
+
+      {/*
+       * Legend, axis label and clock are HTML rather than <text> in the
+       * viewBox. Text in a viewBox scales with it, and at a phone's width
+       * these drawings are a little over two fifths of their 720 units, which
+       * set a 13.5 unit label at under six pixels. Out here every line reads
+       * from the page's own type scale at any width. The swatches keep the
+       * colours the strokes use, so the legend still points at the drawing.
+       */}
+      <p className="legend">
+        <span className="key">
+          <span className="swatch" style={{ background: 'var(--signal-model)' }} />
+          nominal plan
+        </span>
+        <span className="key">
+          <span className="swatch" style={{ background: 'var(--signal-robot)' }} />
+          target world, same commands
+        </span>
+        <span className="clock">t = {sim.t.toFixed(1)} s</span>
+      </p>
 
       <svg
         viewBox={`0 0 ${W} ${PLOT_H}`}
@@ -300,14 +295,13 @@ export default function TwoLinkPreview() {
       >
         <rect width={W} height={PLOT_H} fill="var(--surface)" />
         <line x1={60} x2={W - 80} y1={PLOT_H - 24} y2={PLOT_H - 24} stroke="var(--line-strong)" strokeWidth={1} />
-        <text x={16} y={22} fontFamily="var(--font-mono)" fontSize={13} fill="var(--ink-muted)">
-          ‖q_target − q_ref‖: the mismatch a residual model would be trained to absorb
-        </text>
         {plotPath && <path d={plotPath} fill="none" stroke="var(--signal-learn)" strokeWidth={2.2} />}
-        <text x={W - 72} y={PLOT_H - 28} fontFamily="var(--font-mono)" fontSize={13} fill="var(--signal-learn)">
-          {errNow.toFixed(2)} rad
-        </text>
       </svg>
+
+      <p className="legend">
+        <span className="key">‖q_target − q_ref‖: the mismatch a residual model would be trained to absorb</span>
+        <span className="clock" style={{ color: 'var(--signal-learn)' }}>{errNow.toFixed(2)} rad</span>
+      </p>
 
       <div className="controls">
         <fieldset>

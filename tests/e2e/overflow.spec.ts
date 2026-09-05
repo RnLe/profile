@@ -3,6 +3,7 @@ import { sitemapPaths } from '../helpers/sitemap';
 
 /** No horizontal overflow at any required viewport; 4K is a smoke test. */
 const viewports = [
+  { width: 320, height: 568 },
   { width: 375, height: 812 },
   { width: 390, height: 844 },
   { width: 768, height: 1024 },
