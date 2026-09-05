@@ -146,8 +146,12 @@ const sizes = '(max-width: 64rem) calc(100vw - 2rem), 20rem';
     text-decoration: none;
   }
 
-  .pcard-title a:hover {
-    color: var(--accent-strong);
+  /* Hover is a pointer's feedback. A touch device that applies it keeps it
+     applied after the tap, leaving the last thing touched looking active. */
+  @media (hover: hover) {
+    .pcard-title a:hover {
+      color: var(--accent-strong);
+    }
   }
 
   .pcard--gated .pcard-title {
@@ -186,8 +190,17 @@ const sizes = '(max-width: 64rem) calc(100vw - 2rem), 20rem';
     text-decoration: none;
   }
 
-  .pcard-read a:hover {
-    text-decoration: underline;
+  @media (hover: hover) {
+    .pcard-read a:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .pcard-read a {
+      min-height: 2.75rem;
+    }
   }
 
   @media (max-width: 63.99rem) {

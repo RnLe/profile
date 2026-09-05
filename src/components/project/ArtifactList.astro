@@ -122,7 +122,8 @@ const formatBytes = (bytes?: number): string | undefined => {
   .actions {
     margin-block-start: var(--sp-3);
     display: flex;
-    gap: var(--sp-6);
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-6);
   }
 
   .actions a {
@@ -131,5 +132,12 @@ const formatBytes = (bytes?: number): string | undefined => {
     gap: var(--sp-2);
     font-size: var(--step--1);
     font-weight: 600;
+  }
+
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .actions a {
+      min-height: 2.75rem;
+    }
   }
 </style>

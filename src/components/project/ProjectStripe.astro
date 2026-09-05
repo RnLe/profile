@@ -82,10 +82,14 @@ const gated = entry.kind === 'gated';
       background var(--dur-fast) var(--ease-out);
   }
 
-  .stripe:hover {
-    border-color: var(--line-strong);
-    border-inline-start-color: var(--tone);
-    background: var(--surface-alt);
+  /* Hover is a pointer's feedback. A touch device that applies it keeps it
+     applied after the tap, leaving the last thing touched looking active. */
+  @media (hover: hover) {
+    .stripe:hover {
+      border-color: var(--line-strong);
+      border-inline-start-color: var(--tone);
+      background: var(--surface-alt);
+    }
   }
 
   /* The stretched anchor has no box of its own to ring; the stripe shows the ring. */
@@ -146,8 +150,10 @@ const gated = entry.kind === 'gated';
     outline: none;
   }
 
-  .stripe:hover .stripe-title a {
-    color: var(--accent-strong);
+  @media (hover: hover) {
+    .stripe:hover .stripe-title a {
+      color: var(--accent-strong);
+    }
   }
 
   .stripe-subtitle {

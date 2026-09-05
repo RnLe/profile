@@ -105,9 +105,20 @@ const kindSentence = (kinds: ProjectKind[]): string =>
       background var(--dur-fast) var(--ease-out);
   }
 
-  .rail-row:hover {
-    background: var(--surface-alt);
-    color: var(--ink);
+  /* Hover is a pointer's feedback. A touch device that applies it keeps it
+     applied after the tap, leaving the last thing touched looking active. */
+  @media (hover: hover) {
+    .rail-row:hover {
+      background: var(--surface-alt);
+      color: var(--ink);
+    }
+  }
+
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .rail-row {
+      min-height: 2.75rem;
+    }
   }
 
   .rail-row[aria-current='true'] {

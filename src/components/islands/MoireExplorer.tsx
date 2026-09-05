@@ -92,19 +92,10 @@ export default function MoireExplorer() {
             />
             <line x1={cx - scaleBar / 2} x2={cx - scaleBar / 2} y1={HEIGHT - 32} y2={HEIGHT - 20} stroke="var(--ink)" strokeWidth={2} />
             <line x1={cx + scaleBar / 2} x2={cx + scaleBar / 2} y1={HEIGHT - 32} y2={HEIGHT - 20} stroke="var(--ink)" strokeWidth={2} />
-            <text
-              x={cx}
-              y={HEIGHT - 36}
-              textAnchor="middle"
-              fill="var(--ink)"
-              fontSize={14}
-              fontFamily="var(--font-mono)"
-            >
-              moiré period ≈ {periodRatio.toFixed(1)} a
-            </text>
           </g>
         )}
       </svg>
+
 
       <div className="controls">
         <label>
@@ -123,8 +114,17 @@ export default function MoireExplorer() {
         <button type="button" onClick={() => setTheta(INITIAL_THETA)}>
           Reset
         </button>
+        {/*
+         * The period is named here rather than in a <text> beside the scale
+         * bar. Text in the viewBox scales with it: at a phone's width the
+         * drawing is a little over two fifths of its 720 units, which would
+         * set the label at about six pixels. Out here it reads from the page's
+         * own type scale, and it can still state the period once the bar has
+         * outgrown the view and stopped being drawn.
+         */}
         <p className="readout">
           L = a / (2 sin(θ/2)) ≈ {periodRatio.toFixed(1)} × a, so the superlattice grows as 1/θ.
+          {moirePeriod >= WIDTH * 0.45 && ' The period is now wider than the view, so the scale bar is not drawn.'}
         </p>
       </div>
     </div>

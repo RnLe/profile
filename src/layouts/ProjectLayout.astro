@@ -101,9 +101,20 @@ const jsonLd = [
     text-decoration: none;
   }
 
-  .crumbs a:hover {
-    background: var(--surface);
-    color: var(--ink);
+  /* Hover is a pointer's feedback. A touch device that applies it keeps it
+     applied after the tap, leaving the last thing touched looking active. */
+  @media (hover: hover) {
+    .crumbs a:hover {
+      background: var(--surface);
+      color: var(--ink);
+    }
+  }
+
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .crumbs a {
+      min-height: 2.75rem;
+    }
   }
 
   .crumbs [aria-current='page'] {

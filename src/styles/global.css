@@ -29,7 +29,7 @@ body {
   background: var(--paper);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   font-optical-sizing: auto;
 }
 
@@ -89,9 +89,13 @@ a {
     text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
+/* Hover is a pointer's feedback. A touch device that applies it keeps it
+   applied after the tap, leaving the last thing touched looking active. */
+@media (hover: hover) {
 a:hover {
   color: var(--accent-strong);
   text-decoration-color: currentColor;
+}
 }
 
 code,
@@ -275,6 +279,49 @@ th {
 
 .mono {
   font-family: var(--font-mono);
+}
+
+/* -------------------------------------------------------------- link row --- */
+/*
+ * The row of marker-glyph links that sits under a CV entry and under every
+ * project surface, in one place so the two cannot drift apart. Members supply
+ * their own markup: the CV row also carries pending placeholders and the rules
+ * between one project's artifacts and the next.
+ *
+ * A pointer that cannot hover is a finger, and a 19 px link with 4 px between
+ * wrapped rows is not something a finger can hit. The row opens up to the 44 px
+ * guideline there and stays dense for a mouse, which is the density the rest of
+ * the page is set at.
+ */
+.link-row {
+  max-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  font-size: var(--step--2);
+}
+
+.link-row a,
+.link-row .pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.link-row svg {
+  flex: none;
+  opacity: 0.75;
+}
+
+@media (pointer: coarse) {
+  .link-row {
+    gap: var(--sp-1) var(--sp-5);
+  }
+
+  .link-row a,
+  .link-row .pending {
+    min-height: 2.75rem;
+  }
 }
 
 /* ---------------------------------------------------------- accessibility --- */

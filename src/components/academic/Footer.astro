@@ -91,6 +91,17 @@ const updated = new Date(`${site.lastUpdated}T00:00:00Z`).toLocaleDateString('en
     gap: var(--sp-2);
   }
 
+  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  @media (pointer: coarse) {
+    .links {
+      gap: var(--sp-1) var(--sp-6);
+    }
+
+    .links a {
+      min-height: 2.75rem;
+    }
+  }
+
   .fineprint {
     margin-block-start: var(--sp-6);
     border-top: 1px solid var(--line);

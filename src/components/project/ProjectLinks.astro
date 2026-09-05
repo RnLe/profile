@@ -2,7 +2,8 @@
 /**
  * The link row of a project, in the CV's vocabulary: one marker glyph per
  * link, and a document's length and size in the same underlined run as its
- * label. Same markup and classes as the CV artifact row so the two read as one.
+ * label. Shares the .link-row primitive with the CV artifact row, so the two
+ * read as one and cannot drift apart.
  */
 import type { ProjectLinkItem } from '../../lib/projects';
 import { withBase } from '../../lib/routes';
@@ -16,7 +17,7 @@ const { links } = Astro.props;
 ---
 
 {links.length > 0 && (
-  <p class="artifacts" data-project-links>
+  <p class="artifacts link-row" data-project-links>
     {links.map((link) => (
       <span>
         <a href={link.external ? link.href : withBase(link.href)} rel="noopener">
@@ -29,19 +30,9 @@ const { links } = Astro.props;
 )}
 
 <style>
+  /* Geometry, spacing and touch sizing come from .link-row in global.css. */
   .artifacts {
-    max-width: none;
     margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-1) var(--sp-4);
-    font-size: var(--step--2);
-  }
-
-  .artifacts a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
   }
 
   /*
@@ -59,8 +50,4 @@ const { links } = Astro.props;
     font-variant-numeric: tabular-nums;
   }
 
-  .artifacts :global(svg) {
-    flex: none;
-    opacity: 0.75;
-  }
 </style>
