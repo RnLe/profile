@@ -87,7 +87,7 @@ const rows = (links: ArtifactLink[]): Row[] => {
         <ul class="entries">
           {section.entries.map((entry) => (
             <li>
-              <div class="entry-head">
+              <div class:list={['entry-head', entry.location && 'entry-head--split']}>
                 <h3>
                   {entry.title}
                   {entry.org && <span class="org">{entry.org}</span>}
@@ -271,6 +271,46 @@ const rows = (links: ArtifactLink[]): Row[] => {
   @media (max-width: 40rem) {
     .where {
       white-space: normal;
+    }
+
+    /*
+     * A long title used to push the period onto a line of its own, where
+     * `space-between` had nothing to space it against and left it at the far
+     * left. Where the period is only a year range, the title takes the rest of
+     * the row and wraps inside it, so the period keeps the right edge and the
+     * years read down the page as a column.
+     */
+    .entry-head:not(.entry-head--split) h3 {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    /* Two of the service periods are compound strings, so the column has to be
+       allowed to wrap inside itself rather than run off the side. */
+    .entry-head:not(.entry-head--split) .period {
+      flex: 0 1 auto;
+      min-width: 0;
+      text-align: end;
+    }
+
+    /* Where it carries a place as well, the pair takes the whole width on its
+       own line, so every location ends at the same right edge. */
+    .period--split {
+      inline-size: 100%;
+    }
+
+    /* The tutorial list has the same shape and the same fault: the longest
+       course names pushed their term onto the next line and left it hanging at
+       the far left of it. The name wraps in its own column instead. */
+    .sub-items li > span:first-child {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .sub-items li .period {
+      flex: 0 1 auto;
+      min-width: 0;
+      text-align: end;
     }
   }
 

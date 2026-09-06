@@ -114,10 +114,11 @@ const kindSentence = (kinds: ProjectKind[]): string =>
     }
   }
 
-  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
+  /* A finger needs room; a row of titles is not a row of buttons, so it takes
+     the part of the guideline the page's density can carry. */
   @media (pointer: coarse) {
     .rail-row {
-      min-height: 2.75rem;
+      min-height: 2.25rem;
     }
   }
 
@@ -197,22 +198,22 @@ const kindSentence = (kinds: ProjectKind[]): string =>
       position: static;
     }
 
+    /*
+     * Rows keep the column they have beside the cards rather than becoming a
+     * wrapping row of pills. Shrink-to-fit pills put every title, every mark
+     * and every year at a different x, which is the one thing a rail is for.
+     * Full-width rows line all three up and cost no more height.
+     */
     .rail-list {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: var(--sp-2);
+      gap: var(--sp-1);
     }
 
     .rail-row {
-      gap: var(--sp-2);
-      min-height: 2.5rem;
-      padding-inline: var(--sp-3);
+      gap: var(--sp-3);
+      min-height: 0;
+      padding: var(--sp-2) var(--sp-3);
       border: 1px solid var(--line);
-      border-radius: 999px;
-    }
-
-    .rail-title {
-      flex: 0 1 auto;
+      border-radius: var(--r-md);
     }
 
     .rail-indicator {

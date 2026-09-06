@@ -289,9 +289,11 @@ th {
  * between one project's artifacts and the next.
  *
  * A pointer that cannot hover is a finger, and a 19 px link with 4 px between
- * wrapped rows is not something a finger can hit. The row opens up to the 44 px
- * guideline there and stays dense for a mouse, which is the density the rest of
- * the page is set at.
+ * wrapped rows is not something a finger can hit. The row opens up for touch,
+ * but only as far as the page's own density allows: a text link is not a
+ * button, and at the full 44 px guideline a row of them reads as a stack of
+ * separate blocks rather than one line of references. The gap carries part of
+ * the target, so the pitch between wrapped rows stays comfortably tappable.
  */
 .link-row {
   max-width: none;
@@ -315,12 +317,12 @@ th {
 
 @media (pointer: coarse) {
   .link-row {
-    gap: var(--sp-1) var(--sp-5);
+    gap: var(--sp-2) var(--sp-4);
   }
 
   .link-row a,
   .link-row .pending {
-    min-height: 2.75rem;
+    min-height: 1.75rem;
   }
 }
 

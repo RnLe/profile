@@ -140,4 +140,13 @@ const jsonLd = [personSchema(origin)];
       max-width: 24rem;
     }
   }
+
+  /* On a phone the column is narrower than the lab's own square, so the cap
+     only left a gap down one side. It takes the width and sits centred. */
+  @media (max-width: 40rem) {
+    .hero-portrait {
+      justify-self: stretch;
+      max-width: none;
+    }
+  }
 </style>
