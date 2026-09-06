@@ -323,6 +323,15 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
       margin-inline-start: 0;
     }
   }
+
+  /* On a phone the column is narrower than the square's own cap, so the cap
+     only ever left a gap down one side of it. It takes the full width. */
+  @media (max-width: 40rem) {
+    .portrait-lab {
+      inline-size: 100%;
+      margin-inline: auto;
+    }
+  }
 </style>
 
 <script>

@@ -88,4 +88,22 @@ const { groups } = Astro.props;
       border-inline-start: none;
     }
   }
+
+  /*
+   * The pipe is drawn before the item it follows, so it travels with that item
+   * across a line break and lands at the start of the new line, in front of
+   * nothing. On a phone a register is narrow enough to wrap, so the separator
+   * becomes the space itself: each register takes its own line and its items
+   * are set apart by the gap.
+   */
+  @media (max-width: 40rem) {
+    ul {
+      flex-basis: 100%;
+      gap: var(--sp-1) var(--sp-4);
+    }
+
+    li + li::before {
+      content: none;
+    }
+  }
 </style>

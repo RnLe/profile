@@ -86,6 +86,14 @@ export const projectCardThumbs: Record<string, ThumbImage> = {
     animated: true,
     fit: 'contain',
   },
+  // A photograph of the whole arm: the taller column cropped it to the gripper
+  // and cut the rest off, so it is shown whole and centred instead.
+  'recover-in-real-time': {
+    kind: 'image',
+    src: robotArm,
+    alt: 'The assembled follower arm, a printed six-joint arm with a two-finger gripper',
+    fit: 'contain',
+  },
   // Wide, two-panel, and already tightly cropped: shown whole and centred in
   // the taller column rather than zoomed into it.
   'grounded-recovery': {

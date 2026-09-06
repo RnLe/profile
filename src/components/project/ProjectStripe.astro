@@ -32,7 +32,7 @@ const gated = entry.kind === 'gated';
     <ProjectThumb
       id={entry.id}
       widths={[176, 352, 528]}
-      sizes="(max-width: 40rem) 5.5rem, (max-width: 64rem) 9rem, 10.5rem"
+      sizes="(max-width: 40rem) 10rem, (max-width: 64rem) 9rem, 10.5rem"
       ratio="16 / 9"
     />
   </div>
@@ -202,28 +202,36 @@ const gated = entry.kind === 'gated';
   }
 
   @media (max-width: 40rem) {
+    /*
+     * The image is the thing worth looking at on a phone, so it takes the
+     * column it needs and runs down both text rows rather than sitting beside
+     * one of them. Title, subtitle, year and status stack in the narrower
+     * column at its side; the links keep the full width underneath, where a
+     * wrapping row of them has somewhere to wrap to.
+     */
     .stripe {
-      grid-template-columns: 5.5rem minmax(0, 1fr);
+      /* A share of the card rather than a fixed track: at 9 rem flat the year
+         and the status chip had 108 px left at the narrowest width and ran out
+         of it. This holds the same proportion and stops shrinking before the
+         column beside it does. */
+      grid-template-columns: clamp(6rem, 43%, 10rem) minmax(0, 1fr);
       grid-template-areas:
         'thumb text'
-        'meta meta'
+        'thumb meta'
         'links links';
     }
 
-    /* Two rows tall here, so it bleeds only at the top. */
+    /* The links sit below it, so it bleeds only at the top. */
     .stripe-thumb {
       margin-block-end: 0;
     }
 
-    /* The thumbnail column is 5.5rem: too narrow for a period, which ran under
-       the chip beside it. Both sit on one wrapping line across the stripe. */
     .stripe-meta {
       grid-area: meta;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: var(--sp-2) var(--sp-3);
-      padding-inline-start: var(--sp-3);
+      gap: var(--sp-1) var(--sp-3);
     }
 
     .stripe-links {
