@@ -3,14 +3,16 @@
  * Hero portrait with a real signal-processing view.
  *
  * "Real" shows the photograph. "Fourier" runs an actual 2D FFT of its
- * luminance and splits the frame: the magnitude spectrum on the left (paint
- * on it) and the live inverse transform on the right. Painting sets a
- * normalized amplitude on a frequency disc (mirrored to the conjugate bin so
- * the reconstruction stays real) and the eraser restores the original values.
+ * luminance and stacks two squares: the live inverse transform on top and the
+ * magnitude spectrum below it (paint on it). Painting removes the frequencies
+ * under a fixed-size brush, mirrored to the conjugate bin so the
+ * reconstruction stays real. A reset appears once anything has been painted,
+ * and an info button explains the view in plain words.
  *
- * The whole instrument occupies a fixed square: both modes are absolutely
- * positioned layers inside it and the tool rail lives in the same box, so
- * switching modes never moves anything else on the page.
+ * The whole instrument occupies one fixed square: both modes are absolutely
+ * positioned layers inside it, and the labels and buttons sit in the margins
+ * the two stacked squares leave free, so switching modes never moves anything
+ * else on the page.
  *
  * Implemented as a plain module script rather than a React island: the hero is
  * the most performance-critical surface on the site, and a canvas painting
@@ -19,61 +21,59 @@
 import { getImage } from 'astro:assets';
 import portrait from '../../assets/Profile_Lehner.webp';
 import { site } from '../../data/site';
+import { nextId } from '../../lib/uid';
+import Icon from '../ui/Icon.astro';
+import Marked from '../ui/Marked.astro';
 
-const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
+const WIDTH = 640;
+const optimized = await getImage({ src: portrait, width: WIDTH, format: 'webp' });
+const height = Math.round((WIDTH * portrait.height) / portrait.width);
+const infoId = nextId('lab-info');
+const infoText =
+  'Bottom: the photo’s **Fourier transform**. Each point is a wave pattern, ==coarse at the centre, finer outwards==, and brighter the more the photo contains it. Top: the photo **rebuilt from those waves**. Paint on the bottom to remove waves: without the centre, ==only outlines remain==. JPEG compression rests on the same idea.';
 ---
 
 <div class="portrait-lab" data-portrait-lab data-src={optimized.src}>
   <div class="stage">
     <div class="layer layer--real" data-layer="real">
-      <img src={optimized.src} alt={`Portrait of ${site.name}`} width="640" height="800" />
+      <img src={optimized.src} alt={`Portrait of ${site.name}`} width={WIDTH} {height} />
     </div>
 
     <div class="layer layer--fourier" data-layer="fourier" hidden>
-      <div class="panes">
-        <figure class="pane">
-          <div class="canvas-wrap" data-canvas-wrap>
-            <canvas
-              data-spectrum
-              width="256"
-              height="256"
-              role="img"
-              aria-label="Fourier magnitude of the portrait, log-scaled with the zero frequency at the centre. Paint on it to attenuate frequency bands."></canvas>
-            <span class="brush-ring" data-brush-ring aria-hidden="true"></span>
-          </div>
-          <figcaption>log magnitude</figcaption>
-        </figure>
+      <figure class="pane">
+        <canvas
+          data-recon
+          width="256"
+          height="256"
+          role="img"
+          aria-label="The portrait rebuilt by an inverse transform from the spectrum below."></canvas>
+        <figcaption>inverse FFT</figcaption>
+      </figure>
 
-        <figure class="pane">
+      <figure class="pane">
+        <div class="canvas-wrap" data-canvas-wrap>
           <canvas
-            data-recon
+            data-spectrum
             width="256"
             height="256"
             role="img"
-            aria-label="The portrait reconstructed by inverse transform from the edited spectrum."></canvas>
-          <figcaption>inverse FFT</figcaption>
-        </figure>
+            aria-label="Fourier magnitude of the portrait, log-scaled with the zero frequency at the centre. Paint on it to remove frequencies."></canvas>
+          <span class="brush-ring" data-brush-ring aria-hidden="true"></span>
+        </div>
+        <figcaption>log magnitude</figcaption>
+      </figure>
+
+      {/* The explanation shows on hover and on keyboard focus, and a click or
+          tap pins it open, since a touch screen has no hover. It is the
+          button's description, so a screen reader reads it on focus. */}
+      <div class="info" data-info>
+        <button type="button" class="info-button" aria-label="About this view" aria-describedby={infoId}>
+          <Icon name="info" size={18} />
+        </button>
+        <p class="info-pop marked" id={infoId}><Marked text={infoText} /></p>
       </div>
 
-      <div class="tools">
-        <div class="tool-row">
-          <div class="segmented" role="group" aria-label="Tool">
-            <button type="button" data-tool="pen" aria-pressed="true">Pen</button>
-            <button type="button" data-tool="eraser" aria-pressed="false">Eraser</button>
-          </div>
-          <button type="button" class="restore" data-restore>Restore</button>
-        </div>
-        <label class="field">
-          <span class="field-name">Size</span>
-          <input type="range" data-size min="2" max="56" step="1" value="14" />
-          <span class="field-value" data-size-out>14&thinsp;px</span>
-        </label>
-        <label class="field" data-amp-field>
-          <span class="field-name">Amp</span>
-          <input type="range" data-amp min="0" max="1" step="0.01" value="0" />
-          <span class="field-value" data-amp-out>0.00</span>
-        </label>
-      </div>
+      <button type="button" class="reset" data-reset hidden>Reset</button>
     </div>
   </div>
 
@@ -98,7 +98,7 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
 </div>
 
 <style>
-  /* One fixed square, whatever the mode: nothing below it ever moves. */
+  /* One fixed frame, whatever the mode: nothing below it ever moves. */
   .portrait-lab {
     --lab-size: 20.25rem;
     display: flex;
@@ -122,33 +122,34 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     inset: 0;
   }
 
-  .layer--fourier {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: var(--sp-2);
-  }
-
   .layer--real img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Matches the crop the transform takes, so the two views frame alike. */
-    object-position: 50% 12%;
     border-radius: var(--r-md);
     border: 1px solid var(--line);
     background: var(--surface);
   }
 
-  .panes {
+  /*
+   * Two squares, one above the other, as large as the frame's height allows.
+   * The frame is square, so with the gap between them they fill it exactly
+   * when each is half its width less half the gap. That leaves a margin on
+   * each side: the labels take the left one, the buttons the right.
+   */
+  .layer--fourier {
+    --pane-gap: var(--sp-2);
+    --margin: calc(25% + var(--pane-gap) / 4);
     display: flex;
-    gap: var(--sp-2);
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .pane {
+    position: relative;
     margin: 0;
-    flex: 1 1 0;
-    min-width: 0;
+    inline-size: calc(50% - var(--pane-gap) / 2);
   }
 
   .pane canvas {
@@ -161,7 +162,7 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
   }
 
   /* Only the spectrum is painted on. Claiming the gesture on the read-only
-     reconstruction beside it would cost a vertical swipe over half the hero. */
+     reconstruction above it would cost a vertical swipe over half the hero. */
   .pane canvas[data-spectrum] {
     touch-action: none;
   }
@@ -188,29 +189,128 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     opacity: 1;
   }
 
+  /* Set along the left edge of its square and read upwards, like an axis
+     label, so the squares can take the frame's full height. Physical offsets:
+     the caption's own writing mode is vertical. */
   figcaption {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    margin-right: var(--sp-2);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    white-space: nowrap;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     line-height: 1.4;
     color: var(--ink-faint);
-    margin-block-start: var(--sp-1);
-    text-align: center;
   }
 
   /* ------------------------------------------------------------ controls --- */
+  /* Centred in the right-hand margin: the right offset puts the button's centre
+     half a margin in from the frame's edge. */
+  .info-button,
+  .reset {
+    position: absolute;
+    right: calc(var(--margin) / 2);
+    transform: translateX(50%);
+  }
+
+  .info-button {
+    top: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-faint);
+    cursor: help;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .info-button:hover,
+  .info[data-open] .info-button {
+    color: var(--accent-strong);
+  }
+
+  .reset {
+    bottom: 0;
+  }
+
+  /* Out of the flow, so the two squares stay the only things the layer lays
+     out, and transparent to the pointer everywhere but on its two parts, so
+     the spectrum under it can still be painted. */
+  .info {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .info-button,
+  .info-pop {
+    pointer-events: auto;
+  }
+
+  .info-pop {
+    position: absolute;
+    top: calc(2rem + var(--sp-1));
+    left: 0;
+    right: 0;
+    z-index: 2;
+    margin: 0;
+    padding: var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--ink-muted);
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      visibility var(--dur-fast) var(--ease-out);
+  }
+
+  /* Hover is a pointer's affordance: a touch screen keeps it applied after a
+     tap, so there the tap alone opens and closes the note. */
+  @media (hover: hover) {
+    .info:hover .info-pop {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  .info-button:focus-visible + .info-pop,
+  .info[data-open] .info-pop {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* Escape dismisses it without moving the pointer or the focus. */
+  .info[data-dismissed] .info-pop {
+    visibility: hidden;
+    opacity: 0;
+  }
+
   .modes {
     display: flex;
     gap: var(--sp-2);
   }
 
   .modes button,
-  .segmented button,
-  .restore {
+  .reset {
     font: inherit;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     letter-spacing: 0.03em;
-    padding: 0 var(--sp-4);
     min-height: 2rem;
     border: 1px solid var(--line);
     border-radius: var(--r-sm);
@@ -228,6 +328,13 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     justify-content: center;
     display: inline-flex;
     align-items: center;
+    padding: 0 var(--sp-4);
+  }
+
+  /* The margin beside the squares is about 4.5rem at its narrowest, so the
+     reset keeps its padding tight. */
+  .reset {
+    padding: 0 var(--sp-2);
   }
 
   /* Letterlike Symbols are rare in UI faces, so ask for a face that has them
@@ -239,83 +346,34 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
   }
 
   .modes button:hover,
-  .segmented button:hover,
-  .restore:hover {
+  .reset:hover {
     color: var(--ink);
     border-color: var(--line-strong);
   }
 
-  .modes button[aria-pressed='true'],
-  .segmented button[aria-pressed='true'] {
+  .modes button[aria-pressed='true'] {
     background: var(--accent-wash);
     border-color: var(--accent);
     color: var(--accent-strong);
   }
 
-  .tools {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
-    padding: var(--sp-3);
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-    background: var(--surface-alt);
-  }
-
-  .tool-row {
-    display: flex;
-    gap: var(--sp-2);
-    justify-content: space-between;
-  }
-
-  .segmented {
-    display: flex;
-    gap: var(--sp-1);
-  }
-
-  /* Label, slider, readout on one line: the rail has to fit the square. */
-  .field {
-    display: grid;
-    grid-template-columns: 2.25rem 1fr 3rem;
-    align-items: center;
-    gap: var(--sp-3);
-  }
-
-  .field-name,
-  .field-value {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--ink-faint);
-  }
-
-  .field-value {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .field input[type='range'] {
-    accent-color: var(--accent);
-    width: 100%;
-    min-height: 1.35rem;
-    margin: 0;
-  }
-
-  /* The mode buttons sit below the square and can take the 44 px guideline.
-     The pen, eraser, restore and sliders cannot: they live in the tool rail
-     inside the stage, whose height is fixed by the square's aspect ratio, and
-     at 44 px apiece the rail runs 35 px past the bottom of it. Measured, not
-     assumed. Giving them a proper target means finding the height somewhere,
-     which is a change to the instrument rather than to its styling. */
+  /* A finger needs the 44 px guideline. The mode buttons sit below the frame,
+     and the info and reset buttons in a margin that is wider than 44 px down
+     to the narrowest phone, so all of them can take it. */
   @media (pointer: coarse) {
-    .modes button {
+    .modes button,
+    .reset {
       min-height: 2.75rem;
     }
-  }
 
-  /* The eraser restores original values, so amplitude does not apply. Dim it
-     in place rather than removing it, which would resize the rail. */
-  .field[data-inactive] {
-    opacity: 0.45;
+    .info-button {
+      inline-size: 2.75rem;
+      block-size: 2.75rem;
+    }
+
+    .info-pop {
+      top: calc(2.75rem + var(--sp-1));
+    }
   }
 
   @media (max-width: 63.99rem) {
@@ -324,12 +382,32 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     }
   }
 
-  /* On a phone the column is narrower than the square's own cap, so the cap
+  /* On a phone the column is narrower than the frame's own cap, so the cap
      only ever left a gap down one side of it. It takes the full width. */
   @media (max-width: 40rem) {
     .portrait-lab {
       inline-size: 100%;
       margin-inline: auto;
+    }
+
+    /* The first screen is tight here: the two mode buttons give up the
+       44 px guideline for a slim row. Each is half the square wide, so a
+       finger still finds it. */
+    .modes button {
+      min-height: 1.875rem;
+    }
+
+    .glyph {
+      font-size: 1.15rem;
+    }
+
+    /* The square can be small here, which would leave the note a narrow
+       column: it takes the page's width instead, centred on the square. */
+    .info-pop {
+      left: 50%;
+      right: auto;
+      inline-size: min(22rem, calc(100vw - 2 * var(--gutter)));
+      transform: translateX(-50%);
     }
   }
 </style>
@@ -338,6 +416,8 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
   import { FFT2D, shiftTable } from '../../lib/fft';
 
   const N = 256;
+  /** Brush radius in spectrum bins. */
+  const BRUSH = 14;
 
   function setupPortraitLab(root: HTMLElement): void {
     const el = <T extends Element>(sel: string) => root.querySelector<T>(sel);
@@ -347,17 +427,14 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     const canvasWrap = el<HTMLElement>('[data-canvas-wrap]');
     const brushRing = el<HTMLElement>('[data-brush-ring]');
     const note = el<HTMLElement>('[data-note]');
-    const ampField = el<HTMLElement>('[data-amp-field]');
-    const sizeInput = el<HTMLInputElement>('[data-size]');
-    const sizeOut = el<HTMLElement>('[data-size-out]');
-    const ampInput = el<HTMLInputElement>('[data-amp]');
-    const ampOut = el<HTMLElement>('[data-amp-out]');
+    const reset = el<HTMLButtonElement>('[data-reset]');
+    const info = el<HTMLElement>('[data-info]');
     const layers = {
       real: el<HTMLElement>('[data-layer="real"]'),
       fourier: el<HTMLElement>('[data-layer="fourier"]'),
     };
 
-    if (!spectrumCanvas || !reconCanvas || !sizeInput || !ampInput) return;
+    if (!spectrumCanvas || !reconCanvas) return;
 
     const spectrumCtx = spectrumCanvas.getContext('2d');
     const reconCtx = reconCanvas.getContext('2d');
@@ -379,9 +456,6 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     const spectrumImage = spectrumCtx.createImageData(N, N);
     const reconImage = reconCtx.createImageData(N, N);
 
-    let tool: 'pen' | 'eraser' = 'pen';
-    const sizes = { pen: 14, eraser: 20 };
-    let amplitude = 0;
     let loading = false;
     let frame = 0;
     let needsSpectrumDraw = false;
@@ -401,8 +475,8 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
       const scratchCtx = scratch.getContext('2d', { willReadFrequently: true });
       if (!scratchCtx) throw new Error('2D context unavailable');
 
-      // Square crop biased upward so the face fills the frame; the same crop
-      // the CSS object-position gives the "Real" layer.
+      // Square crop, biased upward so the face fills the frame should the
+      // source ever be taller than it is wide.
       const side = Math.min(image.naturalWidth, image.naturalHeight);
       const sx = (image.naturalWidth - side) / 2;
       const sy = (image.naturalHeight - side) * 0.12;
@@ -495,24 +569,23 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
       const rect = spectrumCanvas.getBoundingClientRect();
       const cx = Math.round(((clientX - rect.left) / rect.width) * N);
       const cy = Math.round(((clientY - rect.top) / rect.height) * N);
-      const radius = sizes[tool];
-      const value = tool === 'pen' ? amplitude : 1;
-      const r2 = radius * radius;
+      const r2 = BRUSH * BRUSH;
 
-      for (let dy = -radius; dy <= radius; dy += 1) {
+      for (let dy = -BRUSH; dy <= BRUSH; dy += 1) {
         const y = cy + dy;
         if (y < 0 || y >= N) continue;
-        for (let dx = -radius; dx <= radius; dx += 1) {
+        for (let dx = -BRUSH; dx <= BRUSH; dx += 1) {
           if (dx * dx + dy * dy > r2) continue;
           const x = cx + dx;
           if (x < 0 || x >= N) continue;
           const u = shift[x];
           const v = shift[y];
-          mask[v * N + u] = value;
+          mask[v * N + u] = 0;
           // Mirror onto the conjugate bin so the inverse stays real-valued.
-          mask[((N - v) % N) * N + ((N - u) % N)] = value;
+          mask[((N - v) % N) * N + ((N - u) % N)] = 0;
         }
       }
+      reset?.removeAttribute('hidden');
       needsSpectrumDraw = true;
       needsRecon = true;
       schedule();
@@ -521,8 +594,7 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     const moveBrushRing = (clientX: number, clientY: number): void => {
       if (!brushRing || !canvasWrap) return;
       const rect = spectrumCanvas.getBoundingClientRect();
-      const scale = rect.width / N;
-      const diameter = sizes[tool] * 2 * scale;
+      const diameter = BRUSH * 2 * (rect.width / N);
       brushRing.style.width = `${diameter}px`;
       brushRing.style.height = `${diameter}px`;
       brushRing.style.left = `${clientX - rect.left}px`;
@@ -532,6 +604,7 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
     let painting = false;
 
     spectrumCanvas.addEventListener('pointerdown', (event) => {
+      if (!specRe) return;
       painting = true;
       spectrumCanvas.setPointerCapture(event.pointerId);
       paintAt(event.clientX, event.clientY);
@@ -561,6 +634,7 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
       const fourier = next === 'fourier';
       layers.real?.toggleAttribute('hidden', fourier);
       layers.fourier?.toggleAttribute('hidden', !fourier);
+      info?.removeAttribute('data-open');
       if (note) note.textContent = '';
 
       if (!fourier || specRe || loading) return;
@@ -588,35 +662,62 @@ const optimized = await getImage({ src: portrait, width: 640, format: 'webp' });
       });
     });
 
-    root.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach((button) => {
-      button.addEventListener('click', () => {
-        tool = button.dataset.tool === 'eraser' ? 'eraser' : 'pen';
-        root.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach((other) => {
-          other.setAttribute('aria-pressed', String(other.dataset.tool === tool));
-        });
-        ampField?.toggleAttribute('data-inactive', tool === 'eraser');
-        ampInput.disabled = tool === 'eraser';
-        sizeInput.value = String(sizes[tool]);
-        if (sizeOut) sizeOut.textContent = `${sizes[tool]} px`;
-      });
-    });
-
-    sizeInput.addEventListener('input', () => {
-      sizes[tool] = Number(sizeInput.value);
-      if (sizeOut) sizeOut.textContent = `${sizeInput.value} px`;
-    });
-
-    ampInput.addEventListener('input', () => {
-      amplitude = Number(ampInput.value);
-      if (ampOut) ampOut.textContent = amplitude.toFixed(2);
-    });
-
-    el<HTMLButtonElement>('[data-restore]')?.addEventListener('click', () => {
+    reset?.addEventListener('click', () => {
       mask.fill(1);
       needsSpectrumDraw = true;
       needsRecon = true;
       schedule();
+      // The button leaves with the edits. Focus would fall to the page, so it
+      // moves to the pressed mode button: the info button would open its note.
+      reset.setAttribute('hidden', '');
+      root.querySelector<HTMLButtonElement>('[data-mode="fourier"]')?.focus();
+      if (note) note.textContent = 'Portrait restored.';
     });
+
+    if (info) {
+      const infoButton = info.querySelector<HTMLButtonElement>('button');
+      const undismiss = () => info.removeAttribute('data-dismissed');
+      const showing = () =>
+        info.hasAttribute('data-open') ||
+        info.matches(':hover') ||
+        Boolean(infoButton?.matches(':focus-visible'));
+
+      infoButton?.addEventListener('click', () => {
+        undismiss();
+        info.toggleAttribute('data-open');
+      });
+      // Leaving the button and the note together, not just the button.
+      info.addEventListener('pointerleave', undismiss);
+      infoButton?.addEventListener('blur', undismiss);
+
+      // The document outlives this page under client-side navigation, so its
+      // listeners go with the page rather than piling up on every return.
+      const listeners = new AbortController();
+      const { signal } = listeners;
+      document.addEventListener(
+        'pointerdown',
+        (event) => {
+          if (!info.contains(event.target as Node)) info.removeAttribute('data-open');
+        },
+        { signal },
+      );
+      document.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key !== 'Escape' || layers.fourier?.hidden || !showing()) return;
+          info.removeAttribute('data-open');
+          info.setAttribute('data-dismissed', '');
+        },
+        { signal },
+      );
+      // A tap-scroll starting on the note itself is no pointerdown outside it.
+      window.addEventListener('scroll', () => info.removeAttribute('data-open'), {
+        capture: true,
+        passive: true,
+        signal,
+      });
+      document.addEventListener('astro:before-swap', () => listeners.abort(), { once: true });
+    }
   }
 
   function initPortraitLabs(): void {

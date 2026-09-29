@@ -4,6 +4,7 @@
  * element both hosts expect (page and overlay modal), carrying the project's
  * identity, its status, its public links, and one line about what is coming.
  */
+import { plain } from '../../lib/marks';
 import type { ResolvedProject } from '../../lib/publication';
 import { buildProjectLinks } from '../../lib/projects';
 import StatusChip from '../ui/StatusChip.astro';
@@ -29,7 +30,7 @@ const links = buildProjectLinks(project);
     <div class="wrap">
       <p class="eyebrow">{data.domain}</p>
       <h1>{data.title}</h1>
-      <p class="lead">{data.oneLine}</p>
+      <p class="lead">{plain(data.oneLine)}</p>
 
       <div class="status-row">
         <StatusChip
@@ -40,7 +41,7 @@ const links = buildProjectLinks(project);
         <span class="range">{data.dateRange}</span>
       </div>
 
-      <p class="notice">This case study is being written and goes up very shortly.</p>
+      <p class="notice">The full case study is still being written.</p>
 
       {links.length > 0 && (
         <div class="actions">

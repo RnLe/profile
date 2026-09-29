@@ -7,19 +7,11 @@
  */
 import { emailDisplay, site } from '../../data/site';
 import Icon from '../ui/Icon.astro';
-
-const updated = new Date(`${site.lastUpdated}T00:00:00Z`).toLocaleDateString('en-GB', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
 ---
 
 <footer id="contact">
   <div class="wrap inner">
     <div class="who">
-      <p class="name">{site.name}</p>
       <p class="place"><Icon name="map-pin" size={13} /> {site.location}</p>
     </div>
 
@@ -39,7 +31,7 @@ const updated = new Date(`${site.lastUpdated}T00:00:00Z`).toLocaleDateString('en
   </div>
 
   <div class="wrap">
-    <p class="fineprint">© 2026 {site.name} · Content last updated {updated}</p>
+    <p class="fineprint">© 2026 {site.name}</p>
   </div>
 </footer>
 
@@ -60,19 +52,10 @@ const updated = new Date(`${site.lastUpdated}T00:00:00Z`).toLocaleDateString('en
     gap: var(--sp-5) var(--sp-10);
   }
 
-  .name {
-    font-weight: 640;
-    letter-spacing: -0.01em;
-  }
-
   .place,
   .links {
     font-size: var(--step--1);
     color: var(--ink-muted);
-  }
-
-  .place {
-    margin-block-start: var(--sp-1);
   }
 
   .links {

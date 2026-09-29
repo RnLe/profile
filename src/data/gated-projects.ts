@@ -4,9 +4,6 @@
  * placeholder (list entry, related-work item) until its content file and
  * registry record exist; from then on the resolved project takes over and the
  * placeholder disappears by itself.
- *
- * Grounded Recovery's name, question, and release-preparation status are the
- * exact publicly sanctioned copy.
  */
 import type { ProjectKind, ProjectLink } from '../lib/schemas';
 
@@ -23,44 +20,16 @@ export interface GatedProject {
   links: ProjectLink[];
 }
 
-export const gatedProjects: Record<string, GatedProject> = {
-  'grounded-recovery': {
-    title: 'Grounded Recovery',
-    question:
-      'When expert time is fixed, does labeling the learner’s recoverable mistakes buy more robustness than collecting more nominal behavior?',
-    statusText:
-      'Release preparation: public repository, report, and evidence bundle have not yet passed publication review.',
-    statusDate: '2026-08-30',
-    year: 2026,
-    kinds: ['academic', 'software'],
-    links: [
-      {
-        label: 'Website',
-        href: 'https://rnle.github.io/recovery-policy-learning/',
-        kind: 'site',
-      },
-      {
-        label: 'Preliminary report',
-        href: 'https://rnle.github.io/recovery-policy-learning/reports/Recovery_Policy_Learning_Technical_Report.pdf',
-        kind: 'report',
-        pages: 36,
-        sizeMb: 1.6,
-      },
-      {
-        label: 'Repository',
-        href: 'https://github.com/RnLe/recovery-policy-learning',
-        kind: 'source',
-      },
-    ],
-  },
-};
+/** None at present: Grounded Recovery, the last one, now resolves as a project. */
+export const gatedProjects: Record<string, GatedProject> = {};
 
-/** Every id that content, claims, media, and documents may reference (routed projects + gated members). */
+/** Every id that content, claims, media, and documents may reference (published projects + gated members). */
 export const knownProjectIds = [
   'blaze2d',
   'envelope-approximation',
   'residual-worlds',
   'recover-in-real-time',
   'swarm-dynamics',
+  'grounded-recovery',
   ...Object.keys(gatedProjects),
 ];

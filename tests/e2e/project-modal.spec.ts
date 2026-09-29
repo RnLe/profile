@@ -5,7 +5,6 @@ import { expect, test, type Page } from '@playwright/test';
  * page, the same article inside an overlay modal. What matters: the page is a
  * plain page; the modal shows the fetched article without changing the URL or
  * the scroll position behind it; and every way out works and returns focus.
- * A parked project stages the same route and shows its notice in both hosts.
  */
 
 const entry = (page: Page, slug: string) =>
@@ -31,18 +30,30 @@ test.describe('project page', () => {
     await page.waitForURL('**/projects/');
   });
 
-  test('a parked project keeps its route and says the case study is on its way', async ({
-    page,
-  }) => {
-    await page.goto('/projects/blaze2d/');
-    await expect(page.locator('h1')).toHaveText('Blaze2D');
-    const article = page.locator('[data-project-article]');
-    await expect(article).toHaveAttribute('data-project-parked', '');
-    await expect(article).toContainText('very shortly');
-    // No body, no figures, no claim list: only identity, status, and links.
-    await expect(page.locator('.project-body')).toHaveCount(0);
-    await expect(page.locator('figure')).toHaveCount(0);
-    await expect(article.locator('[data-project-links] a')).not.toHaveCount(0);
+  test('the master thesis case study has its builder and its two operator cards', async ({ page }) => {
+    await page.goto('/projects/envelope-approximation/');
+    await expect(page.locator('h1')).toHaveText('Envelope Approximation for Photonic Moiré Crystals');
+    await expect(page.locator('[data-project-article]')).not.toHaveAttribute('data-project-parked', '');
+    await expect(page.locator('.project-body')).toHaveCount(1);
+
+    // The builder draws the moiré period for the angle it is given.
+    const builder = page.locator('.moire-builder');
+    await builder.scrollIntoViewIfNeeded();
+    // Islands hydrate when seen; interact only once this one has.
+    await expect(page.locator('astro-island:not([ssr]) .moire-builder')).toHaveCount(1);
+    await builder.locator('input[type="range"]').fill('2');
+    await expect(builder.locator('.moire-readout dd').nth(1)).toHaveText('28.65');
+
+    // A card opens its equation in a dialog, and Escape closes it.
+    const cards = page.locator('.poster-card');
+    await expect(cards).toHaveCount(2);
+    await cards.first().scrollIntoViewIfNeeded();
+    await expect(page.locator('astro-island:not([ssr]) .operator-posters')).toHaveCount(1);
+    await cards.first().click();
+    const dialog = page.locator('dialog.poster-dialog[open]');
+    await expect(dialog.locator('h2')).toHaveText('Full TE effective Hamiltonian');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
   });
 });
 
@@ -72,15 +83,6 @@ test.describe('landing overlay', () => {
       .locator('.project-hero')
       .evaluate((el) => getComputedStyle(el).backgroundImage);
     expect(heroBackground).toContain('gradient');
-  });
-
-  test('a parked project shows its notice in the panel too', async ({ page }) => {
-    await page.goto('/');
-    await entry(page, 'blaze2d').click();
-    const dialog = modal(page);
-    await expect(dialog.locator('[data-project-article] h1')).toHaveText('Blaze2D');
-    await expect(dialog.locator('[data-project-parked]')).toContainText('very shortly');
-    expect(new URL(page.url()).pathname).toBe('/');
   });
 
   test('Escape, the close control, and the scrim all close it and return focus', async ({ page }) => {

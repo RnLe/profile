@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * E2E/a11y/visual tests run against the true production artifact: `astro
- * preview` serving `dist`. Run `pnpm build` first (verify:core does).
+ * preview` serving `dist`. Run `pnpm build` first (both verify scripts do).
  */
 export default defineConfig({
   fullyParallel: true,

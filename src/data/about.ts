@@ -20,7 +20,7 @@ export interface ArtifactLink {
   kind: 'web' | 'pdf' | 'repo';
   /**
    * Artifacts of a separate project, set off from the entry's own by a rule
-   * and the project's mark.
+   * and the project's mark (see artifactGroups).
    */
   group?: 'blaze2d';
   /**
@@ -46,6 +46,23 @@ export interface ArtifactLink {
   /** Why a pending link is withheld, so the reason survives in the source. */
   note?: string;
 }
+
+/**
+ * A separate project whose artifacts an entry lists: the rule that opens them
+ * shows its mark and name, and the name links to the project's technical
+ * report. Gated like every CV link: only a `live` target renders as a link.
+ */
+export const artifactGroups: Record<
+  'blaze2d',
+  { name: string; mark: string; href: string; state: 'live' | 'pending' }
+> = {
+  blaze2d: {
+    name: 'Blaze2D',
+    mark: '/icons/blaze.svg',
+    href: 'https://rnle.github.io/blaze2d/blaze/',
+    state: 'live',
+  },
+};
 
 export interface AboutEntry {
   title: string;
@@ -90,26 +107,19 @@ export const education: AboutEntry[] = [
         state: 'live',
       },
       {
-        label: 'Technical report',
+        label: 'Website',
         kind: 'web',
         group: 'blaze2d',
-        href: 'https://rnle.github.io/blaze2d/blaze/',
+        href: 'https://rnle.github.io/blaze2d/',
         state: 'live',
       },
       {
-        label: 'Report',
+        label: 'Technical report',
         kind: 'pdf',
         group: 'blaze2d',
         pages: 16,
         sizeMb: 0.7,
         href: 'https://rnle.github.io/blaze2d/reports/blaze2d-technical-report.pdf',
-        state: 'live',
-      },
-      {
-        label: 'Website',
-        kind: 'web',
-        group: 'blaze2d',
-        href: 'https://rnle.github.io/blaze2d/',
         state: 'live',
       },
       {
@@ -143,6 +153,7 @@ export const education: AboutEntry[] = [
         kind: 'pdf',
         artifactId: 'ba-thesis',
         state: 'live',
+        emphasis: true,
       },
       {
         label: 'Manuscript',

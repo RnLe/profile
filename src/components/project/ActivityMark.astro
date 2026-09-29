@@ -1,0 +1,126 @@
+---
+/**
+ * The marker at the top right of a project in the lists: a green dot for
+ * active research, an archive box for closed work. Its tooltip appears at
+ * once on hover and on focus, rather than after the delay of a native title;
+ * on a touch screen a tap opens it and a second tap, a tap elsewhere, or a
+ * scroll closes it (src/lib/tips.ts).
+ */
+import { activityLabel, type Activity } from '../../lib/status';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  activity: Activity;
+}
+
+const { activity } = Astro.props;
+const label = activityLabel[activity];
+---
+
+<span class="activity" data-activity={activity} data-tip role="img" aria-label={label} tabindex="0">
+  {activity === 'active' ? <span class="dot" aria-hidden="true"></span> : <Icon name="archive" size={16} />}
+  <span class="tip" aria-hidden="true">{label}</span>
+</span>
+
+<style>
+  .activity {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border-radius: 50%;
+    color: var(--ink-faint);
+    cursor: default;
+  }
+
+  .activity:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .dot {
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: 50%;
+    background: #22a45d;
+    box-shadow: 0 0 0 3px rgb(34 164 93 / 0.18);
+  }
+
+  /* A slow halo, so the dot reads as live without drawing the eye. */
+  @media (prefers-reduced-motion: no-preference) {
+    .dot {
+      animation: pulse 2.4s var(--ease-out) infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgb(34 164 93 / 0.35);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px rgb(34 164 93 / 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgb(34 164 93 / 0);
+      }
+    }
+  }
+
+  /* To the left of the marker, so it never leaves the card it sits in. */
+  .tip {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 0.5rem);
+    z-index: 3;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgb(24 33 41 / 0.18);
+    opacity: 0;
+    transform: translate(4px, -50%);
+    pointer-events: none;
+    transition:
+      opacity 90ms var(--ease-out),
+      transform 90ms var(--ease-out);
+  }
+
+  /* The little arrow pointing back at the marker. */
+  .tip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    border: 5px solid transparent;
+    border-inline-start-color: var(--ink);
+    transform: translateY(-50%);
+  }
+
+  /* Hover is a pointer's; a touch screen would keep it after the tap. */
+  @media (hover: hover) {
+    .activity:hover .tip {
+      opacity: 1;
+      transform: translate(0, -50%);
+    }
+  }
+
+  .activity:focus .tip,
+  .activity[data-open] .tip {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+</style>
+
+<script>
+  import { bindTips } from '../../lib/tips';
+
+  bindTips();
+</script>

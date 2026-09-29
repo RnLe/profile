@@ -43,9 +43,13 @@
   --status-neutral-bg: #edf0f2;
 
   /* Project type marks: the glyph carries the meaning, colour reinforces it. */
-  --kind-academic: #3d6f9b;
-  --kind-software: #182129;
-  --kind-hardware: #85511f;
+  --kind-robotics: #85511f;
+  --kind-learning: #6a46a8;
+  --kind-theory: #3d6f9b;
+  /* The same kinds, lightened for a mark on the dark tooltip card. */
+  --kind-robotics-tint: #e6b58a;
+  --kind-learning-tint: #c9b4f0;
+  --kind-theory-tint: #a9cbeb;
 
   --shadow-card: 0 1px 2px rgb(24 33 41 / 0.05), 0 4px 14px rgb(24 33 41 / 0.05);
   --shadow-raised: 0 2px 6px rgb(24 33 41 / 0.07), 0 14px 34px rgb(24 33 41 / 0.09);

@@ -1,16 +1,19 @@
 ---
 /**
  * One project as a compact, full-width stripe: thumbnail, year, title,
- * subtitle, status, and the CV-style link row. The title is the only anchor
- * and is stretched over the stripe with a pseudo-element, so the whole stripe
- * is clickable, the link's name stays the title, and the link row keeps its
- * own anchors above the stretched one. A route-gated entry renders as a
- * dashed placeholder: no case-study link, only whatever public targets its
- * sanctioned record carries.
+ * subtitle, and the CV-style link row. The title is the only anchor and is
+ * stretched over the stripe with a pseudo-element, so the whole stripe is
+ * clickable, the link's name stays the title, and the link row keeps its own
+ * anchors above the stretched one. A case study hosted on the project's own
+ * site is a plain link out, which the landing-page modal leaves alone. A
+ * route-gated entry renders as a dashed placeholder: no case-study link, only
+ * whatever public targets its sanctioned record carries.
  */
 import type { ProjectListEntry } from '../../lib/projects';
 import { withBase } from '../../lib/routes';
-import StatusChip from '../ui/StatusChip.astro';
+import Icon from '../ui/Icon.astro';
+import ActivityMark from './ActivityMark.astro';
+import KindMarks from './KindMarks.astro';
 import ProjectLinks from './ProjectLinks.astro';
 import ProjectThumb from './ProjectThumb.astro';
 
@@ -37,8 +40,15 @@ const gated = entry.kind === 'gated';
     />
   </div>
   <div class="stripe-text">
+    {entry.kind === 'project' && entry.label && <p class="stripe-label">{entry.label}</p>}
     <h3 class="stripe-title">
-      {entry.kind === 'project' ? (
+      {entry.kind === 'project' && entry.external ? (
+        <a href={entry.href} target="_blank" rel="noopener">
+          {entry.title}
+          <Icon name="arrow-up-right" size={14} />
+          <span class="visually-hidden"> (the project’s own website, opens in a new tab)</span>
+        </a>
+      ) : entry.kind === 'project' ? (
         <a href={withBase(entry.href)} data-project-link>{entry.title}</a>
       ) : (
         entry.title
@@ -48,10 +58,13 @@ const gated = entry.kind === 'gated';
   </div>
   <div class="stripe-meta">
     <span class="stripe-year">{entry.yearLabel}</span>
-    <div class="stripe-status">
-      <StatusChip model={entry.status} />
-    </div>
   </div>
+  {(entry.kinds.length > 0 || (entry.kind === 'project' && entry.activity)) && (
+    <div class="stripe-mark">
+      <KindMarks kinds={entry.kinds} focus={entry.focus} focusable tip="below" size={15} />
+      {entry.kind === 'project' && entry.activity && <ActivityMark activity={entry.activity} />}
+    </div>
+  )}
   {entry.links.length > 0 && (
     <div class="stripe-links">
       <ProjectLinks links={entry.links} />
@@ -65,8 +78,8 @@ const gated = entry.kind === 'gated';
     display: grid;
     grid-template-columns: 10.5rem 7rem minmax(0, 1fr) auto;
     grid-template-areas:
-      'thumb year text status'
-      'thumb year links status';
+      'thumb year text mark'
+      'thumb year links mark';
     align-items: start;
     column-gap: var(--sp-4);
     row-gap: var(--sp-2);
@@ -76,7 +89,6 @@ const gated = entry.kind === 'gated';
     border-inline-start: 3px solid var(--tone);
     border-radius: var(--r-md);
     background: var(--surface);
-    overflow: hidden;
     transition:
       border-color var(--dur-fast) var(--ease-out),
       background var(--dur-fast) var(--ease-out);
@@ -98,12 +110,17 @@ const gated = entry.kind === 'gated';
     outline-offset: 2px;
   }
 
-  /* Flush with the stripe's own corner: no frame of its own, no inset. */
+  /* Flush with the stripe's own corners: no frame of its own, no inset. It
+     rounds itself to them, so the stripe need not clip, and a mark's card
+     can open past the stripe's edge. */
   .stripe-thumb {
     grid-area: thumb;
     align-self: stretch;
     margin: calc(-1 * var(--sp-3)) 0;
     min-height: 4.25rem;
+    overflow: hidden;
+    border-start-start-radius: calc(var(--r-md) - 3px) calc(var(--r-md) - 1px);
+    border-end-start-radius: calc(var(--r-md) - 3px) calc(var(--r-md) - 1px);
   }
 
   /* The two carry their own grid areas until the narrowest layout, where they
@@ -127,12 +144,52 @@ const gated = entry.kind === 'gated';
     min-width: 0;
   }
 
+  /* What the project is, when that is worth saying before its name: a faint,
+     nearly square pill. */
+  .stripe-label {
+    max-width: none;
+    margin-block-end: 0.3rem;
+    display: inline-block;
+    padding: 0.1em 0.5em;
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* The kind marks and the activity marker, in their own track at the top
+     right, above the stretched title link so their tooltips answer the
+     pointer. The open one rises over the stripes below it. */
+  .stripe-mark {
+    grid-area: mark;
+    align-self: start;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+  }
+
+  .stripe-mark:hover,
+  .stripe-mark:focus-within {
+    z-index: 3;
+  }
+
+  /* The narrowest phones leave a long word like "Approximation" wider than
+     the column beside the image and the marker: it hyphenates there. */
   .stripe-title {
     font-size: var(--step-0);
     font-weight: 640;
     line-height: var(--lh-tight);
     letter-spacing: -0.008em;
     color: var(--ink-heading);
+    hyphens: auto;
+    overflow-wrap: break-word;
   }
 
   .stripe-title a {
@@ -164,11 +221,6 @@ const gated = entry.kind === 'gated';
     color: var(--ink-muted);
   }
 
-  .stripe-status {
-    grid-area: status;
-    justify-self: end;
-  }
-
   /* Above the stretched anchor, so its own links stay clickable. */
   .stripe-links {
     grid-area: links;
@@ -195,9 +247,28 @@ const gated = entry.kind === 'gated';
     .stripe {
       grid-template-columns: 9rem minmax(0, 1fr) auto;
       grid-template-areas:
-        'thumb year status'
+        'thumb year mark'
         'thumb text text'
         'thumb links links';
+    }
+
+    /*
+     * The thumbnail keeps the proportions it has on a desktop, where it is as
+     * tall as the stripe: about 16:9, or 4:3 when a label adds a line, rather
+     * than stretching down the taller text beside it into a narrow crop. So
+     * it bleeds only at the top.
+     */
+    .stripe-thumb {
+      align-self: start;
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+      margin-block-end: 0;
+      border-end-start-radius: 0;
+      border-end-end-radius: var(--r-sm);
+    }
+
+    .stripe:has(.stripe-label) .stripe-thumb {
+      aspect-ratio: 4 / 3;
     }
   }
 
@@ -205,25 +276,27 @@ const gated = entry.kind === 'gated';
     /*
      * The image is the thing worth looking at on a phone, so it takes the
      * column it needs and runs down both text rows rather than sitting beside
-     * one of them. Title, subtitle, year and status stack in the narrower
+     * one of them. Title, subtitle, and year stack in the narrower
      * column at its side; the links keep the full width underneath, where a
      * wrapping row of them has somewhere to wrap to.
      */
     .stripe {
-      /* A share of the card rather than a fixed track: at 9 rem flat the year
-         and the status chip had 108 px left at the narrowest width and ran out
-         of it. This holds the same proportion and stops shrinking before the
-         column beside it does. */
+      /* A share of the card rather than a fixed track: at 9 rem flat the text
+         column had 108 px left at the narrowest width and ran out of it. This
+         holds the same proportion and stops shrinking before the column beside
+         it does. */
       grid-template-columns: clamp(6rem, 43%, 10rem) minmax(0, 1fr);
       grid-template-areas:
+        'thumb mark'
         'thumb text'
         'thumb meta'
         'links links';
     }
 
-    /* The links sit below it, so it bleeds only at the top. */
-    .stripe-thumb {
-      margin-block-end: 0;
+    /* The marks get a short row of their own at the top right: beside the
+       text they would take a width the narrow column has none of to spare. */
+    .stripe-mark {
+      justify-self: end;
     }
 
     .stripe-meta {

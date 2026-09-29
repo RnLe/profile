@@ -1,109 +1,144 @@
 ---
 /**
- * Compact evidence strip: verified background facts, the languages I actually
- * build in (with their marks), and the domains the work sits in. Grouped so
- * the three registers stay visually distinct without extra prose.
+ * Compact evidence strip: verified background facts, then the languages and
+ * frameworks I actually build with (with their marks), spread over the full
+ * width of the hero (the shared .spread row). The background stands on a
+ * painted brush stroke, and a strong pipe marks where the tools begin; the
+ * tools themselves keep their spacing without pipes.
+ *
+ * Narrower, the background takes a line of its own, centred, and the tools stay spread
+ * on the next; narrowest, the tools wrap and the gaps alone separate them.
  */
-import type { StripGroup } from '../../data/site';
+import type { StripItem } from '../../data/site';
 import Icon from '../ui/Icon.astro';
 
 interface Props {
-  groups: StripGroup[];
+  items: StripItem[];
 }
 
-const { groups } = Astro.props;
+const { items } = Astro.props;
 ---
 
 <div class="evidence-strip">
-  {groups.map((group) => (
-    <ul>
-      {group.items.map((item) => (
-        <li>
-          {item.icon && <Icon name={item.icon} size={14} />}
+  <ul class="spread">
+    {items.map((item, index) => (
+      <>
+        {index > 0 && (
+          <li
+            class:list={['sep', items[index - 1].register !== item.register && 'sep--register']}
+            aria-hidden="true"
+          >
+            |
+          </li>
+        )}
+        <li class:list={['item', item.register === 'background' && 'item--background']}>
+          {item.icon && <Icon name={item.icon} size={16} />}
           <span>{item.label}</span>
         </li>
-      ))}
-    </ul>
-  ))}
+      </>
+    ))}
+  </ul>
 </div>
 
 <style>
   .evidence-strip {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-8);
+    container: strip / inline-size;
   }
 
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-width: none;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-1) var(--sp-3);
-  }
-
-  /* Pipe between items inside a register; hairline between the registers. The
-     alt-text form keeps assistive technology from reading the pipe out, since
-     each item is already its own list item. */
-  li + li::before {
-    content: '|';
-    content: '|' / '';
-    margin-inline-end: var(--sp-2);
-    color: var(--line);
-    font-weight: 400;
-  }
-
-  ul + ul {
-    padding-inline-start: var(--sp-8);
-    border-inline-start: 1px solid var(--line-strong);
-  }
-
-  li {
+  .item {
     display: inline-flex;
     align-items: center;
-    gap: 0.4em;
+    gap: 0.45em;
     font-family: var(--font-mono);
-    font-size: var(--step--2);
+    font-size: var(--step--1);
     font-weight: 540;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--ink-muted);
     white-space: nowrap;
   }
 
-  li :global(svg) {
+  .item :global(svg) {
     color: var(--ink-faint);
   }
 
-  @media (max-width: 47.99rem) {
-    .evidence-strip {
-      gap: var(--sp-2) var(--sp-4);
+  /* The background, painted on: white on a rough stroke of the accent,
+     tilted a little. The stroke is a mask, so it takes the accent's colour. */
+  .item--background {
+    position: relative;
+    isolation: isolate;
+    padding: 0.5em 1.35em;
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+
+  .item--background::before {
+    content: '';
+    position: absolute;
+    inset: -0.15em -0.3em;
+    z-index: -1;
+    background: var(--accent);
+    -webkit-mask: url('../../assets/brush-stroke.svg') center / 100% 100% no-repeat;
+    mask: url('../../assets/brush-stroke.svg') center / 100% 100% no-repeat;
+    transform: rotate(-2deg);
+  }
+
+  /* Between the tools the pipes keep their place but not their mark. */
+  .sep:not(.sep--register) {
+    visibility: hidden;
+  }
+
+  /* The change of register: a little larger, and bold. */
+  .sep--register {
+    font-size: 1.3em;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink-faint);
+  }
+
+  /* The background on a line of its own; the tools spread across the next.
+     The register pipe becomes the line break, so the stroke keeps the width
+     of its words instead of the row's. */
+  @container strip (max-width: 34rem) {
+    .spread {
+      flex-wrap: wrap;
+      row-gap: var(--sp-3);
     }
 
-    ul + ul {
-      padding-inline-start: 0;
-      border-inline-start: none;
+    .sep--register {
+      flex-basis: 100%;
+      block-size: 0;
+      overflow: hidden;
+      font-size: 0;
+    }
+
+    /* Alone on its line, the background sits in the middle of it. */
+    .item--background {
+      margin-inline: auto;
     }
   }
 
-  /*
-   * The pipe is drawn before the item it follows, so it travels with that item
-   * across a line break and lands at the start of the new line, in front of
-   * nothing. On a phone a register is narrow enough to wrap, so the separator
-   * becomes the space itself: each register takes its own line and its items
-   * are set apart by the gap.
-   */
-  @media (max-width: 40rem) {
-    ul {
-      flex-basis: 100%;
-      gap: var(--sp-1) var(--sp-4);
+  /* A phone's width: the tools stay on one line, a size smaller and closer. */
+  @container strip (max-width: 24rem) {
+    .spread {
+      column-gap: var(--sp-1);
     }
 
-    li + li::before {
-      content: none;
+    .item:not(.item--background) {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Too narrow even so: the tools wrap, and the gaps alone separate them. */
+  @container strip (max-width: 21rem) {
+    .spread {
+      justify-content: flex-start;
+      column-gap: var(--sp-4);
+    }
+
+    .sep:not(.sep--register) {
+      display: none;
     }
   }
 </style>

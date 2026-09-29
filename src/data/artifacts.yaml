@@ -139,7 +139,7 @@ records:
     pages: 8
     description: >-
       English manuscript summarizing the bachelor-thesis study, including the
-      unsuccessful MARL training attempt.
+      unsuccessful multi-agent reinforcement-learning attempt.
 
   - id: ba-slides
     title: 'Neural Swarm Dynamics: defense slides'

@@ -1,0 +1,217 @@
+---
+/**
+ * A project's kind marks, each with the quick card that names the kind and the
+ * project's keywords for it. The one renderer of these marks: the set comes
+ * from src/lib/kinds.ts, and a project's kinds and keywords from its content
+ * entry, so neither is kept twice.
+ *
+ * `slots` keeps all three columns, the empty ones included, so the marks line
+ * up down a list. `focusable` makes each mark a stop of its own whose card
+ * also shows on focus or a tap, for marks that do not sit inside a link;
+ * inside a link they are hidden from assistive technology and a hidden
+ * sentence carries the same words. The card opens beside the mark (to its
+ * right, or to its left on a narrow window) or under it. On a touch screen a
+ * tap opens and closes it (src/lib/tips.ts).
+ */
+import { KINDS, kindColours, kindPhrase } from '../../lib/kinds';
+import type { ProjectKind } from '../../lib/schemas';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  kinds: ProjectKind[];
+  focus: Partial<Record<ProjectKind, string>>;
+  slots?: boolean;
+  focusable?: boolean;
+  tip?: 'side' | 'below';
+  size?: number;
+}
+
+const { kinds, focus, slots = false, focusable = false, tip = 'side', size = 14 } = Astro.props;
+const columns = slots ? KINDS : KINDS.filter((column) => kinds.includes(column.kind));
+const sentence = KINDS.filter((column) => kinds.includes(column.kind))
+  .map((column) => kindPhrase(column, focus))
+  .join('. ');
+---
+
+{columns.length > 0 && (
+  <span
+    class:list={['kind-marks', slots && 'kind-marks--slots', `kind-marks--${tip}`]}
+    aria-hidden={focusable ? undefined : 'true'}
+  >
+    {columns.map((column) =>
+      kinds.includes(column.kind) ? (
+        <span
+          class="kind-mark"
+          data-kind={column.kind}
+          data-tip={focus[column.kind] ? '' : undefined}
+          style={kindColours(column.kind)}
+          role={focusable ? 'img' : undefined}
+          aria-label={focusable ? kindPhrase(column, focus) : undefined}
+          tabindex={focusable ? 0 : undefined}
+        >
+          <Icon name={column.icon} size={size} />
+          {focus[column.kind] && (
+            <span class="kind-tip" aria-hidden="true">
+              <span class="kind-tip-head">
+                <Icon name={column.icon} size={14} />
+                {column.label}
+              </span>
+              <span class="kind-tip-body">{focus[column.kind]}</span>
+            </span>
+          )}
+        </span>
+      ) : (
+        <span class="kind-mark" data-kind={column.kind}></span>
+      ),
+    )}
+  </span>
+)}
+{!focusable && sentence && <span class="visually-hidden">{sentence}</span>}
+
+<style>
+  .kind-marks {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+  }
+
+  /* Three fixed slots, so a mark always sits in its own column, and an empty
+     slot still holds its place. */
+  .kind-marks--slots {
+    display: grid;
+    grid-template-columns: repeat(3, 0.95rem);
+    /* Stretched slots give the grid the icons' baseline, which the rail
+       lines up with its text; centred ones would drop it half an icon. */
+    align-items: normal;
+  }
+
+  .kind-mark {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    color: var(--kind);
+  }
+
+  .kind-mark[tabindex] {
+    border-radius: 3px;
+    cursor: default;
+  }
+
+  .kind-mark:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /*
+   * The quick card: the kind, and a few keywords on what the project covered
+   * there. It shows at once (no native title delay) and takes no room until
+   * then, so it never widens the page.
+   */
+  .kind-tip {
+    position: absolute;
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    gap: 0.3rem;
+    inline-size: max-content;
+    max-inline-size: 17rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    background: var(--ink);
+    box-shadow: 0 6px 20px rgb(24 33 41 / 0.2);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    white-space: normal;
+    text-align: start;
+    pointer-events: none;
+  }
+
+  /* Hover is a pointer's; a touch screen would keep it after the tap, so
+     there a tap opens the card and a second one closes it. */
+  @media (hover: hover) {
+    .kind-mark:hover .kind-tip {
+      display: flex;
+    }
+  }
+
+  .kind-mark[tabindex]:focus .kind-tip,
+  .kind-mark[data-open] .kind-tip {
+    display: flex;
+  }
+
+  /* The little arrow pointing back at the mark. */
+  .kind-tip::before {
+    content: '';
+    position: absolute;
+    border: 5px solid transparent;
+  }
+
+  .kind-tip-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 650;
+    color: #fff;
+  }
+
+  .kind-tip-head :global(svg) {
+    color: var(--kind-tint);
+  }
+
+  .kind-tip-body {
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  /* Beside the mark, to its right. */
+  .kind-marks--side .kind-tip {
+    top: 50%;
+    left: calc(100% + 0.7rem);
+    transform: translateY(-50%);
+  }
+
+  .kind-marks--side .kind-tip::before {
+    top: 50%;
+    right: 100%;
+    border-inline-end-color: var(--ink);
+    transform: translateY(-50%);
+  }
+
+  /* A narrow window has no room to the right: the card opens to the left. */
+  @media (max-width: 63.99rem) {
+    .kind-marks--side .kind-tip {
+      left: auto;
+      right: calc(100% + 0.7rem);
+    }
+
+    .kind-marks--side .kind-tip::before {
+      right: auto;
+      left: 100%;
+      border-inline-end-color: transparent;
+      border-inline-start-color: var(--ink);
+    }
+  }
+
+  /* Under the mark, its right edge just past it, so it opens into the card
+     the marks sit at the right of. */
+  .kind-marks--below .kind-tip {
+    top: calc(100% + 0.6rem);
+    right: calc(50% - 1.1rem);
+  }
+
+  .kind-marks--below .kind-tip::before {
+    bottom: 100%;
+    right: calc(1.1rem - 5px);
+    border-block-end-color: var(--ink);
+  }
+</style>
+
+<script>
+  import { bindTips } from '../../lib/tips';
+
+  bindTips();
+</script>

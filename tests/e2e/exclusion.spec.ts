@@ -18,7 +18,7 @@ const listFiles = (dir: string): string[] => {
   return out;
 };
 
-test('the route-gated project has no route, old or new', async ({ request }) => {
+test('a case study hosted on the project’s own site has no route here, old or new', async ({ request }) => {
   for (const path of ['/projects/grounded-recovery/', '/research/grounded-recovery/']) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(404);

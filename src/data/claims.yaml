@@ -54,24 +54,31 @@ claims:
     claim_type: comparison
     publication_policy: scoped
     short_copy: >-
-      The technical report measures single-core and sweep-throughput advantages
-      over MPB on its published benchmark configurations.
+      In recorded 16-thread parameter sweeps, Blaze in mixed precision is about
+      an order of magnitude faster than MPB (8.7 to 14.9 times across four
+      configurations).
     scope: >-
-      Numbers may only render with exact comparator, workload, resolution,
-      precision, and thread context beside the value.
+      Historical runs from the technical report: square and triangular
+      lattices, TM and TE, 64 × 64 grid, eight bands; MPB threads each solve,
+      Blaze runs independent configurations in parallel. The runs do not record
+      tolerances or hardware, and a comparison at equal accuracy is still to
+      come.
     evidence_state: provisional
     model_or_artifact_version: blaze2d 0.6.0
     measurement_context: >-
-      Native-threaded MPB and process-parallel MPB produce materially different
-      headlines; the benchmark audit that fixes the comparator presentation is
-      pending.
-    last_verified: '2026-08-30'
-    allowed_surfaces: []
-    review_triggers: [benchmark-audit]
+      Mean time per configuration from the Blaze2D website's
+      benchmarks/multi-core.json (16 threads): MPB with native threading
+      against Blaze scheduling independent configurations, in mixed and in full
+      precision. Single-core runs show a smaller ratio (about 2.9 times in the
+      report).
+    source_urls: ['https://rnle.github.io/blaze2d/blaze']
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
     notes: >-
-      Promote to verified (and widen surfaces) only after the frozen benchmark
-      data and comparator presentation pass audit. Until then the site links to
-      the report instead of quoting numbers.
+      Owner decision on 2026-09-29: the order-of-magnitude statement runs in
+      the Blaze2D lead, introduction, novelty note, and MPB section, with the
+      workload and threading in the speed figure's caption. The benchmark
+      audit stays open.
 
   - claim_id: BLAZE-GPU-001
     project_id: blaze2d
@@ -84,6 +91,24 @@ claims:
     last_verified: '2026-08-30'
     allowed_surfaces: [project]
     notes: No speculative GPU multipliers anywhere.
+
+  - claim_id: BLAZE-SCALE-001
+    project_id: blaze2d
+    claim_type: status
+    publication_policy: allowed
+    short_copy: >-
+      As of September 2026, Blaze2D has 50,399 lines of Rust in 8 workspace
+      crates, 663 automated tests (525 in Rust, 100 in Python, 38 in the
+      browser), 17,636 lines of TypeScript for the website and the Workbench,
+      and 443 commits since November 2025.
+    evidence_state: verified
+    measurement_context: >-
+      Counted in the Blaze2D working tree on 2026-09-29: cloc code lines (no
+      blanks or comments) over tracked files, test functions (Rust #[test],
+      Python test_*, the website's browser tests), and commits in the history.
+      Rendered from src/data/blaze-scale.ts.
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
 
   - claim_id: MSL-THESIS-001
     project_id: envelope-approximation
@@ -103,16 +128,84 @@ claims:
     claim_type: status
     publication_policy: scoped
     short_copy: >-
-      A post-thesis audit exposed invalid comparisons in the submitted
-      validation; I am rebuilding the model and evaluation against
-      independently converged references.
+      After submission, an audit exposed invalid comparisons in the submitted
+      validation. The second edition (September 2026) corrects the derivation
+      and rebuilds the validation as state-by-state comparisons against
+      independent full-Maxwell references.
     scope: >-
-      Disclose the exact audit scope without dramatization; earlier claims are
-      version-specific.
+      Disclose the audit and its correction without dramatization; earlier
+      claims are version-specific, and the second edition is not the examined
+      thesis.
     evidence_state: verified
-    last_verified: '2026-08-30'
+    last_verified: '2026-09-29'
     allowed_surfaces: [home, research-index, project]
     notes: The transparent-correction statement. A portfolio strength, not a footnote.
+
+  - claim_id: MSL-COST-001
+    project_id: envelope-approximation
+    claim_type: status
+    publication_policy: scoped
+    short_copy: >-
+      A full finite-difference reference at 2.01° needed about 3.3 million
+      unknowns and about 54 minutes (3,221 seconds); the next commensurate
+      cell, at 1.01°, needed about 13 million unknowns and did not fit in
+      memory.
+    scope: The revised square-bilayer study of the second edition, on one workstation.
+    evidence_state: verified
+    measurement_context: >-
+      FDFD reference solves of the square rod bilayer, second edition of the
+      thesis; reported on the Blaze2D thesis page.
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
+
+  - claim_id: MSL-CONV-001
+    project_id: envelope-approximation
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      On a smooth, weakly coupled crystal, the registry-adapted frame lowers
+      the error about fifteenfold; with the second layer scaled as η², the
+      error falls roughly as η^3.8 and the model agrees with both full-Maxwell
+      references to about 8 × 10⁻⁷ in frequency.
+    scope: >-
+      The η^3.8 rate belongs to the scaled weak-coupling family; at fixed
+      material both frames reach an error floor.
+    evidence_state: verified
+    measurement_context: >-
+      Envelope eigenvalue error against plane-wave and FDFD references on the
+      same dielectric and declared band domain; second edition, Figure 44.
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
+
+  - claim_id: MSL-STATES-001
+    project_id: envelope-approximation
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      At 0.607°, where a supercell holds 8,911 microscopic cells, the
+      exact-frame envelope model matches all 51 states of a declared domain,
+      with frequency differences of 4.7 × 10⁻⁸ to 8.1 × 10⁻⁸, comparable to the
+      reference's own numerical error.
+    scope: One weak-coupling valley domain; the fixed-frame model fails the full state count.
+    evidence_state: verified
+    measurement_context: >-
+      State-by-state matching against an FDFD reference within a domain
+      declared in advance; second edition, Figure 47.
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
+
+  - claim_id: MSL-STRONG-001
+    project_id: envelope-approximation
+    claim_type: limitation
+    publication_policy: allowed
+    short_copy: >-
+      On the strongly coupled square rod bilayer, the model brings the lowest
+      state close to the full-wave references and reaches 0.50°, where the full
+      calculation did not fit in memory; higher groups of four symmetry-related
+      states come out split, pending a symmetry-respecting gauge.
+    evidence_state: verified
+    last_verified: '2026-09-29'
+    allowed_surfaces: [project]
 
   - claim_id: MSL-MAGIC-070
     project_id: envelope-approximation
@@ -145,20 +238,74 @@ claims:
       Grounded Recovery builds on established DAgger, recovery, and
       intervention-learning ideas; no algorithmic novelty is claimed.
     evidence_state: verified
-    last_verified: '2026-08-30'
+    last_verified: '2026-09-25'
     allowed_surfaces: [home, research-index, project]
 
   - claim_id: GR-PRIMARY-001
     project_id: grounded-recovery
     claim_type: result
-    publication_policy: forbidden
+    publication_policy: scoped
     short_copy: >-
-      Primary robustness contrast under matched expert-time budgets; no public
-      release has passed the evidence gate; no numerical result may render.
-    evidence_state: draft
-    last_verified: '2026-08-30'
-    allowed_surfaces: []
-    review_triggers: [grounded-recovery-release-gate]
+      Corrections beat extra demonstrations by +14.3 percentage points in task
+      success (95% interval +10.0 to +18.6), in all six independent runs, on 536
+      held-out mazes with an action change not used in training.
+    scope: >-
+      One small simulated maze task with a scripted expert and three actions,
+      1,000 extra labels per method in each run, and a test protocol fixed
+      before the test set was opened once. Not a result about robots,
+      reinforcement learning, or human teachers.
+    evidence_state: verified
+    measurement_context: >-
+      Mean paired difference in intention-to-treat task success on the 536
+      eligible scenarios with the unseen action corruption, recovery
+      aggregation minus extra demonstrations, over six pipeline bundles; 95%
+      paired t interval. Every per-bundle difference is positive.
+    source_paths: [public_result/experiment-summary.json]
+    source_urls:
+      - 'https://github.com/RnLe/recovery-policy-learning/blob/c4fc791c80b455cf374fef6e117580cd18c89434/public_result/experiment-summary.json'
+    source_commit: c4fc791c80b455cf374fef6e117580cd18c89434
+    artifact_sha256: 219044c2c03f3f64fe84974dcf9eb52bb330877e1a582ae78c832cfa57fc7c2e
+    last_verified: '2026-09-25'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GR-COST-001
+    project_id: grounded-recovery
+    claim_type: limitation
+    publication_policy: allowed
+    short_copy: >-
+      Only the number of labels was matched: across the six runs, collecting
+      the corrections took 38,109 expert queries, the extra demonstrations
+      6,000.
+    evidence_state: verified
+    source_paths: [public_result/experiment-summary.json]
+    source_commit: c4fc791c80b455cf374fef6e117580cd18c89434
+    artifact_sha256: 219044c2c03f3f64fe84974dcf9eb52bb330877e1a582ae78c832cfa57fc7c2e
+    last_verified: '2026-09-25'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GR-SECONDARY-001
+    project_id: grounded-recovery
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Mean success of the original agent, extra demonstrations, and
+      corrections: 76.3%, 80.3%, and 86.1% with no action change; 66.9%,
+      72.5%, and 85.7% with a familiar change; 65.8%, 70.2%, and 84.5% with a
+      new change. Only the new-change comparison was fixed in advance.
+    scope: >-
+      The no-change and familiar-change comparisons are secondary and were not
+      prespecified; the same six runs and 536 scenarios as GR-PRIMARY-001.
+    evidence_state: verified
+    measurement_context: >-
+      Mean intention-to-treat success over six pipeline bundles per arm and
+      slice (clean, matched, unseen); shown on the study page's success chart.
+    source_paths: [public_result/experiment-summary.json]
+    source_urls:
+      - 'https://github.com/RnLe/recovery-policy-learning/blob/c4fc791c80b455cf374fef6e117580cd18c89434/public_result/experiment-summary.json'
+    source_commit: c4fc791c80b455cf374fef6e117580cd18c89434
+    artifact_sha256: 219044c2c03f3f64fe84974dcf9eb52bb330877e1a582ae78c832cfa57fc7c2e
+    last_verified: '2026-09-25'
+    allowed_surfaces: [research-index, project]
 
   - claim_id: RW-STATUS-001
     project_id: residual-worlds
@@ -222,6 +369,30 @@ claims:
     evidence_state: verified
     model_or_artifact_version: bachelor-thesis-2023
     last_verified: '2026-08-30'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: BA-CONV-001
+    project_id: swarm-dynamics
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      From k = 1 to k = 6, the mean squared deviation of the order parameter
+      from the metric Vicsek reference falls by more than an order of
+      magnitude, roughly as a power law in k (fitted log-log slopes between
+      −1.55 and −1.93); at k = 6 the two models are practically
+      indistinguishable in this observable.
+    scope: >-
+      The alignment order parameter as a function of noise, at density 4, for
+      system sizes up to N = 1600. No claim of general equivalence.
+    evidence_state: verified
+    measurement_context: >-
+      Mean squared deviation of the order parameter v_a over the evaluated
+      noise values between the metric-topological model and a self-generated
+      metric Vicsek reference, per system size (N = 40, 100, 400, 1600) and
+      k = 1 to 6, with a linear fit in log-log space; thesis and manuscript,
+      figure "MSE vs k".
+    model_or_artifact_version: bachelor-thesis-2023
+    last_verified: '2026-09-29'
     allowed_surfaces: [research-index, project]
 
   - claim_id: BA-MARL-001

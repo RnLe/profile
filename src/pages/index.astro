@@ -4,7 +4,7 @@
  * the argument, the copy stays out of its way.
  *
  * 1 hero + evidence strip · 2 projects, latest first, each opening its case
- * study in an overlay modal · 3 a short note that the site is still growing
+ * study in an overlay modal · 3 a short band saying the site is still growing
  *
  * Contact lives in the footer alone; a "get in touch" band here would repeat
  * it a screen earlier.
@@ -17,13 +17,15 @@ import ProjectModal from '../components/project/ProjectModal.astro';
 import SectionHeading from '../components/ui/SectionHeading.astro';
 import ExpansionNote from '../components/ui/ExpansionNote.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
-import { site, evidenceStrip } from '../data/site';
+import { site, evidenceStrip, landingPins } from '../data/site';
 import { getPublishedProjects } from '../lib/content';
-import { buildProjectList } from '../lib/projects';
+import Icon from '../components/ui/Icon.astro';
+import Marked from '../components/ui/Marked.astro';
+import { buildProjectList, pinFirst } from '../lib/projects';
 import { personSchema, defaultDescription } from '../lib/seo';
 import { withBase } from '../lib/routes';
 
-const entries = buildProjectList(await getPublishedProjects());
+const entries = pinFirst(buildProjectList(await getPublishedProjects()), landingPins);
 
 const origin = Astro.site?.href ?? 'https://rnle.github.io/';
 const jsonLd = [personSchema(origin)];
@@ -35,8 +37,33 @@ const jsonLd = [personSchema(origin)];
     <div class="wrap">
       <div class="hero-grid">
         <div class="hero-text">
-          <p class="eyebrow">{site.eyebrow}</p>
-          <h1>{site.statement}</h1>
+          <h1 class="greeting">
+            {site.greeting}
+            <svg class="greeting-tail" viewBox="0 0 40 22" width="40" height="22" aria-hidden="true">
+              <path d="M0 1.5 L39 19.5 L0 12.5" />
+            </svg>
+          </h1>
+          <ul class="fields spread">
+            {site.fields.map((field, index) => (
+              <>
+                {index > 0 && <li class="sep" aria-hidden="true">|</li>}
+                <li>{field}</li>
+              </>
+            ))}
+          </ul>
+          <blockquote class="statement marked">
+            <span class="quote-mark quote-mark--open" aria-hidden="true">
+              <Icon name="quote" size={30} />
+            </span>
+            <p>
+              {site.statement.map((sentence, index) => (
+                <>
+                  {index > 0 && <br />}
+                  <Marked text={sentence} />
+                </>
+              ))}
+            </p>
+          </blockquote>
           <div class="actions">
             <LinkButton
               href={withBase('/projects/')}
@@ -52,7 +79,7 @@ const jsonLd = [personSchema(origin)];
         </div>
       </div>
       <div class="strip">
-        <EvidenceStrip groups={evidenceStrip} />
+        <EvidenceStrip items={evidenceStrip} />
       </div>
     </div>
   </section>
@@ -60,8 +87,7 @@ const jsonLd = [personSchema(origin)];
   {/* --------------------------------------------------- 2 · the projects --- */}
   <section class="band band--alt" aria-labelledby="projects-heading">
     <div class="wrap wrap--stage">
-      <SectionHeading title="Projects" id="projects-heading" />
-      <ExpansionNote />
+      <SectionHeading title="Projects" id="projects-heading" large />
       <ProjectStripeList {entries} />
     </div>
   </section>
@@ -70,7 +96,7 @@ const jsonLd = [personSchema(origin)];
   <section class="band" aria-labelledby="expanding-heading">
     <div class="wrap">
       <SectionHeading title="This site is being expanded" id="expanding-heading" />
-      <ExpansionNote variant="band" />
+      <ExpansionNote />
     </div>
   </section>
 
@@ -83,6 +109,17 @@ const jsonLd = [personSchema(origin)];
       radial-gradient(46rem 26rem at 100% -20%, var(--accent-wash), transparent 62%),
       var(--paper);
     border-bottom: 1px solid var(--line);
+    /* The hero fills the screen under the sticky header (and its border):
+       the strip sits at the bottom edge, whatever space is left above it. */
+    display: flex;
+    flex-direction: column;
+    min-block-size: calc(100svh - var(--header-h) - 1px);
+  }
+
+  .hero-band > .wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .hero-grid {
@@ -91,30 +128,139 @@ const jsonLd = [personSchema(origin)];
     grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
     gap: var(--sp-12);
     align-items: center;
+    margin-block-end: var(--sp-12);
   }
 
+  /* A container, so the fields can size their type to the column's width. */
   .hero-text {
+    container: hero-text / inline-size;
     display: flex;
     flex-direction: column;
-    gap: var(--sp-4);
+    gap: var(--sp-5);
     align-items: flex-start;
   }
 
-  /* The statement is the page's H1: read as prose, sized well below a slogan. */
-  .hero-text h1 {
+  /*
+   * The greeting is the page's H1, said in a quiet speech bubble whose tail
+   * points across to the portrait; with room to breathe below it.
+   */
+  .greeting {
+    position: relative;
+    margin-block-end: var(--sp-8);
+    padding: var(--sp-3) var(--sp-5);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(24 33 41 / 0.04), 0 6px 18px rgb(24 33 41 / 0.05);
+    font-size: var(--step-2);
+    font-weight: 650;
+    letter-spacing: -0.012em;
+    line-height: var(--lh-tight);
+    color: var(--ink-heading);
+  }
+
+  /*
+   * The tail: a long, thin wedge reaching right and a little down, towards
+   * the portrait. Its base sits over the bubble's own border, which its fill
+   * hides; the open path strokes only the two outer edges.
+   */
+  .greeting-tail {
+    position: absolute;
+    top: calc(50% - 0.55rem);
+    left: calc(100% - 1.5px);
+    overflow: visible;
+  }
+
+  .greeting-tail path {
+    fill: var(--surface);
+    stroke: var(--line);
+    stroke-width: 1;
+    stroke-linejoin: round;
+  }
+
+  /*
+   * The fields the work sits in, spread over the statement's width (the
+   * shared .spread row). On a narrow column the type shrinks with it rather
+   * than wrapping: the three terms and two pipes need about 32em, plus the
+   * four gaps. Below the floor, on the narrowest phones, they stack instead.
+   */
+  .fields {
+    align-self: stretch;
+    max-inline-size: 40rem;
+    margin-block-end: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: clamp(0.5625rem, calc((100cqi - 2.5rem) / 32), var(--step--1));
+    font-weight: 560;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  @container hero-text (max-width: 19.5rem) {
+    .fields {
+      flex-direction: column;
+      align-items: flex-start;
+      row-gap: var(--sp-1);
+    }
+
+    .fields .sep {
+      display: none;
+    }
+  }
+
+  /* The statement, set as a quote: italic, with the marks in the accent. */
+  /* The quote marks set it apart, so the prose blockquote's rule does not. */
+  .statement {
+    position: relative;
+    margin: 0;
+    max-width: 46rem;
+    padding-inline-start: 2.75rem;
+    border-inline-start: none;
+    color: var(--ink);
+  }
+
+  .statement p {
+    max-width: none;
     font-size: var(--step-1);
-    font-weight: 500;
-    letter-spacing: -0.005em;
-    line-height: var(--lh-snug);
-    max-width: 42rem;
+    font-style: italic;
+    font-weight: 440;
+    line-height: 1.5;
+    letter-spacing: -0.003em;
+    color: var(--ink);
     text-wrap: pretty;
+  }
+
+  /* Solid and bold, opening the quote alone. */
+  .quote-mark {
+    color: var(--accent);
+    opacity: 0.6;
+  }
+
+  .quote-mark :global(svg) {
+    fill: currentColor;
+    stroke-width: 1.5;
+  }
+
+  /* Lucide's mark is a closing quote; turned over, it opens. */
+  .quote-mark--open {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.1em;
+    display: block;
+    transform: rotate(180deg);
+  }
+
+  /* The shared emphasis (.marked, global.css); in the italic quote, the
+     core statements stand upright. */
+  .statement strong {
+    font-style: normal;
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-3);
-    margin-block-start: var(--sp-1);
+    margin-block-start: var(--sp-3);
   }
 
   .hero-portrait {
@@ -123,15 +269,15 @@ const jsonLd = [personSchema(origin)];
   }
 
   .strip {
-    margin-block-start: var(--sp-10);
+    margin-block-start: auto;
     border-top: 1px solid var(--line);
-    padding-block-start: var(--sp-4);
+    padding-block-start: var(--sp-5);
   }
 
   @media (max-width: 63.99rem) {
     .hero-grid {
       grid-template-columns: 1fr;
-      gap: var(--sp-8);
+      gap: var(--sp-10);
     }
 
     /* Text before portrait; portrait bounded. */
@@ -139,14 +285,122 @@ const jsonLd = [personSchema(origin)];
       justify-self: start;
       max-width: 24rem;
     }
+
+    /* The portrait is below now, so the tail is a short notch pointing down:
+       a square turned on its corner, bordered on the two outer sides. */
+    .greeting-tail {
+      display: none;
+    }
+
+    .greeting::after {
+      content: '';
+      position: absolute;
+      bottom: -0.45rem;
+      left: var(--sp-6);
+      inline-size: 0.8rem;
+      block-size: 0.8rem;
+      border-inline-end: 1px solid var(--line);
+      border-block-end: 1px solid var(--line);
+      background: var(--surface);
+      transform: rotate(45deg);
+    }
   }
 
-  /* On a phone the column is narrower than the lab's own square, so the cap
-     only left a gap down one side. It takes the width and sits centred. */
+  /*
+   * A phone: the first screen holds the whole introduction. The portrait sits
+   * under the greeting, whose notch now points down at it, then the fields,
+   * the statement, and the two buttons. The text column dissolves into one
+   * stack so the portrait can sit between its parts, and the portrait takes
+   * whatever height the rest leaves, up to its size on a desktop. The gaps
+   * grow a little with the screen's height, and whatever the capped portrait
+   * leaves over is shared evenly between them.
+   */
   @media (max-width: 40rem) {
+    .hero-band {
+      padding-block-start: var(--sp-4);
+    }
+
+    /* Takes over naming the container the fields size their type to. */
+    .hero-grid {
+      container: hero-text / inline-size;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-evenly;
+      gap: clamp(var(--sp-4), 2.6svh, var(--sp-6));
+      min-block-size: calc(100svh - var(--header-h) - 1px - 2 * var(--sp-4));
+      margin-block-end: var(--sp-8);
+    }
+
+    .hero-text {
+      display: contents;
+      container: none;
+    }
+
+    .greeting {
+      order: 0;
+      align-self: center;
+      margin-block-end: 0;
+      padding: var(--sp-2) var(--sp-4);
+      font-size: var(--step-0);
+      text-align: center;
+    }
+
+    .greeting::after {
+      left: calc(50% - 0.4rem);
+    }
+
+    /* A size container, so the lab can be as large as the leftover height
+       allows; above the text after it, which its info note may reach over. */
     .hero-portrait {
-      justify-self: stretch;
+      order: 1;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1 1 0;
+      min-block-size: 11rem;
+      max-block-size: calc(20.25rem + 2.375rem);
       max-width: none;
+      container-type: size;
+    }
+
+    /* The square, less the slim mode buttons and the gap above them
+       (2.375 rem), and never larger than on a desktop. */
+    .hero-portrait :global(.portrait-lab) {
+      inline-size: min(100cqw, 100cqh - 2.375rem, 20.25rem);
+      margin: 0;
+    }
+
+    .fields {
+      order: 2;
+      margin-block-end: 0;
+    }
+
+    .statement {
+      order: 3;
+      padding-inline-start: 1.85rem;
+    }
+
+    .statement p {
+      font-size: 0.9rem;
+      line-height: 1.48;
+    }
+
+    .quote-mark :global(svg) {
+      inline-size: 1.25rem;
+      block-size: 1.25rem;
+    }
+
+    .actions {
+      order: 4;
+      margin-block-start: 0;
+    }
+
+    .actions > :global(*) {
+      flex: 1 1 0;
+      justify-content: center;
     }
   }
 </style>

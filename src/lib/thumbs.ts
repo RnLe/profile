@@ -8,12 +8,14 @@
  */
 import type { ImageMetadata } from 'astro';
 import moireLoop from '../assets/thesis/moire-dots-loop.webp';
-import blazeMark from '../assets/blaze2d/blaze.svg';
+// The banner of the Blaze2D technical report (rnle.github.io/blaze2d/blaze/),
+// copied unchanged from the Blaze2D repository's web/public/banners.
+import blazeBanner from '../assets/blaze2d/blaze-intro.webp';
 import bandLoop from '../assets/blaze2d/band-diagram-loop.webp';
 import swarmDetail from '../assets/swarm-dynamics/metric-topological-detail.webp';
 import pairedContrast from '../assets/grounded-recovery/paired-contrast.webp';
 import robotArm from '../assets/recover-in-real-time/arm.webp';
-import imaginedVsHappened from '../assets/residual-worlds/imagined-vs-happened.webp';
+import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
 
 export interface ThumbImage {
   kind: 'image';
@@ -27,6 +29,17 @@ export interface ThumbImage {
   animated?: boolean;
   /** Frame shape on the index card; the compact list frame is always 16:9. */
   ratio?: string;
+  /**
+   * A line under the image on the index card. The image then keeps its own
+   * proportions at the top of the column instead of filling it.
+   */
+  caption?: string;
+  /**
+   * With `fit: 'contain'`, fill the frame's empty bands with a blurred copy
+   * of the image itself instead of the card's colour. An animation's copy
+   * moves with it, so the blur follows what is on screen.
+   */
+  backdrop?: 'blur';
 }
 
 export type Thumb = ThumbImage | { kind: 'placeholder'; assetId: string };
@@ -41,10 +54,9 @@ export const projectThumbs: Record<string, Thumb> = {
   },
   blaze2d: {
     kind: 'image',
-    src: blazeMark,
-    alt: 'The Blaze2D mark',
-    // A mark, not a scene: show it whole on the card's own background.
-    fit: 'contain',
+    src: blazeBanner,
+    alt: 'The Blaze2D flame as a glowing glass sculpture, orange above a blue wave, on black',
+    // The flame sits in the middle of a black field, so any crop keeps it whole.
   },
   'swarm-dynamics': {
     kind: 'image',
@@ -55,13 +67,13 @@ export const projectThumbs: Record<string, Thumb> = {
   'grounded-recovery': {
     kind: 'image',
     src: pairedContrast,
-    alt: 'Two policies running the same symbolic gridworld scenario side by side',
+    alt: 'Two AI agents in the same maze, told to go to the grey box, after the same forced action change: the one trained with extra demonstrations runs out of steps, the one trained with corrections reaches the box',
     animated: true,
   },
   'residual-worlds': {
     kind: 'image',
-    src: imaginedVsHappened,
-    alt: 'Two-link arm in its true world, with the nominal model’s prediction from a moment earlier drawn faded; the gap between the two hands is the residual',
+    src: modelVsMotion,
+    alt: 'A simulated two-link arm (solid) and the physics model’s prediction from 0.3 s earlier (faded); the gap between the two hands is the residual',
     // Already 16:9, so it fills the compact frame edge to edge with no crop.
     animated: true,
   },
@@ -81,10 +93,11 @@ export const projectCardThumbs: Record<string, ThumbImage> = {
   // rather than cropped into it.
   'residual-worlds': {
     kind: 'image',
-    src: imaginedVsHappened,
-    alt: 'Two-link arm in its true world, with the nominal model’s prediction from a moment earlier drawn faded; the gap between the two hands is the residual',
+    src: modelVsMotion,
+    alt: 'A simulated two-link arm (solid) and the physics model’s prediction from 0.3 s earlier (faded); the gap between the two hands is the residual',
     animated: true,
     fit: 'contain',
+    backdrop: 'blur',
   },
   // A photograph of the whole arm: the taller column cropped it to the gripper
   // and cut the rest off, so it is shown whole and centred instead.
@@ -93,15 +106,17 @@ export const projectCardThumbs: Record<string, ThumbImage> = {
     src: robotArm,
     alt: 'The assembled follower arm, a printed six-joint arm with a two-finger gripper',
     fit: 'contain',
+    backdrop: 'blur',
   },
   // Wide, two-panel, and already tightly cropped: shown whole and centred in
   // the taller column rather than zoomed into it.
   'grounded-recovery': {
     kind: 'image',
     src: pairedContrast,
-    alt: 'Two policies running the same symbolic gridworld scenario side by side',
+    alt: 'Two AI agents in the same maze, told to go to the grey box, after the same forced action change: the one trained with extra demonstrations runs out of steps, the one trained with corrections reaches the box',
     animated: true,
     fit: 'contain',
+    caption: 'Same maze, same forced mistake: extra demonstrations run out of steps (left); corrections reach the goal (right).',
   },
 };
 
@@ -110,7 +125,7 @@ export const projectSecondaryThumbs: Record<string, ThumbImage> = {
   blaze2d: {
     kind: 'image',
     src: bandLoop,
-    alt: 'A photonic band diagram of a hexagonal lattice of air holes in a dielectric, drawn band by band, with the complete band gap shaded between the third and fourth bands',
+    alt: 'A photonic band diagram computed with Blaze2D for a hexagonal lattice of air holes in a dielectric, TE in orange and TM in blue, drawn band by band, with the complete band gap shaded',
     animated: true,
     fit: 'contain',
   },

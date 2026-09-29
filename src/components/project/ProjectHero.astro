@@ -1,13 +1,18 @@
 ---
 /**
- * Project-page hero: title, one-line question, status + date, range,
- * role, collaborators, domain, evidence type, and the project's link row
- * (documents first). Links render only what the resolver allowed.
+ * Project-page hero, kept lean: title, one-line question, the date beside
+ * the project's link row (documents first), collaborators when there are
+ * any, and the methods as a row of tags. The lead figure sits beside all of
+ * it: a photo in a column of its own, a wide figure (a diagram or an
+ * animation with text in it) taking every bit of width the text leaves.
+ * Links render only what the resolver allowed.
  */
 import type { ResolvedProject } from '../../lib/publication';
+import { getFigure } from '../../lib/figures';
 import { buildProjectLinks } from '../../lib/projects';
-import StatusChip from '../ui/StatusChip.astro';
+import FigureRenderer from './FigureRenderer.astro';
 import ProjectLinks from './ProjectLinks.astro';
+import Marked from '../ui/Marked.astro';
 
 interface Props {
   project: ResolvedProject;
@@ -16,79 +21,91 @@ interface Props {
 const { project } = Astro.props;
 const { data } = project;
 const links = buildProjectLinks(project);
+// Documents and sites first; source code and packages on a row of their own.
+const documentLinks = links.filter((link) => !link.code);
+const codeLinks = links.filter((link) => link.code);
+const split = documentLinks.length > 0 && codeLinks.length > 0;
+const [heroFigureId] = data.figureIds;
+const heroFigure = heroFigureId ? getFigure(heroFigureId) : undefined;
+// Wider than 16:10 (an animation with text in it, a row of panels) takes the
+// wide layout; a photo or a single plot keeps the side column.
+const wide = heroFigure?.kind === 'image' && heroFigure.src.width > 1.7 * heroFigure.src.height;
+const methodsId = `${data.slug}-methods`;
 ---
 
 <header class="project-hero">
-  <div class="wrap hero-grid">
+  <div class:list={['wrap', 'hero-grid', wide && 'hero-grid--wide']}>
     <div class="headline">
-      <p class="eyebrow">{data.domain}</p>
       <h1>{data.title}</h1>
-      <p class="lead">{data.oneLine}</p>
+      <p class="lead marked"><Marked text={data.oneLine} /></p>
 
-      <div class="status-row">
-        <StatusChip
-          lifecycle={data.lifecycle}
-          evidenceLevel={data.evidenceLevel}
-          statusDate={data.statusDate}
-          showEvidence
-        />
+      <div class="meta">
         <span class="range">{data.dateRange}</span>
+        {split ? (
+          <div class="link-rows">
+            <ProjectLinks links={documentLinks} />
+            <ProjectLinks links={codeLinks} />
+          </div>
+        ) : (
+          links.length > 0 && <ProjectLinks {links} />
+        )}
       </div>
 
-      {links.length > 0 && (
-        <div class="actions">
-          <ProjectLinks {links} />
-        </div>
+      {data.collaborators.length > 0 && (
+        <p class="with">With {data.collaborators.join(', ')}</p>
+      )}
+
+      {data.methods.length > 0 && (
+        <section class="methods" aria-labelledby={methodsId}>
+          <h2 id={methodsId}>Methods</h2>
+          <ul class="tags">
+            {data.methods.map((method) => <li>{method}</li>)}
+          </ul>
+        </section>
       )}
     </div>
 
-    <dl class="facts">
-      <div>
-        <dt>Role</dt>
-        <dd>{data.role}</dd>
+    {heroFigureId && (
+      <div class="hero-figure">
+        <FigureRenderer figureId={heroFigureId} />
       </div>
-      {data.collaborators.length > 0 && (
-        <div>
-          <dt>Collaborators</dt>
-          <dd>{data.collaborators.join(', ')}</dd>
-        </div>
-      )}
-      {data.methods.length > 0 && (
-        <div>
-          <dt>Methods</dt>
-          <dd>{data.methods.join(' · ')}</dd>
-        </div>
-      )}
-    </dl>
+    )}
   </div>
 </header>
 
 <style>
   .project-hero {
-    padding-block: clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem);
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);
     border-bottom: 1px solid var(--line);
     background:
       radial-gradient(50rem 26rem at 90% -10%, var(--accent-wash), transparent 65%),
       var(--paper);
   }
 
-  /* Question and status on the left, the record on the right. The modal is
-     wide, so the facts sit beside the headline instead of below it. Driven by
-     the panel's width (a container query), not the viewport's. */
+  /* Text on the left, the lead figure on the right. The modal is wide, so
+     they sit side by side there too. Driven by the panel's width (a
+     container query), not the viewport's. */
   .hero-grid {
     display: grid;
-    gap: var(--sp-6) var(--sp-10);
+    gap: var(--sp-8) var(--sp-10);
     align-items: start;
   }
 
   @container (min-width: 46rem) {
-    .hero-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 19rem);
+    .hero-grid:not(.hero-grid--wide) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    }
+  }
+
+  /* A wide figure: the text keeps a narrow column, the figure takes the rest. */
+  @container (min-width: 56rem) {
+    .hero-grid--wide {
+      grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+      align-items: center;
     }
   }
 
   h1 {
-    margin-block-start: var(--sp-2);
     max-width: 34rem;
   }
 
@@ -96,49 +113,71 @@ const links = buildProjectLinks(project);
     margin-block-start: var(--sp-4);
   }
 
-  .status-row {
+  /* The date leads the link row, in the same line. */
+  .meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-3) var(--sp-6);
-    margin-block-start: var(--sp-6);
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-5);
+    margin-block-start: var(--sp-5);
+  }
+
+  /* Documents and sites, then code, one row under the other beside the date. */
+  .link-rows {
+    display: grid;
+    gap: var(--sp-1);
+    min-width: 0;
   }
 
   .range {
     font-family: var(--font-mono);
     font-size: var(--step--1);
     color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
   }
 
-  .facts {
-    display: grid;
-    gap: var(--sp-4);
-    align-content: start;
-    max-width: var(--w-prose);
-  }
-
-  .facts div {
-    display: grid;
-    gap: var(--sp-1);
-  }
-
-  .facts dt {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    font-weight: 560;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  .facts dd {
-    margin: 0;
+  .with {
+    margin-block-start: var(--sp-3);
     font-size: var(--step--1);
     color: var(--ink-muted);
   }
 
-  .actions {
-    margin-block-start: var(--sp-6);
+  .methods {
+    margin-block-start: var(--sp-8);
   }
 
+  .methods h2 {
+    font-size: var(--step-1);
+  }
+
+  /* Faint, nearly square pills, as the project labels in the lists. */
+  .tags {
+    list-style: none;
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    max-width: var(--w-prose);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  .tags li {
+    padding: 0.2em 0.6em;
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    font-size: var(--step--1);
+    line-height: var(--lh-snug);
+    color: var(--accent-strong);
+    white-space: nowrap;
+  }
+
+  .hero-figure {
+    min-width: 0;
+    max-width: 30rem;
+  }
+
+  .hero-grid--wide .hero-figure {
+    max-width: none;
+  }
 </style>

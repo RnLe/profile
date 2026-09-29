@@ -3,39 +3,43 @@ id: residual-worlds
 slug: residual-worlds
 title: Residual Worlds
 oneLine: >-
-  Keep the known rigid-body dynamics and learn only the mismatch, then judge
-  the model where it matters, inside MPC.
+  How much of a robot arm’s motion should a neural network learn, when the
+  physics is already mostly known?
 tagline: >-
-  Keep the known physics, learn only the mismatch, then judge it inside MPC.
+  A neural network learns to fix a physics model’s errors, tested by steering
+  a simulated robot arm.
+activity: active
 yearStart: 2026
 kinds:
-  - academic
-  - software
+  - robotics
+  - learning
+focus:
+  robotics: 'Robot arm dynamics · model-predictive control · sampling-based planning (CEM)'
+  learning: 'Residual dynamics models · MLP ensembles · data efficiency · preregistered evaluation'
 summary: >-
-  A controlled test of a simple principle: keep the known physics, learn only
-  the residual, and evaluate the learned dynamics model by closed-loop control
-  performance rather than prediction error. Simulator and protocol are being
-  implemented; calibration and protected evaluation are pending.
+  The plan: fix an imperfect physics model of a simulated two-link arm in
+  three ways (re-fit its parameters, replace it with a neural network, or
+  ==let a network learn only its errors==) and see which one lets a planner
+  **steer the arm best from little data**. No results yet.
 placement: research-selected
 lifecycle: active-research
 evidenceLevel: method-preview
 statusDate: '2026-08-30'
 statusNote: >-
-  Active research: simulator and preregistered protocol are being implemented;
-  calibration and protected evaluation are pending. No results exist yet.
+  Active research: the simulator and the study protocol are being built, and
+  calibration and the final evaluation come after. No results exist yet.
 publication: public
 sourceVisibility: public
-role: >-
-  I am designing the study, implementing the simulator and the MPC stack, and
-  preregistering the evaluation protocol before any model is trained.
 collaborators: []
 domain: Learned dynamics · model-predictive control
 dateRange: 2026 – present
 methods:
-  - Rigid-body simulation
-  - Residual dynamics learning
-  - Receding-horizon MPC
-  - Preregistered evaluation design
+  - PyTorch
+  - Residual dynamics
+  - Model-predictive control
+  - Cross-entropy method
+  - Crossed bootstrap
+  - Preregistered analysis
 applicationThemes:
   - world-models
   - model-predictive-control
@@ -49,19 +53,16 @@ citations:
   - label: 'Rawlings, Mayne & Diehl: Model Predictive Control: Theory, Computation, and Design'
     href: 'https://sites.engineering.ucsb.edu/~jbraw/mpc/'
 noveltyNote: >-
-  Residual modeling is an established method family; this project is a
-  controlled data-efficiency and MPC study, not a new algorithm. Its planned
-  contribution is the discipline of the comparison, not a method.
+  Learning a correction on top of a physics model is an established idea. This
+  project is a carefully controlled comparison, not a new algorithm; its
+  planned contribution is the rigor of that comparison.
 claimIds:
   - RW-STATUS-001
   - RW-PRIMARY-001
 mediaIds: []
 figureIds:
-  - two-link-method-preview
+  - rw-preview
 links:
-  - label: Website
-    href: 'https://rnle.github.io/residual-worlds/'
-    kind: site
   - label: Repository
     href: 'https://github.com/RnLe/residual-worlds'
     kind: source
@@ -75,14 +76,20 @@ currentState:
   nextGate: Preregistered protocol locked and calibration closed; only then does evaluation begin.
 ---
 
-Residual Worlds tests one principle under controlled conditions: keep the
-rigid-body dynamics that are already known, learn only the part the model gets
-wrong, and judge the result by how well a controller performs with it rather
-than by prediction error on held-out trajectories. The setting is a two-link arm
-whose target world carries deliberate mass, length, and friction mismatch, with
-model-predictive control closing the loop.
+A simulated **two-link robot arm** must reach three targets in order while
+avoiding an obstacle. Its physics are mostly known: gravity, inertia, and how
+the two links pull on each other. What the equations miss is
+<mark>an unknown payload, sticky friction, and motors that deliver less torque
+than commanded</mark>.
 
-The simulator, the residual model, and the MPC stack are being implemented, and
-the evaluation protocol is written down before any model is trained. Nothing has
-been measured yet: the figure on this page computes the study's setting live and
-is a method preview, not a result.
+A planner (model-predictive control) picks each move by simulating it with a
+model, so <mark>every model error becomes a planning error</mark>. With only a
+little measured data, the study compares three ways to fix the model: re-fit its
+physical parameters, replace it with a neural network, or let a network learn
+only what the model gets wrong (the residual). Each is judged by **how often the
+arm completes its task**, not by how well it predicts the next step.
+
+The simulator, the models, the planner, and the analysis already run end to end
+on a small test setup. The task itself is still being calibrated, so **there
+are no results yet**. The analysis rules are fixed before the run, and a null or
+opposite result will be reported the same way.

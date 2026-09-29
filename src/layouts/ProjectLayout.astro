@@ -11,6 +11,7 @@ import AcademicLayout from './AcademicLayout.astro';
 import ProjectArticle from '../components/project/ProjectArticle.astro';
 import ProjectParked from '../components/project/ProjectParked.astro';
 import { breadcrumbSchema, projectSchema } from '../lib/seo';
+import { plain } from '../lib/marks';
 import { withBase } from '../lib/routes';
 import type { ResolvedProject } from '../lib/publication';
 
@@ -36,7 +37,7 @@ const jsonLd = [
 ];
 ---
 
-<AcademicLayout title={data.title} description={data.summary} {jsonLd}>
+<AcademicLayout title={data.title} description={plain(data.summary)} {jsonLd}>
   <nav class="crumbs" aria-label="Breadcrumb">
     <div class="wrap">
       <ol>

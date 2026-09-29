@@ -20,8 +20,17 @@ const { links } = Astro.props;
   <p class="artifacts link-row" data-project-links>
     {links.map((link) => (
       <span>
-        <a href={link.external ? link.href : withBase(link.href)} rel="noopener">
-          <Icon name={link.icon} size={14} />
+        <a
+          href={link.external ? link.href : withBase(link.href)}
+          target={link.newTab ? '_blank' : undefined}
+          rel="noopener"
+          class:list={[link.emphasis && 'is-primary', link.mark && 'has-mark']}
+        >
+          {link.mark ? (
+            <img class="mark" src={withBase(link.mark)} alt="" />
+          ) : (
+            <Icon name={link.icon} size={14} />
+          )}
           <span class="text">{link.label}{link.meta && <span class="size">&nbsp;({link.meta})</span>}</span>
         </a>
       </span>
@@ -48,6 +57,24 @@ const { links } = Astro.props;
   .size {
     color: var(--ink-faint);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* A thesis is the document a reader of the row looks for first. */
+  .is-primary {
+    font-weight: 640;
+  }
+
+  /* A project's own mark leads the row as its name, as on the CV. The flame
+     sits low in its artboard, so it is nudged up optically. */
+  .has-mark {
+    font-weight: 640;
+  }
+
+  .mark {
+    display: block;
+    height: 1.5em;
+    width: auto;
+    transform: translateY(-0.2em);
   }
 
 </style>

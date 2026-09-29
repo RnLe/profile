@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { gatedProjects } from '../../src/data/gated-projects';
+import type { GatedProject } from '../../src/data/gated-projects';
 import {
   buildProjectLinks,
   buildProjectList,
   compareEntries,
   linkIcon,
+  pinFirst,
   yearLabel,
 } from '../../src/lib/projects';
 import type { ResolvedProject } from '../../src/lib/publication';
@@ -20,6 +21,7 @@ const frontmatter = (overrides: Partial<ProjectFrontmatter> = {}): ProjectFrontm
   summary: 'Synthetic fixture.',
   yearStart: 2026,
   kinds: [],
+  focus: {},
   placement: 'research-selected',
   lifecycle: 'released',
   evidenceLevel: 'validated-result',
@@ -36,8 +38,10 @@ const frontmatter = (overrides: Partial<ProjectFrontmatter> = {}): ProjectFrontm
   citations: [],
   noveltyNote: 'None claimed.',
   claimIds: [],
+  cardClaimIds: [],
   mediaIds: [],
   figureIds: [],
+  sections: [],
   links: [],
   related: [],
   ...overrides,
@@ -125,14 +129,27 @@ describe('compareEntries', () => {
 });
 
 describe('buildProjectList', () => {
-  const gatedIds = Object.keys(gatedProjects);
+  // Synthetic gates: the shipped registry may be empty, and a test that loops
+  // over nothing proves nothing.
+  const gates: Record<string, GatedProject> = {
+    'project-comet': {
+      title: 'Project Comet',
+      question: 'Does the comet return?',
+      statusText: 'Being prepared.',
+      statusDate: '2026-01-01',
+      year: 2026,
+      kinds: ['theory'],
+      links: [],
+    },
+  };
+  const gatedIds = Object.keys(gates);
 
   it('sorts latest first and appends one placeholder per unresolved gated id', () => {
     const list = buildProjectList([
       resolved({ id: 'project-nebula', slug: 'project-nebula', title: 'Project Nebula', yearStart: 2025, yearEnd: 2026 }),
       resolved({ id: 'project-quasar', slug: 'project-quasar', title: 'Project Quasar', yearStart: 2026 }),
       resolved({ id: 'project-pulsar', slug: 'project-pulsar', title: 'Project Pulsar', yearStart: 2023, yearEnd: 2023 }),
-    ]);
+    ], gates);
     const routed = list.filter((entry) => entry.kind === 'project').map((entry) => entry.title);
     expect(routed).toEqual(['Project Quasar', 'Project Nebula', 'Project Pulsar']);
 
@@ -140,7 +157,7 @@ describe('buildProjectList', () => {
     expect(gated.map((entry) => entry.id).sort()).toEqual([...gatedIds].sort());
     for (const entry of gated) {
       expect(entry.status.label).toBe('Release preparation');
-      expect(entry.yearLabel).toBe(String(gatedProjects[entry.id].year));
+      expect(entry.yearLabel).toBe(String(gates[entry.id].year));
       // A placeholder never precedes a routed project that started the same year.
       const sameYearRouted = list.findIndex(
         (other) => other.kind === 'project' && other.yearStart === entry.yearStart,
@@ -151,9 +168,65 @@ describe('buildProjectList', () => {
 
   it('drops the placeholder once the gated project resolves', () => {
     const id = gatedIds[0];
-    const list = buildProjectList([resolved({ id, slug: id, title: 'Resolved gate' })]);
+    const list = buildProjectList([resolved({ id, slug: id, title: 'Resolved gate' })], gates);
     expect(list.filter((entry) => entry.kind === 'gated').map((entry) => entry.id)).not.toContain(id);
     expect(list.some((entry) => entry.kind === 'project' && entry.id === id)).toBe(true);
+  });
+
+  it('links out to a case study hosted on the project’s own site, with its card claims', () => {
+    const project = resolved({
+      caseStudyUrl: 'https://example.org/nebula/study/',
+      claimIds: ['NEB-RESULT-001'],
+      cardClaimIds: ['NEB-RESULT-001'],
+    });
+    project.claims = [
+      {
+        claim_id: 'NEB-RESULT-001',
+        project_id: 'project-nebula',
+        claim_type: 'result',
+        publication_policy: 'scoped',
+        short_copy: 'The nebula glows.',
+        long_copy: '',
+        scope: 'Only in visible light.',
+        evidence_state: 'verified',
+        model_or_artifact_version: '',
+        measurement_context: 'Synthetic.',
+        source_paths: [],
+        source_urls: [],
+        source_commit: '',
+        artifact_sha256: '',
+        last_verified: '2026-01-01',
+        allowed_surfaces: ['research-index'],
+        forbidden_surfaces: [],
+        supersedes: [],
+        review_triggers: [],
+        forbidden_phrases: [],
+        notes: '',
+      },
+    ];
+    const entry = buildProjectList([project]).find((candidate) => candidate.kind === 'project');
+    expect(entry?.kind === 'project' && entry.external).toBe(true);
+    if (entry?.kind !== 'project') return;
+    expect(entry.href).toBe('https://example.org/nebula/study/');
+    // A scoped result carries its registered scope to the card.
+    expect(entry.cardClaims).toEqual([
+      { id: 'NEB-RESULT-001', type: 'result', text: 'The nebula glows.', scope: 'Only in visible light.' },
+    ]);
+  });
+
+  it('moves the picks to the front in the order given and keeps the rest in place', () => {
+    const list = buildProjectList([
+      resolved({ id: 'project-nebula', slug: 'project-nebula', title: 'Project Nebula', yearStart: 2026 }),
+      resolved({ id: 'project-quasar', slug: 'project-quasar', title: 'Project Quasar', yearStart: 2025 }),
+      resolved({ id: 'project-pulsar', slug: 'project-pulsar', title: 'Project Pulsar', yearStart: 2024 }),
+      resolved({ id: 'project-comet', slug: 'project-comet', title: 'Project Comet', yearStart: 2023 }),
+    ]);
+    expect(pinFirst(list, ['project-pulsar', 'project-quasar', 'project-missing']).map((e) => e.id)).toEqual([
+      'project-pulsar',
+      'project-quasar',
+      'project-nebula',
+      'project-comet',
+    ]);
   });
 
   it('carries the year label, subtitle, and status chip of a routed project', () => {
@@ -212,6 +285,7 @@ describe('buildProjectLinks', () => {
     ]);
     expect(links[0]).toEqual({
       label: 'Thesis',
+      emphasis: true,
       href: '/documents/thesis/Nebula_Thesis.pdf',
       icon: 'file-pdf',
       meta: '37p, 5.4 MB',
@@ -238,5 +312,20 @@ describe('buildProjectLinks', () => {
     expect(linkIcon('site', 'https://example.org/paper.pdf')).toBe('file-pdf');
     expect(linkIcon('source', 'https://example.org/git')).toBe('github');
     expect(linkIcon(undefined, 'https://example.org/')).toBe('globe');
+  });
+
+  it('sets a thesis in bold and draws a project mark in place of an icon', () => {
+    const [thesis, mark] = buildProjectLinks(
+      resolved({ links: [{ label: 'Nebula', href: 'https://example.org/nebula/', kind: 'docs', mark: 'blaze2d' }] }, [artifact()]),
+    );
+    expect(thesis.label).toBe('Thesis');
+    expect(thesis.emphasis).toBe(true);
+    expect(mark.mark).toBe('/icons/blaze.svg');
+    expect(mark.emphasis).toBeUndefined();
+  });
+
+  it('marks a Python package with the Python logo and any other package generically', () => {
+    expect(linkIcon('package', 'https://pypi.org/project/nebula/')).toBe('pypi');
+    expect(linkIcon('package', 'https://example.org/pkg/nebula')).toBe('package');
   });
 });
