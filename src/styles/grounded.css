@@ -1,0 +1,481 @@
+/*
+ * The Grounded Recovery study's own drawing components, as they appear on its
+ * website (site/src/styles/components.css of RnLe/recovery-policy-learning,
+ * c4fc791): the budget sketch, its play control, the comic page, and the comic
+ * reader. The study's palette is scoped to .gr-embed, so none of it reaches
+ * the rest of this site. Ported with one change: the reader's height comes
+ * from the card it sits in, not from the window.
+ */
+.gr-embed {
+  --paper-raised: #ffffff;
+  --ink: #4f5f6b;
+  --ink-strong: #3c4954;
+  --ink-soft: #5e6d78;
+  --line: #e6ddc9;
+  --recovery-strong: #57775c;
+  --recovery-vivid: #3daa73;
+  --recovery-vivid-strong: #2b8656;
+  --extra: #4e9ae1;
+  --extra-strong: #3d7db9;
+  --caution: #eba538;
+  --caution-strong: #b57a1a;
+  --size-0: 0.75rem;
+  --comic-ink: #141414;
+  --comic-rule: 3px;
+  --comic-gutter: 0.55rem;
+  --radius-lg: 10px;
+}
+
+/* budget sketch ------------------------------------------------------------- */
+
+/* The landing page's looping picture. It is drawn at the stage's own pixel
+   size, so the strokes and type set here are the sizes on screen. Blue is
+   the extra-demonstration arm, the brighter green its corrections; orange is
+   the moment things go wrong. */
+.budget-sketch {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.budget-sketch__svg {
+  /* out of flow, so the drawing never props its frame open: the frame's
+     height comes from the layout around it alone */
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.budget-sketch__band {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.07;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.budget-sketch__route,
+.budget-sketch__drift,
+.budget-sketch__pointer {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.budget-sketch__route {
+  stroke: var(--ink-strong);
+}
+
+.budget-sketch__start,
+.budget-sketch__goal {
+  fill: var(--ink-strong);
+}
+
+.budget-sketch__goal-ring {
+  fill: none;
+  stroke: var(--ink-strong);
+  stroke-width: 2;
+}
+
+.budget-sketch__drift {
+  stroke: var(--caution);
+}
+
+.budget-sketch__marker {
+  fill: var(--caution);
+  stroke: var(--paper-raised);
+  stroke-width: 2.5;
+}
+
+.budget-sketch__pulse {
+  fill: none;
+  stroke: var(--caution);
+  stroke-width: 2;
+}
+
+.budget-sketch__learner {
+  fill: var(--ink-strong);
+  stroke: var(--paper-raised);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.budget-sketch__dot {
+  stroke: var(--paper-raised);
+  stroke-width: 2;
+}
+
+.budget-sketch__ghost {
+  fill: none;
+  stroke: var(--extra);
+}
+
+/* Few words, heavy weight, and a paper halo so a caption stays legible where
+   it crosses a line. */
+.budget-sketch__caption {
+  fill: var(--ink-strong);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  paint-order: stroke;
+  stroke: var(--paper-raised);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+
+.budget-sketch__caption--small {
+  fill: var(--ink-soft);
+  font-size: 0.72em;
+  font-weight: 600;
+}
+
+.budget-sketch__caption--extra {
+  fill: var(--extra-strong);
+}
+
+.budget-sketch__caption--deployment {
+  fill: var(--caution-strong);
+}
+
+.budget-sketch__caption--corrections {
+  fill: var(--recovery-vivid-strong);
+}
+
+.budget-sketch__sub {
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.budget-sketch:hover .player__controls,
+.budget-sketch:focus-within .player__controls {
+  opacity: 1;
+}
+
+
+/* sketch legend ------------------------------------------------------------- */
+
+/* The text beside the sketch (site/src/styles/reading.css): it spans the
+   sketch's height, and each step wears the mark it has in the sketch, so the
+   list doubles as the legend. */
+.gr-embed.sketch-legend {
+  display: flex;
+  flex-direction: column;
+}
+
+.gr-embed.sketch-legend h3 {
+  margin: 0;
+}
+
+.gr-embed.sketch-legend p {
+  margin: 0;
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+
+.sketch-steps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 0.85em;
+  max-width: none;
+  margin: 0;
+  padding: 1em 0;
+  list-style: none;
+}
+
+.sketch-steps li {
+  position: relative;
+  max-width: none;
+  margin: 0;
+  padding-left: 1.9em;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.sketch-steps b {
+  color: var(--ink-strong);
+}
+
+.sketch-steps li::before {
+  content: "";
+  position: absolute;
+  left: 0.2em;
+  top: 0.4em;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  background: var(--sketch-mark, var(--ink-strong));
+}
+
+.sketch-steps [data-step="expert"]::before {
+  top: 0.72em;
+  left: 0;
+  width: 1.25em;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.sketch-steps [data-step="extra"] {
+  --sketch-mark: var(--extra);
+}
+
+.sketch-steps [data-step="deployment"] {
+  --sketch-mark: var(--caution);
+}
+
+.sketch-steps [data-step="corrections"] {
+  --sketch-mark: var(--recovery-vivid);
+}
+
+
+/* comic strip --------------------------------------------------------------- */
+
+/* A page of panels rather than a row of pictures: the grid decides how much
+   room each beat gets, the drawing is scaled into whatever frame it lands in,
+   and every frame wears the same heavy ink line. */
+.comic {
+  display: grid;
+  grid-template-columns: repeat(var(--comic-columns, 12), minmax(0, 1fr));
+  grid-template-rows: var(--comic-rows, auto);
+  gap: var(--comic-gutter);
+  height: var(--comic-height, 70svh);
+  padding: var(--comic-gutter);
+  background: #ffffff;
+  border: var(--comic-rule) solid var(--comic-ink);
+}
+
+.comic__panel {
+  grid-column: span var(--comic-span, 1);
+  grid-row: span var(--comic-row-span, 1);
+  overflow: hidden;
+  margin: 0;
+  background: #ffffff;
+  border: var(--comic-rule) solid var(--comic-ink);
+}
+
+.comic__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+/* comic reader -------------------------------------------------------------- */
+
+/* One scene at a time. The stage holds its height for every slide, so the page
+   never jumps; a frame takes only the width its drawing asks for, and the
+   talkier scenes claim more of that height than the wordless ones. */
+.comic-reader {
+  position: relative;
+  --comic-reader-height: 70svh;
+  --comic-reader-previews: 5.75rem;
+}
+
+.comic-reader__stage {
+  container-type: size;
+  position: relative;
+  overflow: hidden;
+  height: calc(var(--comic-reader-height) - var(--comic-reader-previews));
+  touch-action: pan-y;
+}
+
+/* A scene crosses the whole stage on its way in or out, so the change reads
+   as a page turn rather than a dissolve. */
+.comic-reader__slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  transform: translateX(var(--comic-slide-shift, 0));
+  transition: transform 340ms cubic-bezier(0.33, 0.1, 0.25, 1);
+}
+
+.comic-reader__slide[data-state="before"] {
+  --comic-slide-shift: -100%;
+}
+
+.comic-reader__slide[data-state="after"] {
+  --comic-slide-shift: 100%;
+}
+
+.comic-reader__slide[data-state="active"] {
+  --comic-slide-shift: 0;
+}
+
+/* The frame is height-led: its width falls out of the drawing's proportions,
+   and drops back to the stage width when the stage is wider than it is tall. */
+.comic-reader__frame {
+  aspect-ratio: var(--comic-aspect, 1.4);
+  height: min(
+    calc(100cqh * var(--comic-scale, 1)),
+    calc(100cqw / var(--comic-aspect, 1.4))
+  );
+}
+
+.comic-reader__slide--page .comic {
+  --comic-height: 100cqh;
+  width: 100%;
+}
+
+.comic-reader__nav {
+  position: absolute;
+  top: calc((var(--comic-reader-height) - var(--comic-reader-previews)) / 2);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  transform: translateY(-50%);
+  color: var(--comic-ink);
+  background: #ffffff;
+  border: 2px solid var(--comic-ink);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+/* Nudged into the page gutter so the assembled page keeps most of its width. */
+.comic-reader__nav--prev {
+  left: -1.75rem;
+}
+
+.comic-reader__nav--next {
+  right: -1.75rem;
+}
+
+.comic-reader__nav svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.comic-reader__nav:hover:not(:disabled) {
+  color: var(--recovery-strong);
+}
+
+.comic-reader__nav:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* The previews are the position indicator: a filmstrip of the story, each
+   thumbnail at the proportions of the scene it stands for. */
+.comic-reader__previews {
+  display: flex;
+  align-items: center;
+  justify-content: safe center;
+  gap: 0.35rem;
+  height: var(--comic-reader-previews);
+  padding: 0 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.comic-reader__previews::-webkit-scrollbar {
+  display: none;
+}
+
+.comic-reader__thumb {
+  flex: none;
+  aspect-ratio: var(--comic-aspect, 1.4);
+  height: 4rem;
+  padding: 0;
+  overflow: hidden;
+  color: var(--comic-ink);
+  background: #ffffff;
+  border: 1px solid var(--comic-ink);
+  border-radius: 2px;
+  opacity: 0.4;
+  cursor: pointer;
+  transition:
+    opacity 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.comic-reader__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The last stop is the assembled page, so its preview is a page, not a scene. */
+.comic-reader__thumb--page {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+}
+
+.comic-reader__mark {
+  width: 2.1rem;
+  height: 1.6rem;
+}
+
+.comic-reader__thumb:hover {
+  opacity: 0.75;
+}
+
+.comic-reader__thumb[aria-current="true"] {
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--comic-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comic-reader__slide {
+    transition: none;
+  }
+}
+
+.player__controls {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(60, 73, 84, 0.82);
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.player:hover .player__controls,
+.player:focus-within .player__controls,
+.player--static .player__controls {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player__controls {
+    transition: none;
+  }
+}
+
+.player__controls button {
+  font: inherit;
+  font-size: var(--size-0);
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 50%;
+}
+
+.player__controls button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+

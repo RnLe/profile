@@ -312,6 +312,10 @@ th {
 
 .link-row svg {
   flex: none;
+}
+
+/* Utility glyphs recede behind the label; a mark in its own colors does not. */
+.link-row svg:not([data-native]) {
   opacity: 0.75;
 }
 
@@ -324,6 +328,48 @@ th {
   .link-row .pending {
     min-height: 1.75rem;
   }
+}
+
+/*
+ * Two kinds of emphasis, used sparingly: the core statements in the accent,
+ * a few phrases with a marker underneath. The landing statement and the
+ * case-study prose share them.
+ */
+.marked strong {
+  font-weight: 620;
+  color: var(--accent-strong);
+}
+
+.marked mark {
+  padding-inline: 0.08em;
+  color: inherit;
+  background: linear-gradient(transparent 58%, #cfe2ec 58%, #cfe2ec 92%, transparent 92%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/*
+ * A row spread over its full width: the first item flush left, the last flush
+ * right, the space shared equally between neighbours, and a pipe in the middle
+ * of each space. The pipes are list items of their own (hidden from assistive
+ * technology), which is what lets space-between centre them in the gaps.
+ * Markup: <ul class="spread"> with <li class="sep" aria-hidden="true">|</li>
+ * between the items.
+ */
+.spread {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--sp-2);
+}
+
+.spread > .sep {
+  color: var(--line-strong);
+  font-weight: 400;
 }
 
 /* ---------------------------------------------------------- accessibility --- */

@@ -61,6 +61,7 @@ describe('shipped registries', () => {
     expect(registry.map((p) => p.id).sort()).toEqual([
       'blaze2d',
       'envelope-approximation',
+      'grounded-recovery',
       'recover-in-real-time',
       'residual-worlds',
       'swarm-dynamics',

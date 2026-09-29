@@ -6,7 +6,9 @@ import { isParked } from '../../lib/parked';
 
 export async function getStaticPaths() {
   const projects = await getPublishedProjects();
-  return projects.map((project) => ({ params: { slug: project.data.slug } }));
+  return projects
+    .filter((project) => project.surfaces.route)
+    .map((project) => ({ params: { slug: project.data.slug } }));
 }
 
 const { slug } = Astro.params;

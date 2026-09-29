@@ -1,18 +1,20 @@
 ---
 /**
- * The projects index: every project as a card, latest first, with a sticky
- * rail on the left that follows the reader's place in the list. A card leads
- * to its full page.
+ * The projects index: every project as a card, in the landing page's order
+ * (pinned projects first, then latest first), with a sticky rail on the left
+ * that follows the reader's place in the list. The whole card leads to its
+ * case study.
  */
 import AcademicLayout from '../../layouts/AcademicLayout.astro';
 import ProjectCard from '../../components/project/ProjectCard.astro';
 import ProjectRail from '../../components/project/ProjectRail.astro';
-import ExpansionNote from '../../components/ui/ExpansionNote.astro';
+import KindLegend from '../../components/project/KindLegend.astro';
+import { landingPins } from '../../data/site';
 import { getPublishedProjects } from '../../lib/content';
-import { buildProjectList } from '../../lib/projects';
+import { buildProjectList, pinFirst } from '../../lib/projects';
 import { breadcrumbSchema } from '../../lib/seo';
 
-const entries = buildProjectList(await getPublishedProjects());
+const entries = pinFirst(buildProjectList(await getPublishedProjects()), landingPins);
 
 const origin = Astro.site?.href ?? 'https://rnle.github.io/';
 const jsonLd = [
@@ -25,13 +27,13 @@ const jsonLd = [
 
 <AcademicLayout
   title="Projects"
-  description="All projects, latest first: validated simulation software, archived thesis research, and in-progress robot-learning studies with explicit maturity states."
+  description="All projects, newest first: a photonics solver, thesis research, and robot-learning studies, each with its current status."
   {jsonLd}
 >
   <section class="band band--tight">
     <div class="wrap wrap--stage">
       <h1 class="page-title">Projects</h1>
-      <ExpansionNote />
+      <KindLegend />
       <div class="layout">
         <ProjectRail {entries} />
         <div class="cards">

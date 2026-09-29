@@ -6,12 +6,14 @@ interface Props {
   id?: string;
   /** Short supporting sentence under the title. */
   support?: string;
+  /** A step up in size, for the one section a page is built around. */
+  large?: boolean;
 }
 
-const { title, eyebrow, id, support } = Astro.props;
+const { title, eyebrow, id, support, large = false } = Astro.props;
 ---
 
-<div class="section-heading" id={id}>
+<div class:list={['section-heading', large && 'section-heading--large']} id={id}>
   {eyebrow && <p class="eyebrow">{eyebrow}</p>}
   {title && <h2>{title}</h2>}
   {support && <p class="support">{support}</p>}
@@ -30,6 +32,10 @@ const { title, eyebrow, id, support } = Astro.props;
     position: relative;
     display: inline-block;
     padding-block-end: var(--sp-2);
+  }
+
+  .section-heading--large h2 {
+    font-size: var(--step-3);
   }
 
   h2::after {

@@ -1,0 +1,421 @@
+---
+/**
+ * A project's figures on its index card: a row of buttons, each opening one
+ * figure in a centred floating panel (a native popover, so it opens, closes
+ * on Escape, and dismisses on a click outside without any script).
+ *
+ * A sketch is the study's own live drawing, and a comic the study's own comic
+ * reader (src/lib/grounded), each mounted over a still picture that stays
+ * when JavaScript does not run. A sketch with a legend opens side by side
+ * with it; the drawing keeps the size it has in every other panel.
+ */
+import { Image } from 'astro:assets';
+import type { Showcase } from '../../lib/showcases';
+import { nextId } from '../../lib/uid';
+import '../../styles/grounded.css';
+
+interface Props {
+  showcase: Showcase;
+  /** Ids of the claims that resolved for the project. */
+  claimIds: string[];
+}
+
+const { showcase, claimIds } = Astro.props;
+
+// A slide whose images show numbers must be backed by registered claims that
+// resolved for this project; otherwise the build stops here.
+for (const slide of showcase.slides) {
+  const missing = (slide.kind === 'figure' ? (slide.claimIds ?? []) : []).filter(
+    (id) => !claimIds.includes(id),
+  );
+  if (missing.length > 0) {
+    throw new Error(`Showcase slide '${slide.id}' needs unresolved claims: ${missing.join(', ')}`);
+  }
+}
+const base = nextId('showcase');
+const slideId = (id: string) => `${base}-${id}`;
+const sizes = '(max-width: 48rem) calc(100vw - 4rem), 44rem';
+
+/** The comic as the reader takes it: this site's copies, the study's layout. */
+const stripFor = (slide: Extract<Showcase['slides'][number], { kind: 'comic' }>) =>
+  JSON.stringify({
+    label: slide.name,
+    columns: slide.columns,
+    rows: slide.rows,
+    panels: slide.panels.map((panel) => ({
+      src: panel.src.src,
+      alt: panel.alt,
+      width: panel.src.width,
+      height: panel.src.height,
+      columns: panel.span,
+      ...(panel.scale ? { scale: panel.scale } : {}),
+    })),
+  });
+---
+
+<div class="showcase" data-showcase>
+  <div class="triggers" role="group" aria-label={showcase.label}>
+    {showcase.slides.map((slide) => (
+      <button type="button" class="trigger" popovertarget={slideId(slide.id)} data-trigger={slide.id}>
+        {slide.label}
+      </button>
+    ))}
+  </div>
+
+  {showcase.slides.map((slide) => (
+    <figure
+      class:list={['sheet', slide.kind === 'sketch' && slide.legend && 'sheet--split']}
+      id={slideId(slide.id)}
+      popover
+      data-sheet={slide.id}
+    >
+      <div class="sheet-head">
+        {/* The comic tells its own story; it needs no name over it. */}
+        {slide.kind !== 'comic' && <p class="sheet-title">{slide.label}</p>}
+        <button
+          type="button"
+          class="sheet-close"
+          popovertarget={slideId(slide.id)}
+          popovertargetaction="hide"
+          aria-label={`Close ${slide.label}`}
+        >
+          ×
+        </button>
+      </div>
+      {slide.kind === 'sketch' ? (
+        <div class="split">
+          <div class="art gr-embed">
+            <div class="sketch" data-budget-sketch>
+              <img
+                src={slide.fallback.src.src}
+                width={slide.fallback.src.width}
+                height={slide.fallback.src.height}
+                alt={slide.fallback.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+          {slide.legend && (
+            <div class="sketch-legend gr-embed">
+              <h3>{slide.legend.title}</h3>
+              <ol class="sketch-steps">
+                {slide.legend.steps.map((item) => (
+                  <li data-step={item.step}>
+                    <b>{item.lead}</b>{item.text}
+                  </li>
+                ))}
+              </ol>
+              <p>{slide.legend.closing}</p>
+            </div>
+          )}
+        </div>
+      ) : slide.kind === 'figure' ? (
+        <div class="art art--figure">
+          {slide.images.map((image) =>
+            image.animated ? (
+              <img
+                src={image.src.src}
+                width={image.src.width}
+                height={image.src.height}
+                alt={image.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <Image
+                src={image.src}
+                alt={image.alt}
+                widths={[640, 1280, image.src.width]}
+                {sizes}
+                loading="lazy"
+                decoding="async"
+              />
+            ),
+          )}
+        </div>
+      ) : (
+        <div class="art gr-embed reader" data-comic-reader data-strip={stripFor(slide)}>
+          <div
+            class="page"
+            role="group"
+            aria-label={slide.name}
+            style={`--columns: ${slide.columns}; --rows: ${slide.rows.join(' ')};`}
+          >
+            {slide.panels.map((panel) => (
+              <div class="panel" style={`--span: ${panel.span};`}>
+                <Image
+                  src={panel.src}
+                  alt={panel.alt}
+                  widths={[280, 560]}
+                  sizes="(max-width: 40rem) 30vw, 14rem"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {'caption' in slide && slide.caption && <figcaption>{slide.caption}</figcaption>}
+    </figure>
+  ))}
+</div>
+
+<style>
+  /* The buttons: one row, centred, the space shared evenly around them. */
+  .triggers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: var(--sp-2);
+  }
+
+  .trigger {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .trigger:hover {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      color: var(--accent-strong);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .trigger {
+      min-height: 2.25rem;
+    }
+  }
+
+  .trigger:focus-visible,
+  .sheet-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* The floating panel, centred in the window over a dimmed page. The art
+     width is the plain panel's content width, so a split panel keeps it. */
+  .sheet {
+    --art-width: calc(46rem - 2 * var(--sp-5) - 2px);
+    inline-size: min(46rem, calc(100vw - 2rem));
+    max-block-size: calc(100svh - 2rem);
+    margin: auto;
+    padding: var(--sp-4) var(--sp-5) var(--sp-5);
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: 0 20px 60px rgb(24 33 41 / 0.25);
+    color: var(--ink);
+  }
+
+  .sheet:popover-open {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .sheet::backdrop {
+    background: rgb(24 33 41 / 0.55);
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+  }
+
+  .sheet-title {
+    max-width: none;
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: 650;
+    color: var(--ink-heading);
+  }
+
+  .sheet-close {
+    margin-inline-start: auto;
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font: inherit;
+    font-size: var(--step-1);
+    line-height: 1;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  /* The sketch and the text that reads it, side by side while the window
+     has the room for both, stacked below that. Just above the stacking
+     point, the drawing gives up a little width before the text does. */
+  .sheet--split {
+    inline-size: min(68rem, calc(100vw - 2rem));
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, var(--art-width)) minmax(16rem, 1fr);
+    gap: var(--sp-8);
+  }
+
+  @media (max-width: 63.99rem) {
+    .sheet--split {
+      inline-size: min(46rem, calc(100vw - 2rem));
+    }
+
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--sp-4);
+    }
+  }
+
+  .sketch-legend {
+    font-size: var(--step--1);
+    line-height: var(--lh-snug);
+  }
+
+  .sketch-legend h3 {
+    font-size: var(--step-1);
+    color: var(--ink-heading);
+    text-wrap: balance;
+  }
+
+  .sketch-legend p {
+    max-width: none;
+  }
+
+  /* Every figure gets the same 3:2 frame, and fits itself into it. */
+  .art {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    min-width: 0;
+    aspect-ratio: 3 / 2;
+  }
+
+  .art--figure > :global(img) {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* The live sketch lays itself out to its frame. */
+  .sketch {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .sketch > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* The comic reader fills the frame: its stage over its row of previews. */
+  .reader :global(.comic-reader) {
+    --comic-reader-previews: 4.25rem;
+    height: 100%;
+  }
+
+  .reader :global(.comic-reader__stage) {
+    height: calc(100% - var(--comic-reader-previews));
+  }
+
+  .reader :global(.comic-reader__nav) {
+    top: calc((100% - var(--comic-reader-previews)) / 2);
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .reader :global(.comic-reader__nav--prev) {
+    left: 0.25rem;
+  }
+
+  .reader :global(.comic-reader__nav--next) {
+    right: 0.25rem;
+  }
+
+  .reader :global(.comic-reader__thumb) {
+    height: 3rem;
+  }
+
+  /* The still page, until the reader replaces it. */
+  .page {
+    flex: 1 1 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-template-rows: var(--rows);
+    gap: var(--sp-1);
+  }
+
+  .panel {
+    grid-column: span var(--span);
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .panel :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  figcaption {
+    max-width: none;
+    font-size: var(--step--1);
+    line-height: var(--lh-snug);
+    color: var(--ink-faint);
+  }
+</style>
+
+<script>
+  import { mountBudgetSketch, type BudgetSketchHandle } from '../../lib/grounded/budget-sketch';
+  import { renderComicReader } from '../../lib/grounded/comic-reader';
+  import type { ComicStrip } from '../../lib/grounded/comic-strip';
+
+  const sketches: BudgetSketchHandle[] = [];
+
+  /** The study's own components, over the still pictures they replace. */
+  function initShowcases(): void {
+    document.querySelectorAll<HTMLElement>('[data-showcase]:not([data-ready])').forEach((root) => {
+      root.dataset.ready = 'true';
+      root.querySelectorAll<HTMLElement>('[data-budget-sketch]').forEach((mount) => {
+        sketches.push(mountBudgetSketch(mount));
+      });
+      root.querySelectorAll<HTMLElement>('[data-comic-reader]').forEach((mount) => {
+        renderComicReader(mount, JSON.parse(mount.dataset.strip ?? '{}') as ComicStrip);
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initShowcases);
+  document.addEventListener('astro:before-swap', () => {
+    sketches.splice(0).forEach((sketch) => sketch.destroy());
+  });
+</script>

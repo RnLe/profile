@@ -1,0 +1,234 @@
+---
+/**
+ * The speed comparison of the Blaze2D pitch page (web/app/pitch), in this
+ * site's light palette: recorded 16-thread parameter sweeps, time per
+ * configuration for MPB, Blaze in full precision, and Blaze in mixed
+ * precision. Data: the Blaze2D website's benchmarks/multi-core.json, copied
+ * into src/data/blaze-benchmarks.json.
+ *
+ * The finished chart is the markup's own state. With motion allowed, the
+ * script arms it and plays it whenever it comes into view: MPB's bars rise
+ * first and slowly, then Blaze's, as on the pitch page.
+ */
+import benchmarks from '../../data/blaze-benchmarks.json';
+
+type Timing = { mean_ms: number; std_ms: number };
+const configurations = [
+  { key: 'config_a_tm', lattice: 'Square', polarization: 'TM' },
+  { key: 'config_a_te', lattice: 'Square', polarization: 'TE' },
+  { key: 'config_b_tm', lattice: 'Triangular', polarization: 'TM' },
+  { key: 'config_b_te', lattice: 'Triangular', polarization: 'TE' },
+];
+const series: { name: string; tone: string; values: Record<string, Timing>; start: number; duration: number }[] = [
+  { name: 'MPB', tone: 'mpb', values: benchmarks.speed.mpb, start: 150, duration: 2000 },
+  { name: 'Blaze f64', tone: 'full', values: benchmarks.speed.blazeFull, start: 2500, duration: 900 },
+  { name: 'Blaze mixed', tone: 'mixed', values: benchmarks.speed.blaze, start: 3600, duration: 900 },
+];
+
+const W = 560;
+const left = 52;
+const right = W - 8;
+const top = 26;
+const bottom = 300;
+const H = bottom + 52;
+const max =
+  Math.ceil(
+    Math.max(...series.flatMap((s) => configurations.map((c) => s.values[c.key].mean_ms + s.values[c.key].std_ms))) / 500,
+  ) * 500;
+const scale = (bottom - top) / max;
+const groupWidth = (right - left) / configurations.length;
+const barWidth = Math.min(26, groupWidth / 5);
+const ticks = Array.from({ length: max / 500 + 1 }, (_, i) => i * 500);
+const range = (values: Record<string, Timing>) => {
+  const means = configurations.map((c) => values[c.key].mean_ms / 1000);
+  return `${Math.min(...means).toFixed(2)} to ${Math.max(...means).toFixed(2)} s`;
+};
+const label = `Recorded time per configuration in 16-thread parameter sweeps: MPB ${range(benchmarks.speed.mpb)}, Blaze in full precision ${range(benchmarks.speed.blazeFull)}, Blaze in mixed precision ${range(benchmarks.speed.blaze)}.`;
+
+const bars = configurations.flatMap((c, i) =>
+  series.map((s, j) => {
+    const { mean_ms: mean, std_ms: std } = s.values[c.key];
+    const x = left + groupWidth * (i + 0.5) + (j - (series.length - 1) / 2) * (barWidth + 4) - barWidth / 2;
+    const delay = s.start + i * 65;
+    return {
+      tone: s.tone,
+      name: s.name,
+      label: `${c.lattice} ${c.polarization}`,
+      mean,
+      std,
+      x,
+      y: bottom - mean * scale,
+      delay,
+      after: delay + s.duration,
+    };
+  }),
+);
+---
+
+<div class="speed" data-animate>
+  <p class="axis-title">Time per configuration <span>(ms, lower is faster)</span></p>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+    {ticks.map((value) => (
+      <g class="tick">
+        <line x1={left} x2={right} y1={bottom - value * scale} y2={bottom - value * scale} />
+        <text x={left - 8} y={bottom - value * scale + 4} text-anchor="end">{value}</text>
+      </g>
+    ))}
+    {bars.map((bar) => (
+      <g class:list={['bar-group', `tone-${bar.tone}`]} style={`--delay: ${bar.delay}ms; --after: ${bar.after}ms;`}>
+        <title>{`${bar.label}, ${bar.name}: ${bar.mean.toFixed(1)} ± ${bar.std.toFixed(1)} ms`}</title>
+        <rect class="bar" x={bar.x} y={bar.y} width={barWidth} height={bottom - bar.y} rx="2.5" />
+        <g class="after">
+          <line x1={bar.x + barWidth / 2} x2={bar.x + barWidth / 2} y1={bar.y - bar.std * scale} y2={bar.y + bar.std * scale} />
+          <text x={bar.x + barWidth / 2} y={bar.y - Math.max(8, bar.std * scale + 6)} text-anchor="middle">
+            {Math.round(bar.mean)}
+          </text>
+        </g>
+      </g>
+    ))}
+    {configurations.map((c, i) => (
+      <text class="group-label" x={left + groupWidth * (i + 0.5)} y={bottom + 22} text-anchor="middle">
+        <tspan x={left + groupWidth * (i + 0.5)}>{c.lattice}</tspan>
+        <tspan x={left + groupWidth * (i + 0.5)} dy="18">{c.polarization}</tspan>
+      </text>
+    ))}
+  </svg>
+  <p class="legend">
+    {series.map((s) => (
+      <span class={`tone-${s.tone}`}><i aria-hidden="true"></i>{s.name}</span>
+    ))}
+  </p>
+</div>
+
+<script>
+  import '../../lib/play-on-view';
+</script>
+
+<style>
+  .speed {
+    --mpb: #a4b3cc;
+    --full: #6f8fe0;
+    --mixed: #274f9c;
+  }
+
+  .axis-title {
+    max-width: none;
+    margin-block-end: var(--sp-2);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-heading);
+  }
+
+  .axis-title span {
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--font-sans);
+  }
+
+  .tick line {
+    stroke: var(--line);
+  }
+
+  .tick text,
+  .group-label {
+    font-size: 13px;
+    fill: var(--ink-muted);
+  }
+
+  .tone-mpb {
+    --tone: var(--mpb);
+  }
+
+  .tone-full {
+    --tone: var(--full);
+  }
+
+  .tone-mixed {
+    --tone: var(--mixed);
+  }
+
+  .bar {
+    fill: var(--tone);
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  .after line {
+    stroke: var(--tone);
+  }
+
+  .after text {
+    font-size: 11px;
+    fill: var(--ink-muted);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    max-width: none;
+    margin-block-start: var(--sp-2);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .legend i {
+    inline-size: 0.7rem;
+    block-size: 0.7rem;
+    border-radius: 2px;
+    background: var(--tone);
+  }
+
+  /* Armed by the script: everything starts at zero and plays once. */
+  :global(.armed) .bar {
+    transform: scaleY(0);
+  }
+
+  :global(.armed) .after {
+    opacity: 0;
+  }
+
+  :global(.armed.play) .bar {
+    animation: rise var(--dur, 900ms) cubic-bezier(0.4, 0, 0.2, 1) var(--delay) both;
+  }
+
+  :global(.armed.play) .tone-mpb .bar {
+    --dur: 2000ms;
+  }
+
+  :global(.armed.play) .after {
+    animation: appear 280ms ease var(--after) both;
+  }
+
+  @keyframes rise {
+    from {
+      transform: scaleY(0);
+    }
+
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+</style>

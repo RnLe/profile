@@ -4,7 +4,10 @@
  * animation or vector (served untouched: the image service would flatten an
  * animation to one frame, and a vector gains nothing from raster variants), a
  * placeholder for a pending owner asset, or an empty hatched frame for a
- * route-gated entry with nothing to show yet.
+ * route-gated entry with nothing to show yet. A contained image may fill
+ * the rest of its frame with a blurred copy of itself; the copy uses the same
+ * sources, so the browser fetches the image once, and an animation's copy
+ * plays along with it.
  *
  * The frame always fills its column, and `ratio` only ever sets its height,
  * as a fallback for a parent that leaves the height indefinite: the compact
@@ -36,26 +39,52 @@ const asIs = thumb?.kind === 'image' && (thumb.animated || thumb.src.format === 
 
 <div class="thumb" style={ratio ? `aspect-ratio: ${ratio};` : undefined}>
   {thumb?.kind === 'image' && asIs ? (
-    <img
-      src={thumb.src.src}
-      width={thumb.src.width}
-      height={thumb.src.height}
-      alt={thumb.alt}
-      loading="lazy"
-      decoding="async"
-      data-fit={thumb.fit ?? 'cover'}
-      data-pad={thumb.src.format === 'svg' ? '' : undefined}
-    />
+    <>
+      {thumb.backdrop === 'blur' && (
+        <img
+          class="thumb-backdrop"
+          src={thumb.src.src}
+          width={thumb.src.width}
+          height={thumb.src.height}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+      <img
+        src={thumb.src.src}
+        width={thumb.src.width}
+        height={thumb.src.height}
+        alt={thumb.alt}
+        loading="lazy"
+        decoding="async"
+        data-fit={thumb.fit ?? 'cover'}
+        data-pad={thumb.src.format === 'svg' ? '' : undefined}
+      />
+    </>
   ) : thumb?.kind === 'image' ? (
-    <Image
-      src={thumb.src}
-      alt={thumb.alt}
-      {widths}
-      {sizes}
-      loading="lazy"
-      decoding="async"
-      data-fit={thumb.fit ?? 'cover'}
-    />
+    <>
+      {thumb.backdrop === 'blur' && (
+        <Image
+          class="thumb-backdrop"
+          src={thumb.src}
+          alt=""
+          {widths}
+          {sizes}
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+      <Image
+        src={thumb.src}
+        alt={thumb.alt}
+        {widths}
+        {sizes}
+        loading="lazy"
+        decoding="async"
+        data-fit={thumb.fit ?? 'cover'}
+      />
+    </>
   ) : thumb?.kind === 'placeholder' ? (
     <AssetPlaceholder assetId={thumb.assetId} ratio={ratio ?? '16 / 9'} compact />
   ) : (
@@ -65,6 +94,7 @@ const asIs = thumb?.kind === 'image' && (thumb.animated || thumb.src.format === 
 
 <style>
   .thumb {
+    position: relative;
     display: block;
     overflow: hidden;
     /* Never derived from the ratio: the frame is as wide as its column. */
@@ -82,6 +112,18 @@ const asIs = thumb?.kind === 'image' && (thumb.animated || thumb.src.format === 
   /* A mark or a diagram shows whole, on whatever the card's own colour is. */
   .thumb :global(img[data-fit='contain']) {
     object-fit: contain;
+  }
+
+  /* Behind the contained image, blurred and scaled past its own soft edge. */
+  .thumb :global(img.thumb-backdrop) {
+    position: absolute;
+    inset: 0;
+    filter: blur(18px) saturate(0.9);
+    transform: scale(1.15);
+  }
+
+  .thumb :global(img.thumb-backdrop + img) {
+    position: relative;
   }
 
   /* A drawn mark needs room around it; a framed figure already has its own. */

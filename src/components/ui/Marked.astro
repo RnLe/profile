@@ -1,0 +1,27 @@
+---
+/**
+ * A run of copy with its light emphasis (src/lib/marks.ts) as <strong>,
+ * <mark>, and links. Styled by the .marked class on an ancestor (global.css).
+ */
+import { runs } from '../../lib/marks';
+import { withBase } from '../../lib/routes';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+const href = (target: string) => (target.startsWith('/') ? withBase(target) : target);
+---
+
+{runs(text).map((run) =>
+  run.kind === 'strong' ? (
+    <strong>{run.text}</strong>
+  ) : run.kind === 'mark' ? (
+    <mark>{run.text}</mark>
+  ) : run.kind === 'link' ? (
+    <a href={href(run.href!)} rel={run.href!.startsWith('/') ? undefined : 'noopener'}>{run.text}</a>
+  ) : (
+    run.text
+  ),
+)}

@@ -1,16 +1,20 @@
 ---
 /**
- * Renders a registry figure: owned image, trusted local SVG pair,
- * interactive island (with server-rendered deterministic first frame as the
- * no-JS fallback), or an asset placeholder. Every figure carries a visible
- * title and caption.
+ * Renders a registry figure: owned image or gallery, a figure drawn by its
+ * own component (the Blaze2D roadmap and comparisons), interactive island (with server-rendered deterministic first frame as the
+ * no-JS fallback), or an asset placeholder. An image, a gallery, or a
+ * component figure may go without a title or caption; the others carry both.
  */
 import { Image } from 'astro:assets';
-import { getFigure } from '../../lib/figures';
+import { getFigure, operatorPosters } from '../../lib/figures';
 import AssetPlaceholder from '../ui/AssetPlaceholder.astro';
-import DrawFigure from '../ui/DrawFigure.astro';
-import MoireExplorer from '../islands/MoireExplorer';
-import TwoLinkPreview from '../islands/TwoLinkPreview';
+import BlazeAccuracy from './BlazeAccuracy.astro';
+import BlazeSpeed from './BlazeSpeed.astro';
+import StageRoadmap from './StageRoadmap.astro';
+import MoireBuilder from '../islands/MoireBuilder';
+import OperatorPosters from '../islands/OperatorPosters';
+import BlazeScale from '../islands/BlazeScale';
+import { blazeScale } from '../../data/blaze-scale';
 
 interface Props {
   figureId: string;
@@ -30,9 +34,10 @@ const figure = getFigure(figureId);
 )}
 
 {figure.kind === 'image' && (
-  <figure class:list={['figure', figure.layout === 'aside' && 'figure--aside']}>
-    {figure.animated ? (
-      /* Served untouched: the image service would flatten it to one frame. */
+  <figure class="figure">
+    {figure.animated || figure.src.format === 'svg' ? (
+      /* Served untouched: the image service would flatten an animation to one
+         frame, and a vector gains nothing from raster variants. */
       <img
         src={figure.src.src}
         width={figure.src.width}
@@ -46,13 +51,15 @@ const figure = getFigure(figureId);
         src={figure.src}
         alt={figure.alt}
         widths={figure.widths ?? [800, 1200]}
-        sizes={figure.layout === 'aside' ? '(max-width: 48rem) 100vw, 18rem' : '(max-width: 48rem) 100vw, 46rem'}
+        sizes="(max-width: 48rem) 100vw, 46rem"
       />
     )}
-    <figcaption>
-      <strong>{figure.title}.</strong>
-      {figure.caption}
-    </figcaption>
+    {(figure.title || figure.caption) && (
+      <figcaption>
+        {figure.title && <strong>{figure.title}.</strong>}
+        {figure.caption}
+      </figcaption>
+    )}
   </figure>
 )}
 
@@ -67,48 +74,45 @@ const figure = getFigure(figureId);
             widths={[400, 800]}
             sizes="(max-width: 48rem) 100vw, 22rem"
           />
-          <p class="shot-caption">{item.caption}</p>
+          {item.caption && <p class="shot-caption">{item.caption}</p>}
         </div>
       ))}
     </div>
-    <figcaption>
-      <strong>{figure.title}.</strong>
-      {figure.caption}
-    </figcaption>
+    {(figure.title || figure.caption) && (
+      <figcaption>
+        {figure.title && <strong>{figure.title}.</strong>}
+        {figure.caption}
+      </figcaption>
+    )}
   </figure>
 )}
 
-{figure.kind === 'svg-pair' && (
+{figure.kind === 'component' && (
   <figure class="figure">
-    <div class="pair">
-      {figure.items.map((item, index) => (
-        <div>
-          <DrawFigure svg={item.raw} name={`${figureId}-${index}`} label={item.label} />
-          <p class="pair-caption">{item.caption}</p>
-        </div>
-      ))}
-    </div>
-    <figcaption>
-      <strong>{figure.title}.</strong>
-      {figure.caption}
-    </figcaption>
+    {figure.component === 'blaze-roadmap' && <StageRoadmap />}
+    {figure.component === 'blaze-accuracy' && <BlazeAccuracy />}
+    {figure.component === 'blaze-speed' && <BlazeSpeed />}
+    {figure.component === 'msc-operators' && <OperatorPosters client:visible posters={operatorPosters} />}
+    {figure.component === 'blaze-scale' && (
+      <BlazeScale client:visible={{ rootMargin: '200px' }} metrics={blazeScale} />
+    )}
+    {figure.caption && <figcaption>{figure.caption}</figcaption>}
   </figure>
 )}
 
 {figure.kind === 'island' && (
   <figure class="figure figure--island">
     {figure.previewLabel && <p class="preview-label">{figure.previewLabel}</p>}
-    <div class="island-frame">
-      {figure.island === 'moire-explorer' && <MoireExplorer client:visible />}
-      {figure.island === 'two-link-preview' && <TwoLinkPreview client:visible />}
-      <noscript>
-        <p class="noscript-note">{figure.fallbackText}</p>
-      </noscript>
-    </div>
-    <figcaption>
-      <strong>{figure.title}.</strong>
-      {figure.caption}
-    </figcaption>
+    {figure.island === 'moire-builder' && <MoireBuilder client:visible />}
+    <noscript>
+      <p class="noscript-note">{figure.fallbackText}</p>
+    </noscript>
+    {(figure.title || figure.caption) && (
+      <figcaption>
+        {figure.title && <strong>{figure.title}.</strong>}
+        {figure.caption}
+      </figcaption>
+    )}
   </figure>
 )}
 
@@ -137,49 +141,6 @@ const figure = getFigure(figureId);
     margin-inline-end: 0.35em;
   }
 
-  /* A small image with its caption beside it, both vertically centred. */
-  .figure--aside {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-6);
-    /* Caption and image stay near each other even on the wide stage. */
-    max-width: 48rem;
-  }
-
-  .figure--aside :global(img) {
-    order: 2;
-    flex: none;
-    width: 18rem;
-    max-width: 45%;
-  }
-
-  .figure--aside figcaption {
-    order: 1;
-    flex: 1 1 auto;
-    margin-block-start: 0;
-  }
-
-  @container (max-width: 40rem) {
-    .figure--aside {
-      display: block;
-    }
-
-    .figure--aside :global(img) {
-      width: 100%;
-      max-width: none;
-    }
-
-    .figure--aside figcaption {
-      margin-block-start: var(--sp-3);
-    }
-  }
-
-  .pair {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
-    gap: var(--sp-6);
-  }
-
   .gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
@@ -192,12 +153,6 @@ const figure = getFigure(figureId);
   }
 
   .shot-caption {
-    font-size: var(--step--2);
-    color: var(--ink-faint);
-    margin-block-start: var(--sp-2);
-  }
-
-  .pair-caption {
     font-size: var(--step--2);
     color: var(--ink-faint);
     margin-block-start: var(--sp-2);
@@ -218,14 +173,6 @@ const figure = getFigure(figureId);
     margin-block-end: var(--sp-3);
   }
 
-  .island-frame {
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    padding: var(--sp-4);
-    overflow: hidden;
-  }
-
   .noscript-note {
     font-size: var(--step--1);
     color: var(--ink-muted);
@@ -236,155 +183,504 @@ const figure = getFigure(figureId);
 {/* Island-internal styles live here (global, class-scoped) so the SSR'd JSX
     stays free of <style> elements. */}
 <style is:global>
-  .moire-explorer .controls,
-  .two-link .controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-3) var(--sp-6);
-    padding-block-start: var(--sp-4);
+  /* The moiré builder (MoireBuilder.tsx): controls beside the scene. */
+  .moire-builder {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    min-block-size: 32rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface-alt);
   }
 
-  .moire-explorer label {
+  .moire-controls {
     display: flex;
     flex-direction: column;
+    gap: var(--sp-5);
+    padding: var(--sp-5);
+    border-inline-end: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+
+  .moire-controls fieldset {
+    display: flex;
     gap: var(--sp-1);
-    min-width: 14rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .moire-controls legend {
+    margin-block-end: var(--sp-2);
+    color: var(--ink-muted);
+  }
+
+  .moire-lattice label {
+    position: relative;
     flex: 1;
   }
 
-  .moire-explorer .control-label {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
+  .moire-lattice input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .moire-lattice span,
+  .moire-view button {
+    display: block;
+    padding: var(--sp-2) var(--sp-1);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font: inherit;
     color: var(--ink-muted);
+    text-align: center;
+    cursor: pointer;
   }
 
-  .moire-explorer input[type='range'] {
-    accent-color: var(--accent);
-    min-height: 1.5rem;
+  .moire-lattice input:checked + span,
+  .moire-view button[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    color: var(--accent-strong);
   }
 
-  .moire-explorer .readout,
-  .two-link .readout {
-    flex-basis: 100%;
-    font-size: var(--step--2);
-    color: var(--ink-faint);
-    margin: 0;
+  .moire-lattice input:focus-visible + span {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
-  /* The drawings' own labels, kept out of the viewBox so they do not shrink
-     with it. See the note in TwoLinkPreview.tsx. */
-  .two-link .legend {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--sp-1) var(--sp-4);
-    max-width: none;
-    margin: var(--sp-2) 0 0;
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    color: var(--ink-muted);
-  }
-
-  .two-link .legend .key {
-    display: inline-flex;
-    align-items: baseline;
-    gap: var(--sp-2);
+  .moire-view button {
+    flex: 1;
     min-width: 0;
   }
 
-  .two-link .legend .swatch {
-    flex: none;
-    align-self: center;
-    inline-size: 1.25rem;
-    block-size: 3px;
-    border-radius: 999px;
+  .moire-view button strong {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
   }
 
-  .two-link .legend .clock {
-    margin-inline-start: auto;
+  .moire-view button span {
+    display: block;
+    font-size: 0.7rem;
+  }
+
+  .moire-angle {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .moire-angle-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    color: var(--ink-muted);
+  }
+
+  .moire-angle output {
+    font-size: var(--step-2);
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
+    color: var(--ink-heading);
   }
 
-  .moire-explorer button,
-  .two-link button {
-    font: inherit;
-    font-size: var(--step--1);
-    padding: 0.4rem var(--sp-4);
-    min-height: 2.75rem;
-    border-radius: var(--r-md);
-    border: 1px solid var(--line-strong);
+  .moire-angle input {
+    inline-size: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .moire-range-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+  }
+
+  .moire-readout {
+    padding-block-start: var(--sp-3);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .moire-kicker,
+  .poster-kicker {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .moire-readout dl {
+    margin: var(--sp-2) 0 0;
+  }
+
+  .moire-readout dl > div {
+    display: flex;
+    justify-content: space-between;
+    margin-block: var(--sp-1);
+  }
+
+  .moire-readout dt {
+    color: var(--ink-muted);
+  }
+
+  .moire-readout dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-heading);
+  }
+
+  .moire-scene {
+    position: relative;
+    min-width: 0;
+    min-block-size: 26rem;
     background: var(--surface);
+  }
+
+  .moire-scene canvas,
+  .moire-scene > svg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .moire-cell {
+    fill: var(--ink);
+    fill-opacity: 0.035;
+    stroke: var(--ink);
+    stroke-opacity: 0.55;
+    stroke-width: 1.5;
+    stroke-dasharray: 6 7;
+  }
+
+  .moire-vector {
+    stroke: var(--ink-heading);
+    stroke-width: 2.2;
+  }
+
+  .moire-ink-fill {
+    fill: var(--ink-heading);
+  }
+
+  .moire-label {
+    font: 15px var(--font-sans);
+    fill: var(--ink-heading);
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+
+  .moire-label--small {
+    font-size: 13px;
+  }
+
+  .moire-scene-label {
+    position: absolute;
+    top: var(--sp-3);
+    left: var(--sp-3);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .moire-cells {
+    position: absolute;
+    right: var(--sp-3);
+    bottom: var(--sp-3);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    inline-size: min(19rem, calc(100% - 2rem));
+    padding: var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--surface-alt) 94%, transparent);
+    pointer-events: none;
+  }
+
+  .moire-cells-note {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    text-align: center;
+    color: var(--ink-faint);
+  }
+
+  .moire-unit {
+    min-width: 0;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .moire-unit svg {
+    display: block;
+    inline-size: 100%;
+  }
+
+  .moire-unit-fixed {
+    color: #317cb8;
+  }
+
+  .moire-unit-rotated {
+    color: #eb7929;
+  }
+
+  .moire-unit text {
+    fill: currentColor;
+    font: 18px var(--font-sans);
+    paint-order: stroke;
+    stroke: var(--surface-alt);
+    stroke-width: 4px;
+  }
+
+  /* Narrow: the controls sit above a square scene. */
+  @container (max-width: 44rem) {
+    .moire-builder {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .moire-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--sp-4);
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--line);
+    }
+
+    .moire-scene {
+      aspect-ratio: 1;
+      min-block-size: 0;
+    }
+
+    /* The enlarged cells would cover most of a small scene. */
+    .moire-cells {
+      display: none;
+    }
+  }
+
+  /* The TE/TM cards (OperatorPosters.tsx) and their dialog. */
+  .operator-posters {
+    display: grid;
+    gap: var(--sp-3);
+  }
+
+  .poster-card {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: flex-start;
+    padding: var(--sp-5);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .poster-card:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      background: var(--surface-alt);
+    }
+  }
+
+  .poster-polarization {
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--accent);
+  }
+
+  .poster-text strong {
+    display: block;
+    font-size: var(--step-0);
+    color: var(--ink-heading);
+  }
+
+  .poster-text small {
+    display: block;
+    margin-block: var(--sp-1) var(--sp-3);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+
+  .poster-action {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Centred on the screen: the site's reset takes the dialog's own margin. */
+  .poster-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    inline-size: min(76rem, calc(100vw - 2rem));
+    max-block-size: calc(100svh - 2rem);
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 20px 60px rgb(24 33 41 / 0.25);
+  }
+
+  .poster-dialog::backdrop {
+    background: rgb(24 33 41 / 0.55);
+  }
+
+  .poster-dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .poster-dialog-header,
+  .poster-dialog-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-5);
+    border-block-end: 1px solid var(--line);
+  }
+
+  .poster-dialog h2 {
+    margin: var(--sp-1) 0 0;
+    font-size: var(--step-1);
+  }
+
+  .poster-zoom {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .poster-zoom output {
+    min-inline-size: 3.5rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .poster-button,
+  .poster-fit {
+    min-inline-size: 2.25rem;
+    min-block-size: 2.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font: inherit;
     color: var(--ink);
     cursor: pointer;
   }
 
-  .moire-explorer button:hover,
-  .two-link button:hover:not(:disabled) {
-    background: var(--surface-alt);
+  .poster-fit {
+    padding-inline: var(--sp-3);
   }
 
-  .two-link button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+  .poster-button:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
-  .two-link button[aria-pressed='true'] {
-    border-color: var(--accent);
-    color: var(--accent-strong);
+  .poster-viewport {
+    flex: 1;
+    min-block-size: 0;
+    overflow: auto;
+    padding: var(--sp-4);
+    background: #fff;
   }
 
-  .two-link .controls {
-    justify-content: space-between;
+  .poster-viewport img {
+    display: block;
+    inline-size: 100%;
+    max-inline-size: none;
+    margin-inline: auto;
   }
 
-  .two-link fieldset {
+  .poster-caption {
+    max-width: none;
+    margin: 0;
+    padding: var(--sp-3) var(--sp-5);
+    border-block-start: 1px solid var(--line);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  /* The Blaze2D scale counters (BlazeScale.tsx). */
+  .blaze-scale {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-6) var(--sp-8);
+    padding: var(--sp-6);
     border: 1px solid var(--line);
-    border-radius: var(--r-md);
-    padding: var(--sp-2) var(--sp-4) var(--sp-3);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2) var(--sp-5);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+
+  .blaze-scale .scale-metric:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .blaze-scale p {
+    max-width: none;
     margin: 0;
   }
 
-  .two-link legend {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    color: var(--ink-faint);
-    padding-inline: var(--sp-1);
+  .blaze-scale .scale-value {
+    font-size: var(--step-3);
+    font-weight: 650;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-heading);
   }
 
-  .two-link fieldset label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
+  .blaze-scale .scale-metric:first-child .scale-value {
+    font-size: var(--step-4);
+    color: var(--accent-strong);
+  }
+
+  .blaze-scale .scale-label {
+    margin-block-start: var(--sp-1);
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .blaze-scale .scale-detail {
     font-size: var(--step--1);
-    color: var(--ink-muted);
-    min-height: 1.75rem;
+    color: var(--ink-faint);
   }
 
-  /* A finger needs the 44 px guideline; a mouse keeps the page's density. */
-  @media (pointer: coarse) {
-    .two-link fieldset label {
-      min-height: 2.75rem;
+  .blaze-scale .scale-rule {
+    display: block;
+    block-size: 2px;
+    margin-block-start: var(--sp-3);
+    border-radius: 1px;
+    background: var(--line);
+    overflow: hidden;
+  }
+
+  .blaze-scale .scale-rule > span {
+    display: block;
+    block-size: 100%;
+    background: color-mix(in srgb, var(--accent) 70%, transparent);
+    transform-origin: 0 50%;
+  }
+
+  @container (max-width: 26rem) {
+    .blaze-scale {
+      grid-template-columns: minmax(0, 1fr);
     }
-
-    .moire-explorer input[type='range'],
-    .two-link input[type='range'] {
-      min-height: 2.75rem;
-    }
-  }
-
-  .two-link input[type='checkbox'] {
-    accent-color: var(--accent);
-    width: 1.05rem;
-    height: 1.05rem;
-  }
-
-  .two-link .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
   }
 </style>

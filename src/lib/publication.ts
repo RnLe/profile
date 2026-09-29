@@ -127,6 +127,38 @@ export function resolvePublication(
     claims.push(claim);
   }
 
+  // Card claims: a subset of the project's own, each allowed on the index.
+  for (const claimId of data.cardClaimIds) {
+    if (!data.claimIds.includes(claimId)) {
+      fail(`card claim '${claimId}' is not among the project's claimIds`);
+      continue;
+    }
+    const claim = claims.find((c) => c.claim_id === claimId);
+    if (
+      !claim ||
+      !claim.allowed_surfaces.includes('research-index') ||
+      claim.forbidden_surfaces.includes('research-index')
+    ) {
+      fail(`card claim '${claimId}' may not render on the research index`);
+    }
+  }
+
+  // Section claims: the project's own, each allowed on the case study itself.
+  for (const claimId of data.sections.flatMap((section) => section.claimIds)) {
+    if (!data.claimIds.includes(claimId)) {
+      fail(`section claim '${claimId}' is not among the project's claimIds`);
+      continue;
+    }
+    const claim = claims.find((c) => c.claim_id === claimId);
+    if (
+      !claim ||
+      !claim.allowed_surfaces.includes('project') ||
+      claim.forbidden_surfaces.includes('project')
+    ) {
+      fail(`section claim '${claimId}' may not render on the project page`);
+    }
+  }
+
   // Media: must exist with cleared rights.
   const media: MediaEntry[] = [];
   for (const mediaId of data.mediaIds) {
@@ -148,6 +180,10 @@ export function resolvePublication(
 
   if (failures.length > 0) return { ok: false, failures };
 
+  // A case study hosted on the project's own site has no page here, so there
+  // is nothing to route, list in the sitemap, or describe in structured data.
+  const hostsOwnPage = data.caseStudyUrl === undefined;
+
   return {
     ok: true,
     value: {
@@ -155,10 +191,10 @@ export function resolvePublication(
       registry,
       sourceUrlAllowed: registry.sourceUrlAllowed,
       surfaces: {
-        route: true,
+        route: hostsOwnPage,
         navigation: true,
-        sitemap: true,
-        structuredData: true,
+        sitemap: hostsOwnPage,
+        structuredData: hostsOwnPage,
         search: true,
       },
       claims,

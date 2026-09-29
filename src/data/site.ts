@@ -10,10 +10,8 @@ import type { CountryCode } from '../lib/flags';
 export interface StripItem {
   label: string;
   icon?: IconName;
-}
-
-export interface StripGroup {
-  items: StripItem[];
+  /** Background facts first, then tools; a stronger pipe marks the change. */
+  register: 'background' | 'tools';
 }
 
 export interface LanguageEntry {
@@ -35,14 +33,19 @@ const languageLine = languages.map((l) => `${l.name} (${l.level})`).join(' · ')
 
 export const site = {
   name: 'Rene-Marcel Lehner',
-  /** Hero eyebrow. */
-  eyebrow: 'Computational Physics · Research Visualization · Physical AI',
+  /** The hero's first line, and the page's H1. */
+  greeting: 'Hey, I’m Rene! Welcome to my profile.',
+  /** The fields the work sits in, spread over the hero's width. */
+  fields: ['Computational Physics', 'Research Visualization', 'AI'],
   /**
-   * The hero statement doubles as the page's H1: the site says what it is by
-   * showing the work, not by announcing a title.
+   * The hero statement, set as a quote: one sentence per line, all in one
+   * paragraph. `**words**` are set strong and `==words==` highlighted.
    */
-  statement:
-    'My passion is to turn mathematical and physical models into usable research software, and to visualize science along the way. After my M.Sc. in theoretical physics, I now engage deeply with machine learning and robotics.',
+  statement: [
+    'My passion is to build **mathematical and physical models** and to apply them to ==real-world problems==.',
+    'Along the way, I love creating ==interactive scientific visualizations==, applications, and websites.',
+    'After my M.Sc. in theoretical physics, I now focus on **machine learning, neural network architectures, and tensor networks**.',
+  ],
   email: 'rene.marcel.lehner@gmail.com',
   githubUser: 'RnLe',
   github: 'https://github.com/RnLe',
@@ -50,27 +53,18 @@ export const site = {
   location: 'Essen, Germany',
   /** One line, derived from `languages` so the two can never drift apart. */
   languages: languageLine,
-  /** Rendered in the footer as the last meaningful content update. */
-  lastUpdated: '2026-09-02',
 } as const;
 
-/** Compact evidence strip: verified background, languages, and domains. */
-export const evidenceStrip: StripGroup[] = [
-  { items: [{ label: 'M.Sc. Physics' }] },
-  {
-    items: [
-      { label: 'Python', icon: 'python' },
-      { label: 'Rust', icon: 'rust' },
-      { label: 'TypeScript', icon: 'typescript' },
-    ],
-  },
-  {
-    items: [
-      { label: 'Simulation' },
-      { label: 'Machine Learning & AI' },
-      { label: 'Robotics' },
-    ],
-  },
+/** The landing page's project list leads with these, in this order. */
+export const landingPins = ['blaze2d', 'envelope-approximation'] as const;
+
+/** Compact evidence strip: verified background, then the tools I build with. */
+export const evidenceStrip: StripItem[] = [
+  { label: 'M.Sc. Physics', register: 'background' },
+  { label: 'Python', icon: 'python', register: 'tools' },
+  { label: 'PyTorch', icon: 'pytorch', register: 'tools' },
+  { label: 'Rust', icon: 'rust', register: 'tools' },
+  { label: 'TypeScript', icon: 'typescript', register: 'tools' },
 ];
 
 export type SiteInfo = typeof site;

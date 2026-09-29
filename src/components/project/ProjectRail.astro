@@ -11,27 +11,13 @@
  * without JavaScript and the bar simply stays hidden.
  */
 import type { ProjectListEntry } from '../../lib/projects';
-import type { ProjectKind } from '../../lib/schemas';
-import Icon from '../ui/Icon.astro';
-import type { IconName } from '../../lib/icons';
+import KindMarks from './KindMarks.astro';
 
 interface Props {
   entries: ProjectListEntry[];
 }
 
 const { entries } = Astro.props;
-
-/** Fixed column order; the glyph carries the meaning, colour reinforces it. */
-const KIND_COLUMNS: Array<{ kind: ProjectKind; icon: IconName; label: string }> = [
-  { kind: 'academic', icon: 'graduation-cap', label: 'Academic' },
-  { kind: 'software', icon: 'code', label: 'Software' },
-  { kind: 'hardware', icon: 'wrench', label: 'Hardware' },
-];
-
-const kindSentence = (kinds: ProjectKind[]): string =>
-  KIND_COLUMNS.filter((column) => kinds.includes(column.kind))
-    .map((column) => column.label)
-    .join(', ');
 ---
 
 <nav class="rail" aria-label="Projects on this page" data-project-rail>
@@ -46,17 +32,10 @@ const kindSentence = (kinds: ProjectKind[]): string =>
             data-rail-link={entry.id}
             data-gated={entry.kind === 'gated' ? '' : undefined}
           >
-            <span class="rail-title">{entry.title}</span>
-            <span class="rail-kinds" aria-hidden="true">
-              {KIND_COLUMNS.map((column) => (
-                <span class:list={['rail-kind', `kind-${column.kind}`]} title={column.label}>
-                  {entry.kinds.includes(column.kind) && <Icon name={column.icon} size={14} />}
-                </span>
-              ))}
+            <span class="rail-title">{entry.shortTitle ?? entry.title}</span>
+            <span class="rail-kinds">
+              <KindMarks kinds={entry.kinds} focus={entry.focus} slots />
             </span>
-            {kindSentence(entry.kinds) && (
-              <span class="visually-hidden">{kindSentence(entry.kinds)}</span>
-            )}
             <span class="rail-year">{entry.yearStart}</span>
           </a>
         </li>
@@ -69,6 +48,7 @@ const kindSentence = (kinds: ProjectKind[]): string =>
   .rail {
     position: sticky;
     top: calc(var(--header-h) + var(--sp-4));
+    z-index: 5;
     align-self: start;
   }
 
@@ -137,34 +117,10 @@ const kindSentence = (kinds: ProjectKind[]): string =>
     overflow-wrap: anywhere;
   }
 
-  /* Three fixed slots, so a mark always sits in its own column, and an empty
-     slot still holds its place. */
   .rail-kinds {
     flex: none;
-    display: grid;
-    grid-template-columns: repeat(3, 0.95rem);
-    gap: var(--sp-1);
     /* Icons are boxes; nudge them onto the text baseline of the row. */
     transform: translateY(0.15em);
-  }
-
-  .rail-kind {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
-  }
-
-  .kind-academic {
-    color: var(--kind-academic);
-  }
-
-  .kind-software {
-    color: var(--kind-software);
-  }
-
-  .kind-hardware {
-    color: var(--kind-hardware);
   }
 
   .rail-year {

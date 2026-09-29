@@ -26,9 +26,11 @@ pnpm exec playwright install chromium   # once, for e2e/a11y tests
 pnpm go            # build + serve the production site locally
 pnpm dev           # dev server with hot reload
 
-pnpm verify        # the full core gate: types, unit tests, registry
-                   # validators, build, HTML validity, e2e, a11y, links,
-                   # budgets, and production-artifact inspection
+pnpm verify        # the everyday gate (~20 s): types, unit tests, registry
+                   # validators, build, production-artifact inspection, and
+                   # the desktop e2e smoke run
+pnpm verify:full   # everything: e2e on desktop and phone with the viewport
+                   # sweeps, a11y, HTML validity, links, and budgets
 pnpm verify:release# additionally blocks on placeholders, visual tests,
                    # Lighthouse, and external links
 ```

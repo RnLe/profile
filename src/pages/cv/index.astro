@@ -13,7 +13,7 @@
 import AcademicLayout from '../../layouts/AcademicLayout.astro';
 import Icon from '../../components/ui/Icon.astro';
 import Flag from '../../components/ui/Flag.astro';
-import { awards, education, programs, service, teaching } from '../../data/about';
+import { artifactGroups, awards, education, programs, service, teaching } from '../../data/about';
 import type { AboutEntry } from '../../data/about';
 import { languages } from '../../data/site';
 import type { ArtifactLink } from '../../data/about';
@@ -121,11 +121,17 @@ const rows = (links: ArtifactLink[]): Row[] => {
                         <>
                           <span class="break" aria-hidden="true"></span>
                           <span class="rule">
-                            {row.group === 'blaze2d' && (
-                              <>
-                                <img class="mark" src={withBase('/icons/blaze.svg')} alt="" />
-                                <span class="group-name">Blaze2D</span>
-                              </>
+                            {row.group && artifactGroups[row.group].state === 'live' && (
+                              <a class="group-link" href={artifactGroups[row.group].href} rel="noopener">
+                                <img class="mark" src={withBase(artifactGroups[row.group].mark)} alt="" />
+                                <span class="group-name">{artifactGroups[row.group].name}</span>
+                              </a>
+                            )}
+                            {row.group && artifactGroups[row.group].state !== 'live' && (
+                              <span class="group-link">
+                                <img class="mark" src={withBase(artifactGroups[row.group].mark)} alt="" />
+                                <span class="group-name">{artifactGroups[row.group].name}</span>
+                              </span>
                             )}
                           </span>
                         </>
@@ -411,9 +417,17 @@ const rows = (links: ArtifactLink[]): Row[] => {
     transform: translateY(-0.2em);
   }
 
+  /* The project's name leads to its technical report. */
+  .group-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    color: var(--ink-muted);
+  }
+
   .group-name {
     font-weight: 640;
-    color: var(--ink-muted);
+    text-decoration: inherit;
   }
 
   /* Weight alone cannot carry emphasis at the faint end of the palette. */
@@ -433,6 +447,9 @@ const rows = (links: ArtifactLink[]): Row[] => {
 
   .artifacts :global(svg) {
     flex: none;
+  }
+
+  .artifacts :global(svg:not([data-native])) {
     opacity: 0.75;
   }
 

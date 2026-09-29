@@ -58,3 +58,11 @@ export const releasePreparationChip: StatusChipModel = {
   label: 'Release preparation',
   tone: 'neutral',
 };
+
+/** The marker at the top right of a project in the lists, and its tooltip. */
+export type Activity = 'active' | 'archived';
+
+export const activityLabel: Record<Activity, string> = {
+  active: 'Active Research',
+  archived: 'Done, closed and archived.',
+};

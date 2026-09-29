@@ -16,7 +16,8 @@ const project = (overrides: Partial<ProjectFrontmatter> = {}): { data: ProjectFr
     oneLine: 'A synthetic fixture project.',
     summary: 'Synthetic fixture.',
     yearStart: 2026,
-  kinds: [],
+    kinds: [],
+    focus: {},
     placement: 'research-selected',
     lifecycle: 'released',
     evidenceLevel: 'validated-result',
@@ -33,8 +34,10 @@ const project = (overrides: Partial<ProjectFrontmatter> = {}): { data: ProjectFr
     citations: [],
     noveltyNote: 'None claimed.',
     claimIds: [],
+    cardClaimIds: [],
     mediaIds: [],
     figureIds: [],
+    sections: [],
     links: [],
     related: [],
     ...overrides,
@@ -164,6 +167,78 @@ describe('resolvePublication', () => {
     );
     expect(draft.ok).toBe(true);
     if (draft.ok) expect(draft.value.claims).toHaveLength(0);
+  });
+
+  it('gives a case study hosted elsewhere no route, sitemap entry, or structured data', () => {
+    const result = resolvePublication(project({ caseStudyUrl: 'https://example.org/nebula/' }), ctx());
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.surfaces).toMatchObject({
+      route: false,
+      sitemap: false,
+      structuredData: false,
+      navigation: true,
+    });
+    const hosted = resolvePublication(project(), ctx());
+    expect(hosted.ok && hosted.value.surfaces.route).toBe(true);
+  });
+
+  it('fails card claims that are not the project’s own or may not show on the index', () => {
+    const indexed = claim({ claim_id: 'NEB-CARD', allowed_surfaces: ['research-index'] });
+    const pageOnly = claim({ claim_id: 'NEB-PAGE', allowed_surfaces: ['project'] });
+    const ok = resolvePublication(
+      project({ claimIds: ['NEB-CARD'], cardClaimIds: ['NEB-CARD'] }),
+      ctx({ claims: [indexed] }),
+    );
+    expect(ok.ok).toBe(true);
+
+    const foreign = resolvePublication(
+      project({ claimIds: [], cardClaimIds: ['NEB-CARD'] }),
+      ctx({ claims: [indexed] }),
+    );
+    expect(foreign.ok).toBe(false);
+
+    const hidden = resolvePublication(
+      project({ claimIds: ['NEB-PAGE'], cardClaimIds: ['NEB-PAGE'] }),
+      ctx({ claims: [pageOnly] }),
+    );
+    expect(hidden.ok).toBe(false);
+
+    // Allowed and forbidden at once: the forbidding wins.
+    const both = claim({
+      claim_id: 'NEB-BOTH',
+      allowed_surfaces: ['research-index'],
+      forbidden_surfaces: ['research-index'],
+    });
+    const contradicted = resolvePublication(
+      project({ claimIds: ['NEB-BOTH'], cardClaimIds: ['NEB-BOTH'] }),
+      ctx({ claims: [both] }),
+    );
+    expect(contradicted.ok).toBe(false);
+  });
+
+  it('fails section claims that are not the project’s own or may not show on its page', () => {
+    const section = (claimIds: string[]) => [{ heading: 'Result', paragraphs: ['Text.'], figureIds: [], claimIds }];
+    const onPage = claim({ claim_id: 'NEB-PAGE', allowed_surfaces: ['project'] });
+    const indexOnly = claim({ claim_id: 'NEB-CARD', allowed_surfaces: ['research-index'] });
+
+    const ok = resolvePublication(
+      project({ claimIds: ['NEB-PAGE'], sections: section(['NEB-PAGE']) }),
+      ctx({ claims: [onPage] }),
+    );
+    expect(ok.ok).toBe(true);
+
+    const foreign = resolvePublication(
+      project({ claimIds: [], sections: section(['NEB-PAGE']) }),
+      ctx({ claims: [onPage] }),
+    );
+    expect(foreign.ok).toBe(false);
+
+    const hidden = resolvePublication(
+      project({ claimIds: ['NEB-CARD'], sections: section(['NEB-CARD']) }),
+      ctx({ claims: [indexOnly] }),
+    );
+    expect(hidden.ok).toBe(false);
   });
 
   it('fails on unknown media and pending rights', () => {

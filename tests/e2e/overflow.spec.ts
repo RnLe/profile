@@ -15,7 +15,7 @@ const viewports = [
   { width: 3840, height: 2160 },
 ];
 
-test('no route scrolls horizontally at any required viewport', async ({ browser, request }) => {
+test('no route scrolls horizontally at any required viewport', { tag: '@sweep' }, async ({ browser, request }) => {
   test.setTimeout(240_000);
   const paths = await sitemapPaths(request);
   const failures: string[] = [];

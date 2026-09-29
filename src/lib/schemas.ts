@@ -110,6 +110,8 @@ export const projectLinkSchema = z.object({
       'docs',
     ])
     .optional(),
+  /** A project's own mark in place of the kind's icon (see MARKS in lib/projects). */
+  mark: z.enum(['blaze2d']).optional(),
   /** Page count of a document link, shown before its size. */
   pages: z.number().int().positive().optional(),
   /** File size in MB with one decimal, shown after a document link. */
@@ -119,23 +121,46 @@ export const projectLinkSchema = z.object({
 export type ProjectLink = z.infer<typeof projectLinkSchema>;
 
 /** What a project is, for the index rail's type columns. */
-export const projectKindEnum = z.enum(['academic', 'software', 'hardware']);
+/** What a project is about: robots, machine learning, or theory-heavy physics. */
+export const projectKindEnum = z.enum(['robotics', 'learning', 'theory']);
 export type ProjectKind = z.infer<typeof projectKindEnum>;
 
 export const projectFrontmatterSchema = z.object({
   id: slug,
   slug,
   title: z.string().min(1),
+  /** A shorter name for the projects rail, where a long title would wrap. */
+  shortTitle: z.string().min(1).max(40).optional(),
   /** One-line research question or contribution (card + hero). */
   oneLine: z.string().min(1).max(180),
   /** Terse list subtitle: one clause, no hedging room. */
-  tagline: z.string().min(1).max(110).optional(),
+  tagline: z.string().min(1).max(120).optional(),
+  /** A short label over the title in the project lists, e.g. 'Master Thesis'. */
+  listLabel: z.string().min(1).max(40).optional(),
+  /** The marker at the top right of a list entry: in active research, or archived. */
+  activity: z.enum(['active', 'archived']).optional(),
+  /**
+   * Where the case study lives when the project's own site hosts it. Such a
+   * project gets no page here: its list entries and cards link out instead.
+   */
+  caseStudyUrl: z.string().url().optional(),
   /** First calendar year of the work; drives sorting and the year label. */
   yearStart: z.number().int().min(2000).max(2100),
   /** Last calendar year; omitted while the work continues. */
   yearEnd: z.number().int().min(2000).max(2100).optional(),
   /** Academic, software, hardware: any combination, shown as icons on the index. */
   kinds: z.array(projectKindEnum).default([]),
+  /**
+   * For each kind the project is marked with, a few keywords on what it
+   * covered there (domains, methods, competences): the rail's tooltip.
+   */
+  focus: z
+    .object({
+      robotics: z.string().min(1).max(140).optional(),
+      learning: z.string().min(1).max(140).optional(),
+      theory: z.string().min(1).max(140).optional(),
+    })
+    .default({}),
   summary: z.string().min(1),
   placement: placementEnum,
   lifecycle: lifecycleEnum,
@@ -144,8 +169,8 @@ export const projectFrontmatterSchema = z.object({
   statusNote: z.string().min(1),
   publication: publicationStateEnum,
   sourceVisibility: sourceVisibilityEnum,
-  /** First-person contribution statement. */
-  role: z.string().min(1),
+  /** First-person contribution statement; a lean card may leave it out. */
+  role: z.string().min(1).optional(),
   collaborators: z.array(z.string()).default([]),
   domain: z.string().min(1),
   dateRange: z.string().min(1),
@@ -154,8 +179,32 @@ export const projectFrontmatterSchema = z.object({
   citations: z.array(citationSchema).default([]),
   noveltyNote: z.string().min(1),
   claimIds: z.array(z.string()).default([]),
+  /**
+   * Registered claims shown on the project's card, in order. Each must also be
+   * in claimIds and allowed on the research-index surface.
+   */
+  cardClaimIds: z.array(z.string()).default([]),
   mediaIds: z.array(z.string()).default([]),
   figureIds: z.array(z.string()).default([]),
+  /**
+   * The case study told in steps after the prose: each a heading, a few
+   * short paragraphs (with the light emphasis of src/lib/marks.ts), and
+   * optionally its figures and the registered claims they show. A single
+   * figure alternates sides down the page; two run side by side under the
+   * text.
+   */
+  sections: z
+    .array(
+      z.object({
+        heading: z.string().min(1),
+        paragraphs: z.array(z.string().min(1)).min(1),
+        figureIds: z.array(z.string()).max(2).default([]),
+        /** A shell command set under the paragraphs, such as an install line. */
+        code: z.string().min(1).optional(),
+        claimIds: z.array(z.string()).default([]),
+      }),
+    )
+    .default([]),
   links: z.array(projectLinkSchema).default([]),
   related: z.array(slug).default([]),
   /** Current-research card fields (in-progress projects only). */

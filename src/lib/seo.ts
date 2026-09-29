@@ -2,10 +2,11 @@
  * Metadata builders. Descriptions use the conservative identity; no
  * prospective results ever enter metadata; search previews outlive page copy.
  */
+import { plain } from './marks';
 import { site } from '../data/site';
 import type { ResolvedProject } from './publication';
 
-export const defaultTitle = 'Rene-Marcel Lehner · Computational Physics and Physical AI';
+export const defaultTitle = 'Rene-Marcel Lehner · Computational Physics and AI';
 
 export const defaultDescription =
   'Computational physicist building validated research systems and moving toward reliable robot learning. Research software, simulation studies, and robot hardware built and calibrated by hand.';
@@ -37,7 +38,7 @@ export const projectSchema = (project: ResolvedProject, canonicalUrl: string): J
     '@context': 'https://schema.org',
     '@type': isSoftware ? 'SoftwareSourceCode' : 'CreativeWork',
     name: project.data.title,
-    description: project.data.summary,
+    description: plain(project.data.summary),
     url: canonicalUrl,
     author: { '@type': 'Person', name: site.name },
     ...(isSoftware && project.sourceUrlAllowed

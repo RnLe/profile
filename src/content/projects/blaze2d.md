@@ -3,41 +3,43 @@ id: blaze2d
 slug: blaze2d
 title: Blaze2D
 oneLine: >-
-  Can a purpose-built 2D Maxwell eigensolver make thousands-of-solves
-  Bloch-parameter studies routine, without giving up validated accuracy?
+  A Rust solver for light that can travel through two-dimensional photonic
+  crystals, about an ==order of magnitude faster== than MPB in recorded
+  parameter sweeps.
 tagline: >-
-  A Rust Maxwell eigensolver, validated against MPB, in the browser and in Python.
+  Software that computes how light travels through photonic crystals.
+listLabel: Strongest Research Artifact
+activity: active
 yearStart: 2025
-yearEnd: 2026
 kinds:
-  - academic
-  - software
+  - theory
+focus:
+  theory: 'Numerical linear algebra · iterative eigensolvers (LOBPCG) · FFT-based operators · mixed precision · Maxwell eigenproblems'
 summary: >-
-  An independently developed 2D Maxwell eigensolver for inspectable,
-  high-throughput Bloch-parameter studies, validated against MPB and exposed
-  through Rust, Python, and WebAssembly.
+  Photonic crystals are materials with a repeating structure that can guide or
+  block light. Blaze2D computes ==which light can travel through a
+  two-dimensional crystal==, and it is built for **studies that repeat this
+  calculation across many designs**. Its results are checked against MPB,
+  ==the established reference solver by MIT==.
 placement: research-flagship
 lifecycle: released
 evidenceLevel: validated-result
 statusDate: '2026-08-30'
 statusNote: >-
-  Released and validated within the documented 2D TE/TM scope. Published on
-  PyPI as blaze2d (v0.6.0, MIT license).
+  Released, and checked against MPB within its documented scope:
+  two-dimensional crystals, both polarizations of light (TE and TM). Published
+  on PyPI as blaze2d under the MIT license.
 publication: public
 sourceVisibility: public
-role: >-
-  I designed and implemented the solver independently: the numerical
-  formulation, the mixed-precision eigensolver core, the benchmark and
-  validation suite, and the Rust, Python, CLI, and WebAssembly interfaces.
 collaborators: []
 domain: Computational photonics · numerical linear algebra
-dateRange: 2025 – 2026
+dateRange: 2025 – present
 methods:
+  - Rust
   - Plane-wave expansion
-  - Mixed-precision block LOBPCG
-  - Matrix-free FFT operators
-  - Rust (Rayon, faer, rustFFT)
-  - PyO3 / maturin packaging
+  - Mixed-precision LOBPCG
+  - FFT-based operators
+  - Python (PyO3)
   - WebAssembly
 applicationThemes:
   - simulation-infrastructure
@@ -49,33 +51,134 @@ citations:
     href: 'https://doi.org/10.1137/S1064827500366124'
   - label: 'Joannopoulos, Johnson, Winn & Meade: Photonic Crystals: Molding the Flow of Light (2nd ed.)'
     href: 'http://ab-initio.mit.edu/book/'
+  - label: 'MPB developers: User interface, run functions (MPB documentation; on reusing fields between runs)'
+    href: 'https://mpb.readthedocs.io/en/latest/Python_User_Interface/#run-functions'
+  - label: 'Georg, Ackermann, Corno & Schöps (2019): Uncertainty quantification for Maxwell’s eigenproblem based on isogeometric analysis and mode tracking'
+    href: 'https://doi.org/10.1016/j.cma.2019.03.002'
+  - label: 'Börm, Köhl & Talebi (2023): Computing Maxwell eigenmodes with Bloch boundary conditions (preprint)'
+    href: 'https://arxiv.org/abs/2304.00337'
+  - label: 'Minkov et al. (2020): Inverse design of photonic crystals through automatic differentiation'
+    href: 'https://doi.org/10.1021/acsphotonics.0c00327'
+  - label: 'Jin & Xie (2026): A robust GPU-accelerated kernel compensation solver with novel discretization for photonic crystals in anisotropic media (preprint)'
+    href: 'https://arxiv.org/abs/2511.17107v3'
+  - label: 'Feng (2024): Inverse design of photonic crystal waveguides using neural networks and dispersion optimization (preprint)'
+    href: 'https://arxiv.org/abs/2410.06374'
+  - label: 'Zanotti et al. (2024): Legume, a free implementation of the guided-mode expansion method for photonic crystal slabs'
+    href: 'https://doi.org/10.1016/j.cpc.2024.109286'
 noveltyNote: >-
-  No algorithmic novelty is claimed. Plane-wave expansion, LOBPCG, and
-  MPB-style preconditioning are established methods; the contribution is an
-  independent, validated, performance-focused implementation, packaged across
-  Rust, Python, CLI, and the browser.
+  Plane-wave expansion, the LOBPCG eigensolver, and MPB-style preconditioning
+  are established methods; Blaze’s contribution is what it builds on them. It
+  is an independent solver in modern Rust that computes the same bands as MPB,
+  much faster in recorded parameter sweeps, and is easier to use in research.
+  Its modular design leaves plenty of room for new methods and optimizations,
+  each validated against MPB, to make band calculations and research on
+  photonic crystals faster and more practical while keeping their accuracy.
 claimIds:
   - BLAZE-SCOPE-001
   - BLAZE-MPB-001
   - BLAZE-SPEED-001
   - BLAZE-GPU-001
+  - BLAZE-SCALE-001
 mediaIds: []
 figureIds:
-  - blaze-crystal-to-bands
+  - blaze-bands
+sections:
+  - heading: Light in a crystal
+    figureIds: [blaze-crystals]
+    paragraphs:
+      - >-
+        A photonic crystal is a material whose structure repeats on the
+        scale of the wavelength of light, such as a material pierced by
+        a regular pattern of long, parallel air holes. That pattern
+        decides ==which light can travel through it and which is
+        blocked==, much as the atomic lattice of a semiconductor decides
+        how electrons move.
+      - >-
+        The map of which light can pass is the **band structure**.
+        Computing it means solving an eigenvalue problem from Maxwell’s
+        equations, repeated for every wavevector the diagram samples.
+  - heading: Checked against MPB
+    figureIds: [blaze-accuracy, blaze-speed]
+    paragraphs:
+      - >-
+        [MPB](https://mpb.readthedocs.io/), developed at MIT, is the
+        established reference solver for photonic band structures. Blaze
+        computes ==the same bands==, and in recorded parameter sweeps it
+        is **about an order of magnitude faster**.
+  - heading: Blaze’s core
+    figureIds: [blaze-lobpcg]
+    paragraphs:
+      - >-
+        Blaze writes the light field as a sum of plane waves and finds
+        the bands with a ==mixed-precision block eigensolver== (LOBPCG),
+        applying Maxwell’s operator through fast Fourier transforms
+        instead of storing large matrices. A study runs ==whole
+        calculations in parallel== rather than splitting each one across
+        threads.
+      - >-
+        It returns more than bands: **projected Maxwell operators**, the
+        quantities my master’s thesis needed. And it is a ==research
+        ground of its own==: new numerical ideas, such as reusing the
+        crystal’s symmetries or starting the next geometry from the last
+        one’s solution, are designed to go in as modules and be measured
+        against the plain solver, regressions included.
+  - heading: Blaze is easy
+    figureIds: [blaze-workbench]
+    paragraphs:
+      - >-
+        Blaze was built to be ==easy to use== from the start. Its
+        [website](https://rnle.github.io/blaze2d/) explains the theory
+        and can even ==run the solver in the browser==: the
+        [Workbench](https://rnle.github.io/blaze2d/workbench) helps
+        design a study, runs it, and exports the results.
+      - >-
+        For scripts and larger studies, Blaze has clear, modern
+        interfaces in **Python, Rust, and TOML**, all sharing one
+        configuration format. The Python package installs from
+        [PyPI](https://pypi.org/project/blaze2d/) with a single command.
+    code: pip install blaze2d
+  - heading: Scope and scale
+    figureIds: [blaze-scale]
+    paragraphs:
+      - >-
+        Blaze is substantially more than a shell around an existing
+        numerical library: it is a **full solver, written from
+        scratch**. Behind its interfaces sits a Rust workspace of
+        separate parts: the solver core, one configuration contract
+        shared by every interface, a runner for parallel studies, the
+        command-line tool, the Python bindings, and backends for the
+        CPU, the browser, and CUDA. Release workflows build portable
+        Python wheels and test the installation outside the repository.
+  - heading: Where Blaze is headed
+    figureIds: [blaze-roadmap]
+    paragraphs:
+      - >-
+        **Blaze aims to become a full drop-in replacement for MPB
+        workflows, and to enable research that is currently prohibitive
+        due to computational limits or MPB’s legacy codebase.** Blaze’s
+        [roadmap](https://rnle.github.io/blaze2d/roadmap) has multiple
+        stages. The first builds ==a reliable research core==: the
+        solver is done, its use of the crystal’s symmetries is in
+        development, warm starts are planned, and the pages on theory and
+        benchmarks are being written.
+      - >-
+        The second makes the two-dimensional solver ==general and
+        faster==: crystals of any shape, quicker solves, calculations at
+        a chosen frequency, gradients for optimizing a design
+        automatically, and running existing MPB calculations in Blaze.
+      - >-
+        The third adds ==GPU computing and three dimensions==: full 3D
+        crystals, and photonic slabs, thin patterned films that confine
+        light vertically. **Every new feature is checked against MPB.**
 links:
+  - label: Blaze2D
+    href: 'https://rnle.github.io/blaze2d/blaze/'
+    kind: docs
+    mark: blaze2d
   - label: Website
     href: 'https://rnle.github.io/blaze2d/'
     kind: site
   - label: Technical report
-    href: 'https://rnle.github.io/blaze2d/blaze/'
-    kind: docs
-  - label: Repository
-    href: 'https://github.com/RnLe/blaze2d'
-    kind: source
-  - label: PyPI
-    href: 'https://pypi.org/project/blaze2d/'
-    kind: package
-  - label: Report
     href: 'https://rnle.github.io/blaze2d/reports/blaze2d-technical-report.pdf'
     kind: report
     pages: 16
@@ -85,20 +188,17 @@ links:
     kind: manuscript
     pages: 12
     sizeMb: 0.9
+  - label: Repository
+    href: 'https://github.com/RnLe/blaze2d'
+    kind: source
+  - label: PyPI
+    href: 'https://pypi.org/project/blaze2d/'
+    kind: package
 related:
   - envelope-approximation
 ---
 
-Blaze2D is a 2D Maxwell eigensolver written in Rust for the case where a
-photonic band structure has to be computed not once but thousands of times:
-parameter sweeps, geometry searches, and anything else that turns a single
-solve into a study. It expands the fields in plane waves and solves the
-resulting Hermitian eigenproblem with a mixed-precision block LOBPCG core over
-matrix-free FFT operators, and it ships as a Rust crate, a Python package, a
-command-line tool, and a WebAssembly build that runs in a browser tab.
-
-Its eigenfrequencies are checked against MPB, the established plane-wave
-reference solver, on a shared benchmark set under a declared protocol; the
-registered claims below carry that comparison together with its scope. The
-solver is deliberately confined to two dimensions and to linear, isotropic,
-non-dispersive media, and it claims nothing outside that box.
+Blaze2D is a solver for <mark>light that can travel through two-dimensional
+photonic crystals</mark>, written in Rust and about an order of magnitude faster
+than MPB in recorded parameter sweeps. It began as the solver for my master’s
+thesis and has grown into a **long-term research project**.

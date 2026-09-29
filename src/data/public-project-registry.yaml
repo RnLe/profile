@@ -45,9 +45,8 @@ projects:
     sourceExcerptAllowed: false
     collaboratorPermission: not-applicable
     notes: >-
-      Owner decision on 2026-09-02: the repository and its project site are
-      being made public, and their links ship ahead of the flip. Both targets
-      still return 404 logged out until then.
+      The repository is public. Its project site was retired on 2026-09-29;
+      the case study on this site replaces it.
 
   - id: recover-in-real-time
     registryClass: public-origin
@@ -80,3 +79,20 @@ projects:
       Bachelor-thesis repository is public by owner decision. Logged-out check
       on 2026-09-02: the repository and its thesis, manuscript, and slide PDFs
       all resolve, so the CV links them directly.
+
+  - id: grounded-recovery
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: recovery-policy-learning
+      visibilityAtAudit: public
+      auditedAt: '2026-09-25'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Finished study. Logged-out check on 2026-09-25: the repository, the
+      project site with its study page, and the technical report all resolve.
+      The case study lives on the project's own site, so this site links there
+      instead of hosting a page.
