@@ -11,6 +11,7 @@ const routedSlugs = [
   'hard-spheres',
   'swarm-dynamics',
   'facial-emotion-recognition',
+  'geo-neural',
 ];
 
 test('the homepage leads with the statement and a single projects band', async ({ page }) => {
@@ -44,12 +45,13 @@ test('the homepage leads with the statement and a single projects band', async (
 test('the project list leads with its picks, then runs latest first', async ({ page }) => {
   await page.goto('/');
   const stripes = page.locator('[data-project-list] > li');
-  await expect(stripes).toHaveCount(8);
+  await expect(stripes).toHaveCount(9);
 
   // A title that leads off the site says so to a screen reader as well.
   expect(flat(await stripes.locator('.stripe-title').allTextContents())).toEqual([
     'Blaze2D',
     'Envelope Approximation for Photonic Moiré Crystals',
+    'GeoNeural',
     'Recover in Real Time',
     'Residual Worlds',
     'Facial Emotion Recognition',
@@ -60,6 +62,7 @@ test('the project list leads with its picks, then runs latest first', async ({ p
   expect(flat(await stripes.locator('.stripe-year').allTextContents())).toEqual([
     '2025 – present',
     '2025 – present',
+    '2026 – present',
     '2026 – present',
     '2026 – present',
     '2026',
@@ -76,7 +79,7 @@ test('the project list leads with its picks, then runs latest first', async ({ p
   await expect(label('hard-spheres')).toHaveText('Team Project');
   await expect(label('swarm-dynamics')).toHaveText('Bachelor Thesis');
   const mark = (id: string) => page.locator(`[data-project-list] li[data-project-id="${id}"] .activity`);
-  for (const id of ['blaze2d', 'envelope-approximation', 'recover-in-real-time', 'residual-worlds']) {
+  for (const id of ['blaze2d', 'envelope-approximation', 'geo-neural', 'recover-in-real-time', 'residual-worlds']) {
     await expect(mark(id)).toHaveAttribute('aria-label', 'Active Research');
   }
   for (const id of ['facial-emotion-recognition', 'grounded-recovery', 'hard-spheres', 'swarm-dynamics']) {

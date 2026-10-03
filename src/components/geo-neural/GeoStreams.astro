@@ -1,0 +1,37 @@
+---
+/**
+ * Bytes against the drainage a routing algorithm still finds: every candidate whose stream
+ * overlap was measured, on the finest-per-page byte convention.
+ */
+import data from '../../data/geo-neural/candidates.json';
+import Plot from '../fer/Plot.astro';
+import { GEO_COLORS, kB, tip, type Candidate } from './geo';
+
+const rows = (data.candidates as Candidate[]).filter(
+  (r) => r.package === 'finest-per-page' && r.bytes && r.streamJaccard != null,
+);
+const pick = (f: (r: Candidate) => boolean) => rows.filter(f).sort((a, b) => a.bytes! - b.bytes!);
+const full = pick((r) => r.family === 'conventional' && r.id.startsWith('q32dz-full@'));
+const coarse = pick((r) => r.family === 'conventional' && r.id.startsWith('q32dz-level'));
+const corrected = pick((r) => r.family === 'corrected');
+const neural = pick((r) => r.family === 'neural');
+const hybrid = pick((r) => r.family === 'hybrid');
+const pts = (list: Candidate[]) => list.map((r) => [kB(r.bytes!), r.streamJaccard!] as [number, number]);
+const series = [
+  { label: 'Coarser grid, bilinear', color: GEO_COLORS.coarse, kind: 'scatter' as const, marker: 'ring' as const, size: 2.4, opacity: 0.7, points: pts(coarse), tips: coarse.map(tip) },
+  { label: 'Full resolution, bounded', color: GEO_COLORS.full, width: 1.8, marker: 'dot' as const, size: 3, points: pts(full), tips: full.map(tip) },
+  { label: '1 m bound + stream corrections', color: GEO_COLORS.corrected, width: 1.8, marker: 'diamond' as const, size: 3.6, points: pts(corrected), tips: corrected.map(tip) },
+  { label: 'Neural codec fit', color: GEO_COLORS.neural, kind: 'scatter' as const, marker: 'cross' as const, size: 3.6, points: pts(neural), tips: neural.map(tip) },
+  { label: 'Hybrid codec fit', color: GEO_COLORS.hybrid, kind: 'scatter' as const, marker: 'square' as const, size: 3.4, points: pts(hybrid), tips: hybrid.map(tip) },
+];
+---
+
+<Plot
+  id="geo-streams"
+  label="Bytes against stream overlap for conventional, corrected, neural and hybrid candidates"
+  x={{ label: 'Bytes (kB, log scale)', log: true }}
+  y={{ label: 'Stream overlap (Jaccard)', min: 0, max: 0.9 }}
+  series={series}
+  width={600}
+  height={340}
+/>

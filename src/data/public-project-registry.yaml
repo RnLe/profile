@@ -133,3 +133,20 @@ projects:
       on 2026-10-03: the repository, its README, and its figures resolve. The
       repository holds only FER2013 sample faces; RAF-DB images are never
       redistributed. The study's report is parked and not linked.
+
+  - id: geo-neural
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: geo-neural
+      visibilityAtAudit: private
+      auditedAt: '2026-10-03'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Solo project. The repository was still private at the 2026-10-03 audit and
+      becomes public with its first push by the owner. Before deploying, check
+      logged out that the repository, its README and its figures resolve, then
+      set visibilityAtAudit to public and record the audited commit.

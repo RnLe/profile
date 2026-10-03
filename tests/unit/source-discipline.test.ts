@@ -27,11 +27,15 @@ describe('source discipline', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('nothing in src imports pixi or three (deferred phases)', () => {
+  // three is allowed in exactly one place: the GeoNeural terrain viewer, which
+  // loads it in its own lazily hydrated island chunk.
+  it('only the GeoNeural viewer imports three, and nothing imports pixi', () => {
     const offenders: string[] = [];
+    const viewer = join(root, 'src', 'components', 'geo-neural');
     for (const file of listFiles(join(root, 'src'), ['.astro', '.ts', '.tsx'])) {
       const content = readFileSync(file, 'utf8');
-      if (/from ['"](pixi\.js|three)['"]/.test(content)) offenders.push(file);
+      if (/from ['"]pixi\.js['"]/.test(content)) offenders.push(file);
+      if (/from ['"]three(\/[^'"]*)?['"]/.test(content) && !file.startsWith(viewer)) offenders.push(file);
     }
     expect(offenders).toEqual([]);
   });

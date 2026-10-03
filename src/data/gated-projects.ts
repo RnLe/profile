@@ -33,5 +33,6 @@ export const knownProjectIds = [
   'grounded-recovery',
   'hard-spheres',
   'facial-emotion-recognition',
+  'geo-neural',
   ...Object.keys(gatedProjects),
 ];

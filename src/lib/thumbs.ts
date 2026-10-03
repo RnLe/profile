@@ -18,6 +18,7 @@ import robotArm from '../assets/recover-in-real-time/arm.webp';
 import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
 import sedimentationThumb from '../assets/hard-spheres/sedimentation-thumb.webp';
 import ferThumb from '../assets/fer/thumb.webp';
+import geoThumb from '../assets/geo-neural/thumb.webp';
 
 export interface ThumbImage {
   kind: 'image';
@@ -99,6 +100,12 @@ export const projectThumbs: Record<string, Thumb> = {
     kind: 'image',
     src: ferThumb,
     alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
+  },
+  // The 10 m terrain of southern Essen, hillshaded: the Ruhr bend and Lake Baldeney.
+  'geo-neural': {
+    kind: 'image',
+    src: geoThumb,
+    alt: 'Hillshaded terrain of southern Essen at 10 m: wooded valleys running down to the wide bend of the Ruhr and Lake Baldeney',
   },
 };
 

@@ -1,0 +1,5332 @@
+{
+  "attribution": [
+    "Terrain: DGM1, Geobasis NRW (Bezirksregierung Koeln), DL-DE-Zero-2.0",
+    "Geology: IS GK100, Geologischer Dienst NRW, DL-DE-BY-2.0"
+  ],
+  "candidates": [
+    {
+      "boundM": 0.1,
+      "bytes": 645189,
+      "check": {
+        "maeM": 0.04997389404369493,
+        "maxM": 0.100006103515625,
+        "streamJaccard": 0.5266868348549512
+      },
+      "evidence": "reproduced",
+      "family": "conventional",
+      "height": {
+        "bytes": 201883,
+        "encoding": "u16-delta",
+        "file": "q32dz-full-at-0.1.height.bin",
+        "sha256": "5fc7866f1b8d402d17e7c583122f217e01ce06a668c2d917335212f9ef188b49"
+      },
+      "id": "q32dz-full@0.1",
+      "label": "Quantised, full resolution, 0.1 m bound",
+      "maeM": 0.04997389404369493,
+      "maxM": 0.100006103515625,
+      "streamJaccard": 0.5266868348549512,
+      "streams": {
+        "bytes": 12136,
+        "encoding": "bits",
+        "file": "q32dz-full-at-0.1.streams.bin",
+        "sha256": "70635b74ef4908056f8249cf4b68e367b49cecdee6ad75a09e48e5d7478af2fb"
+      }
+    },
+    {
+      "boundM": 1.0,
+      "bytes": 241060,
+      "check": {
+        "maeM": 0.49415003715120276,
+        "maxM": 1.0,
+        "streamJaccard": 0.21897082604168974
+      },
+      "evidence": "reproduced",
+      "family": "conventional",
+      "height": {
+        "bytes": 76681,
+        "encoding": "u16-delta",
+        "file": "q32dz-full-at-1.height.bin",
+        "sha256": "f4ab8030a77336f3ac0cad1611c17f376d5393b838acbc11a68a2257aa21935e"
+      },
+      "id": "q32dz-full@1",
+      "label": "Quantised, full resolution, 1 m bound",
+      "maeM": 0.49415003715120276,
+      "maxM": 1.0,
+      "streamJaccard": 0.21897082604168974,
+      "streams": {
+        "bytes": 11602,
+        "encoding": "bits",
+        "file": "q32dz-full-at-1.streams.bin",
+        "sha256": "6268e3165426be45874ce349e1cd4b669bf42ca3d30ee5626d33ef209c4f475a"
+      }
+    },
+    {
+      "boundM": null,
+      "bytes": 111219,
+      "check": {
+        "maeM": 0.3581936126000962,
+        "maxM": 8.9375,
+        "streamJaccard": 0.18701304291679222
+      },
+      "evidence": "reproduced",
+      "family": "conventional",
+      "height": {
+        "bytes": 94977,
+        "encoding": "u16-delta",
+        "file": "q32dz-level1-at-0.5.height.bin",
+        "sha256": "c67dcf4eb22c57c3c7e6f64463d3811e1bff42bcbc53a8dd6519cf69dab4485b"
+      },
+      "id": "q32dz-level1@0.5",
+      "label": "20 m grid at 0.5 m, bilinear",
+      "maeM": 0.3581936126000962,
+      "maxM": 8.9375,
+      "streamJaccard": 0.18701304291679222,
+      "streams": {
+        "bytes": 11613,
+        "encoding": "bits",
+        "file": "q32dz-level1-at-0.5.streams.bin",
+        "sha256": "1e2fe20ad8798d8fefc9de713dc034d88e3fde020f8a9e4b4c1bf648756efc8c"
+      }
+    },
+    {
+      "boundM": 1.0,
+      "bytes": 382671,
+      "check": {
+        "maeM": 0.4453459164446502,
+        "maxM": 1.0,
+        "streamJaccard": 0.6766413310192112
+      },
+      "evidence": "reproduced",
+      "family": "corrected",
+      "height": {
+        "bytes": 133693,
+        "encoding": "u16-delta",
+        "file": "corrected-r1-at-1.height.bin",
+        "sha256": "95400245796911e73a2bd1e6fb9a9303bcbd6e7cb38fc7de14ce345c6f34e526"
+      },
+      "id": "corrected-r1@1",
+      "label": "1 m quantiser + exact corrections, band radius 1",
+      "maeM": 0.4453459164446502,
+      "maxM": 1.0,
+      "streamJaccard": 0.6766413310192112,
+      "streams": {
+        "bytes": 11972,
+        "encoding": "bits",
+        "file": "corrected-r1-at-1.streams.bin",
+        "sha256": "c1bdfd6f154114118cc46d88bf0b9ce973d15d799786a5851833435220317dbd"
+      }
+    },
+    {
+      "boundM": null,
+      "bytes": 134788,
+      "check": {
+        "maeM": 0.6132913365806021,
+        "maxM": 16.580730438232422,
+        "streamJaccard": 0.1487688241956458
+      },
+      "evidence": "reproduced",
+      "family": "neural",
+      "height": {
+        "bytes": 362415,
+        "encoding": "u16-delta",
+        "file": "checkpoint--siren-codec-fit.height.bin",
+        "sha256": "dca82764df08e9923422e82788ba0d1aaf2df751dc7317e9f67cf675d435a781"
+      },
+      "id": "checkpoint/siren-codec-fit",
+      "label": "SIREN 128x3, saved checkpoint",
+      "maeM": 0.6132913365806021,
+      "maxM": 16.580730438232422,
+      "streamJaccard": 0.1487688241956458,
+      "streams": {
+        "bytes": 11684,
+        "encoding": "bits",
+        "file": "checkpoint--siren-codec-fit.streams.bin",
+        "sha256": "dde1ca3797c419c0a15d573b7d7d434fa7f1a8c6c6ad74596f58767603bd8b23"
+      }
+    },
+    {
+      "boundM": null,
+      "bytes": 4716,
+      "check": {
+        "maeM": 3.2062656031202943,
+        "maxM": 26.468154907226562,
+        "streamJaccard": 0.030389269224645757
+      },
+      "evidence": "reproduced",
+      "family": "neural",
+      "height": {
+        "bytes": 321411,
+        "encoding": "u16-delta",
+        "file": "fit--siren-t17.height.bin",
+        "sha256": "af246653dd90f3151ee4357d9533e7476b0d91d6678e9809c95bc9d6a62c48bd"
+      },
+      "id": "fit/siren-t17",
+      "label": "siren-t17 (codec fit, float32)",
+      "maeM": 3.2062656018109017,
+      "maxM": 26.468154365997407,
+      "streamJaccard": 0.030389269224645757,
+      "streams": {
+        "bytes": 10582,
+        "encoding": "bits",
+        "file": "fit--siren-t17.streams.bin",
+        "sha256": "84c618d56804b12523942656989a8e094621be2ce74737921ce64e9a0e597042"
+      }
+    },
+    {
+      "boundM": null,
+      "bytes": 15150,
+      "check": {
+        "maeM": 1.800304720610029,
+        "maxM": 20.996063232421875,
+        "streamJaccard": 0.04374132881146909
+      },
+      "evidence": "reproduced",
+      "family": "hybrid",
+      "height": {
+        "bytes": 309553,
+        "encoding": "u16-delta",
+        "file": "fit--hybrid-t5.height.bin",
+        "sha256": "01ffbb034de917906ca91e655bd2c612ef368f90ea0690b5466ee730d6746bcb"
+      },
+      "id": "fit/hybrid-t5",
+      "label": "hybrid-t5 (codec fit, float32)",
+      "maeM": 1.8003047198993138,
+      "maxM": 20.996065940570432,
+      "streamJaccard": 0.04369521240728254,
+      "streams": {
+        "bytes": 11337,
+        "encoding": "bits",
+        "file": "fit--hybrid-t5.streams.bin",
+        "sha256": "5780851eef14fa6e4d0262b5cbf90115303ae6c25008375fea27d1507b1c6e2d"
+      }
+    }
+  ],
+  "chart": [
+    {
+      "boundGuaranteed": true,
+      "bytes": 1226955,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.01",
+      "label": "Quantised, full resolution, 0.01 m bound",
+      "maeM": 0.004984056625956229,
+      "maxM": 0.010009765625,
+      "streamJaccard": 0.8488800495582146
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 1060321,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.02",
+      "label": "Quantised, full resolution, 0.02 m bound",
+      "maeM": 0.010041424495190967,
+      "maxM": 0.0200042724609375,
+      "streamJaccard": 0.7722998809001441
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 817032,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.05",
+      "label": "Quantised, full resolution, 0.05 m bound",
+      "maeM": 0.02510786451241007,
+      "maxM": 0.0500030517578125,
+      "streamJaccard": 0.6452717407074253
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 713754,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.075",
+      "label": "Quantised, full resolution, 0.075 m bound",
+      "maeM": 0.03719229878295681,
+      "maxM": 0.07501220703125,
+      "streamJaccard": 0.5781101481688565
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 645189,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.1",
+      "label": "Quantised, full resolution, 0.1 m bound",
+      "maeM": 0.04997389404369493,
+      "maxM": 0.100006103515625,
+      "streamJaccard": 0.5266868348549512
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 557917,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.15",
+      "label": "Quantised, full resolution, 0.15 m bound",
+      "maeM": 0.07603014178891611,
+      "maxM": 0.1500091552734375,
+      "streamJaccard": 0.47562413224006495
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 498124,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.2",
+      "label": "Quantised, full resolution, 0.2 m bound",
+      "maeM": 0.1012741699436603,
+      "maxM": 0.20001220703125,
+      "streamJaccard": 0.4356125283518948
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 420456,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.3",
+      "label": "Quantised, full resolution, 0.3 m bound",
+      "maeM": 0.15058633149809103,
+      "maxM": 0.3000030517578125,
+      "streamJaccard": 0.37238288806719394
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 333880,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.5",
+      "label": "Quantised, full resolution, 0.5 m bound",
+      "maeM": 0.24917929287376608,
+      "maxM": 0.5,
+      "streamJaccard": 0.30976660935917666
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 278509,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@0.75",
+      "label": "Quantised, full resolution, 0.75 m bound",
+      "maeM": 0.38337358959045953,
+      "maxM": 0.75,
+      "streamJaccard": 0.25481531837752097
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 241060,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@1",
+      "label": "Quantised, full resolution, 1 m bound",
+      "maeM": 0.49415003715120276,
+      "maxM": 1.0,
+      "streamJaccard": 0.21897082604168974
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 195970,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@1.5",
+      "label": "Quantised, full resolution, 1.5 m bound",
+      "maeM": 0.7553509491493275,
+      "maxM": 1.5,
+      "streamJaccard": 0.17840324645732514
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 167727,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@2",
+      "label": "Quantised, full resolution, 2 m bound",
+      "maeM": 0.9798238007190893,
+      "maxM": 2.0,
+      "streamJaccard": 0.14450219743069642
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 132364,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@3",
+      "label": "Quantised, full resolution, 3 m bound",
+      "maeM": 1.5017273320222455,
+      "maxM": 3.0,
+      "streamJaccard": 0.10074573207058775
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 113175,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@4",
+      "label": "Quantised, full resolution, 4 m bound",
+      "maeM": 2.057628399560169,
+      "maxM": 4.0,
+      "streamJaccard": 0.09109487869529148
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 88592,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@6",
+      "label": "Quantised, full resolution, 6 m bound",
+      "maeM": 3.077918254413412,
+      "maxM": 6.0,
+      "streamJaccard": 0.06819387414291048
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 73961,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@8",
+      "label": "Quantised, full resolution, 8 m bound",
+      "maeM": 4.077901463754485,
+      "maxM": 8.0,
+      "streamJaccard": 0.058031926438958936
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 57435,
+      "dominatedBy": "q32dz-level1@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@12",
+      "label": "Quantised, full resolution, 12 m bound",
+      "maeM": 6.063564970642126,
+      "maxM": 12.0,
+      "streamJaccard": 0.03454476623130797
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 45441,
+      "dominatedBy": "q32dz-level1@4",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-full@16",
+      "label": "Quantised, full resolution, 16 m bound",
+      "maeM": 8.205088980957612,
+      "maxM": 16.0,
+      "streamJaccard": 0.033818324813212744
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 342862,
+      "dominatedBy": "q32dz-full@0.5",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.01",
+      "label": "20 m grid at 0.01 m, bilinear",
+      "maeM": 0.2789992679993075,
+      "maxM": 8.942499160766602,
+      "streamJaccard": 0.23668772563176896
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 305858,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.02",
+      "label": "20 m grid at 0.02 m, bilinear",
+      "maeM": 0.2792780708181369,
+      "maxM": 8.947498321533203,
+      "streamJaccard": 0.23621887405268857
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 248295,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.05",
+      "label": "20 m grid at 0.05 m, bilinear",
+      "maeM": 0.28068126631900714,
+      "maxM": 8.9375,
+      "streamJaccard": 0.23644908380216453
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 220326,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.075",
+      "label": "20 m grid at 0.075 m, bilinear",
+      "maeM": 0.282166709933488,
+      "maxM": 8.924999237060547,
+      "streamJaccard": 0.23254764858463967
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 201136,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.1",
+      "label": "20 m grid at 0.1 m, bilinear",
+      "maeM": 0.2848402987759855,
+      "maxM": 8.937503814697266,
+      "streamJaccard": 0.23003295151420053
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 175390,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.15",
+      "label": "20 m grid at 0.15 m, bilinear",
+      "maeM": 0.29132019195828956,
+      "maxM": 8.887504577636719,
+      "streamJaccard": 0.22814140235969674
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 158633,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.2",
+      "label": "20 m grid at 0.2 m, bilinear",
+      "maeM": 0.2986189839178717,
+      "maxM": 9.03750228881836,
+      "streamJaccard": 0.21592269160867059
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 136918,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.3",
+      "label": "20 m grid at 0.3 m, bilinear",
+      "maeM": 0.31525748545359034,
+      "maxM": 9.03750228881836,
+      "streamJaccard": 0.20720364140114783
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 111219,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.5",
+      "label": "20 m grid at 0.5 m, bilinear",
+      "maeM": 0.3581936126000962,
+      "maxM": 8.9375,
+      "streamJaccard": 0.18701304291679222
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 93727,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@0.75",
+      "label": "20 m grid at 0.75 m, bilinear",
+      "maeM": 0.4326509425701661,
+      "maxM": 8.8125,
+      "streamJaccard": 0.1806699262309144
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 81974,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@1",
+      "label": "20 m grid at 1 m, bilinear",
+      "maeM": 0.49620971011604886,
+      "maxM": 8.9375,
+      "streamJaccard": 0.16376343183344527
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 68430,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@1.5",
+      "label": "20 m grid at 1.5 m, bilinear",
+      "maeM": 0.67835152195029,
+      "maxM": 9.1875,
+      "streamJaccard": 0.14873464555276011
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 59409,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@2",
+      "label": "20 m grid at 2 m, bilinear",
+      "maeM": 0.8479201737711928,
+      "maxM": 8.385002136230469,
+      "streamJaccard": 0.11717903090548362
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 47341,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@3",
+      "label": "20 m grid at 3 m, bilinear",
+      "maeM": 1.2924330056775404,
+      "maxM": 9.144996643066406,
+      "streamJaccard": 0.09772065955383123
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 41153,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@4",
+      "label": "20 m grid at 4 m, bilinear",
+      "maeM": 1.7847843698368833,
+      "maxM": 10.99749755859375,
+      "streamJaccard": 0.08305084745762711
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 32419,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@6",
+      "label": "20 m grid at 6 m, bilinear",
+      "maeM": 2.74576954443737,
+      "maxM": 10.99749755859375,
+      "streamJaccard": 0.06062542356472069
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 27112,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@8",
+      "label": "20 m grid at 8 m, bilinear",
+      "maeM": 3.712537680353259,
+      "maxM": 11.962501525878906,
+      "streamJaccard": 0.049375807976537324
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 21154,
+      "dominatedBy": "q32dz-level2@2",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@12",
+      "label": "20 m grid at 12 m, bilinear",
+      "maeM": 5.668666911000939,
+      "maxM": 15.757499694824219,
+      "streamJaccard": 0.03595781942840109
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 16626,
+      "dominatedBy": "q32dz-level2@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level1@16",
+      "label": "20 m grid at 16 m, bilinear",
+      "maeM": 7.823419851668231,
+      "maxM": 20.965003967285156,
+      "streamJaccard": 0.03210272873194221
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 94321,
+      "dominatedBy": "q32dz-level1@0.75",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.01",
+      "label": "40 m grid at 0.01 m, bilinear",
+      "maeM": 0.7282877410816054,
+      "maxM": 13.62249755859375,
+      "streamJaccard": 0.10634515643299314
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 87914,
+      "dominatedBy": "q32dz-level1@1",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.02",
+      "label": "40 m grid at 0.02 m, bilinear",
+      "maeM": 0.7282680047738134,
+      "maxM": 13.642499923706055,
+      "streamJaccard": 0.10642608023724495
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 73951,
+      "dominatedBy": "q32dz-level1@1.5",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.05",
+      "label": "40 m grid at 0.05 m, bilinear",
+      "maeM": 0.7292512131300092,
+      "maxM": 13.612497329711914,
+      "streamJaccard": 0.10731196312591662
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 66565,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.075",
+      "label": "40 m grid at 0.075 m, bilinear",
+      "maeM": 0.7293819857704575,
+      "maxM": 13.649999618530273,
+      "streamJaccard": 0.10660673217645829
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 61728,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.1",
+      "label": "40 m grid at 0.1 m, bilinear",
+      "maeM": 0.7304440287719944,
+      "maxM": 13.712501525878906,
+      "streamJaccard": 0.10404263291560847
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 54372,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.15",
+      "label": "40 m grid at 0.15 m, bilinear",
+      "maeM": 0.7333748190058902,
+      "maxM": 13.537498474121094,
+      "streamJaccard": 0.10717354401995097
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 49609,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.2",
+      "label": "40 m grid at 0.2 m, bilinear",
+      "maeM": 0.7362562859171562,
+      "maxM": 13.562501430511475,
+      "streamJaccard": 0.10621438376107482
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 43302,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.3",
+      "label": "40 m grid at 0.3 m, bilinear",
+      "maeM": 0.7426474077037514,
+      "maxM": 13.650001525878906,
+      "streamJaccard": 0.1024267644514029
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 35982,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.5",
+      "label": "40 m grid at 0.5 m, bilinear",
+      "maeM": 0.7635856387944536,
+      "maxM": 13.862499237060547,
+      "streamJaccard": 0.10051640710771358
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 30802,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@0.75",
+      "label": "40 m grid at 0.75 m, bilinear",
+      "maeM": 0.8047817302424733,
+      "maxM": 13.237499237060547,
+      "streamJaccard": 0.09435071781977451
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 27388,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@1",
+      "label": "40 m grid at 1 m, bilinear",
+      "maeM": 0.8353578977168422,
+      "maxM": 13.612499237060547,
+      "streamJaccard": 0.09625743688695931
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 22994,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@1.5",
+      "label": "40 m grid at 1.5 m, bilinear",
+      "maeM": 0.9504707415978445,
+      "maxM": 14.25,
+      "streamJaccard": 0.08661119515885023
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 20020,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@2",
+      "label": "40 m grid at 2 m, bilinear",
+      "maeM": 1.0588024393874786,
+      "maxM": 14.6875,
+      "streamJaccard": 0.08008132488502004
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 16433,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@3",
+      "label": "40 m grid at 3 m, bilinear",
+      "maeM": 1.4056367911425607,
+      "maxM": 15.112499237060547,
+      "streamJaccard": 0.07218971596853567
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 14311,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@4",
+      "label": "40 m grid at 4 m, bilinear",
+      "maeM": 1.8090864113593796,
+      "maxM": 16.112499237060547,
+      "streamJaccard": 0.0646234028898699
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 11669,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@6",
+      "label": "40 m grid at 6 m, bilinear",
+      "maeM": 2.6356546457448364,
+      "maxM": 15.1875,
+      "streamJaccard": 0.04903737907611288
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9532,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@8",
+      "label": "40 m grid at 8 m, bilinear",
+      "maeM": 3.5439409167124643,
+      "maxM": 16.50250244140625,
+      "streamJaccard": 0.04232844585962972
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7517,
+      "dominatedBy": "hybrid-t5/int8-ptq",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@12",
+      "label": "40 m grid at 12 m, bilinear",
+      "maeM": 5.422642158924945,
+      "maxM": 20.8175048828125,
+      "streamJaccard": 0.03460841256335319
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5987,
+      "dominatedBy": "q32dz-level3@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level2@16",
+      "label": "40 m grid at 16 m, bilinear",
+      "maeM": 7.562698913545172,
+      "maxM": 26.910003662109375,
+      "streamJaccard": 0.030242707296531657
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 27360,
+      "dominatedBy": "q32dz-level2@1.5",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.01",
+      "label": "80 m grid at 0.01 m, bilinear",
+      "maeM": 1.5156534733549318,
+      "maxM": 21.20187258720398,
+      "streamJaccard": 0.05493359441512004
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 23968,
+      "dominatedBy": "q32dz-level2@1.5",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.02",
+      "label": "80 m grid at 0.02 m, bilinear",
+      "maeM": 1.5155869129580306,
+      "maxM": 21.20875334739685,
+      "streamJaccard": 0.055407961573611615
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 20677,
+      "dominatedBy": "q32dz-level2@2",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.05",
+      "label": "80 m grid at 0.05 m, bilinear",
+      "maeM": 1.516112004729866,
+      "maxM": 21.23249888420105,
+      "streamJaccard": 0.05515125872646499
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 19396,
+      "dominatedBy": "q32dz-level2@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.075",
+      "label": "80 m grid at 0.075 m, bilinear",
+      "maeM": 1.516407914334376,
+      "maxM": 21.204374313354492,
+      "streamJaccard": 0.05519535553860497
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 18218,
+      "dominatedBy": "q32dz-level2@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.1",
+      "label": "80 m grid at 0.1 m, bilinear",
+      "maeM": 1.5170539435387225,
+      "maxM": 21.194998264312744,
+      "streamJaccard": 0.054961510070652746
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 16287,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.15",
+      "label": "80 m grid at 0.15 m, bilinear",
+      "maeM": 1.5186406044853933,
+      "maxM": 21.204374313354492,
+      "streamJaccard": 0.05651064188832873
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 15070,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.2",
+      "label": "80 m grid at 0.2 m, bilinear",
+      "maeM": 1.5200649106550472,
+      "maxM": 21.157495260238647,
+      "streamJaccard": 0.056798110276435915
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 13302,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.3",
+      "label": "80 m grid at 0.3 m, bilinear",
+      "maeM": 1.5220132655980543,
+      "maxM": 21.1762478351593,
+      "streamJaccard": 0.05676526117054751
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 11235,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.5",
+      "label": "80 m grid at 0.5 m, bilinear",
+      "maeM": 1.532802639216798,
+      "maxM": 21.41374969482422,
+      "streamJaccard": 0.05850586935218198
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9822,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@0.75",
+      "label": "80 m grid at 0.75 m, bilinear",
+      "maeM": 1.5570333837178971,
+      "maxM": 20.81999969482422,
+      "streamJaccard": 0.05610478973657485
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 8723,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@1",
+      "label": "80 m grid at 1 m, bilinear",
+      "maeM": 1.5669843221924264,
+      "maxM": 21.06999969482422,
+      "streamJaccard": 0.054864726901480344
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7421,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@1.5",
+      "label": "80 m grid at 1.5 m, bilinear",
+      "maeM": 1.635229156606698,
+      "maxM": 21.236251831054688,
+      "streamJaccard": 0.050199075648746525
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6569,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@2",
+      "label": "80 m grid at 2 m, bilinear",
+      "maeM": 1.693543287897422,
+      "maxM": 22.19499969482422,
+      "streamJaccard": 0.05039189296176075
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5492,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@3",
+      "label": "80 m grid at 3 m, bilinear",
+      "maeM": 1.9180474694628151,
+      "maxM": 21.75749969482422,
+      "streamJaccard": 0.04614723351047202
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4762,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@4",
+      "label": "80 m grid at 4 m, bilinear",
+      "maeM": 2.2067438082756845,
+      "maxM": 22.955001831054688,
+      "streamJaccard": 0.04364820846905537
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3956,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@6",
+      "label": "80 m grid at 6 m, bilinear",
+      "maeM": 2.842787208948357,
+      "maxM": 21.94499969482422,
+      "streamJaccard": 0.03973219394956701
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3390,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@8",
+      "label": "80 m grid at 8 m, bilinear",
+      "maeM": 3.5825806034775733,
+      "maxM": 23.889999389648438,
+      "streamJaccard": 0.03426088253944571
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2699,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@12",
+      "label": "80 m grid at 12 m, bilinear",
+      "maeM": 5.247678249851569,
+      "maxM": 28.0625,
+      "streamJaccard": 0.028230224234898838
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2080,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level3@16",
+      "label": "80 m grid at 16 m, bilinear",
+      "maeM": 7.298968121181763,
+      "maxM": 28.602500915527344,
+      "streamJaccard": 0.024060566891330442
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7823,
+      "dominatedBy": "q32dz-level3@1.5",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.01",
+      "label": "160 m grid at 0.01 m, bilinear",
+      "maeM": 2.864262612405042,
+      "maxM": 29.14532244205475,
+      "streamJaccard": 0.0355053588966224
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6868,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.02",
+      "label": "160 m grid at 0.02 m, bilinear",
+      "maeM": 2.8642838423939705,
+      "maxM": 29.136257886886597,
+      "streamJaccard": 0.035337271544646096
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5861,
+      "dominatedBy": "q32dz-level3@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.05",
+      "label": "160 m grid at 0.05 m, bilinear",
+      "maeM": 2.864721400469219,
+      "maxM": 29.15031588077545,
+      "streamJaccard": 0.03514451852009628
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5430,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.075",
+      "label": "160 m grid at 0.075 m, bilinear",
+      "maeM": 2.8642540470541693,
+      "maxM": 29.11515748500824,
+      "streamJaccard": 0.03510753948798841
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5155,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.1",
+      "label": "160 m grid at 0.1 m, bilinear",
+      "maeM": 2.865678753948467,
+      "maxM": 29.080004453659058,
+      "streamJaccard": 0.03370091504383252
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4691,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.15",
+      "label": "160 m grid at 0.15 m, bilinear",
+      "maeM": 2.8655194465746416,
+      "maxM": 29.220627307891846,
+      "streamJaccard": 0.03384516954574536
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4317,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.2",
+      "label": "160 m grid at 0.2 m, bilinear",
+      "maeM": 2.867332065554306,
+      "maxM": 29.042505025863647,
+      "streamJaccard": 0.03502800517018526
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3953,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.3",
+      "label": "160 m grid at 0.3 m, bilinear",
+      "maeM": 2.8675546374493734,
+      "maxM": 29.220627307891846,
+      "streamJaccard": 0.0349638487797638
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3395,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.5",
+      "label": "160 m grid at 0.5 m, bilinear",
+      "maeM": 2.871966090014547,
+      "maxM": 29.201873779296875,
+      "streamJaccard": 0.03399605402944301
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2915,
+      "dominatedBy": "q32dz-level4@1",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@0.75",
+      "label": "160 m grid at 0.75 m, bilinear",
+      "maeM": 2.8899122453806445,
+      "maxM": 29.2628173828125,
+      "streamJaccard": 0.03367206338270754
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2729,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@1",
+      "label": "160 m grid at 1 m, bilinear",
+      "maeM": 2.8880735073146333,
+      "maxM": 28.9112548828125,
+      "streamJaccard": 0.03445190156599553
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2377,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@1.5",
+      "label": "160 m grid at 1.5 m, bilinear",
+      "maeM": 2.9053671823296217,
+      "maxM": 28.463592529296875,
+      "streamJaccard": 0.03334763028093502
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2041,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@2",
+      "label": "160 m grid at 2 m, bilinear",
+      "maeM": 2.9668663013828147,
+      "maxM": 30.3175048828125,
+      "streamJaccard": 0.031252625388557505
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1744,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@3",
+      "label": "160 m grid at 3 m, bilinear",
+      "maeM": 3.081605904891759,
+      "maxM": 30.3175048828125,
+      "streamJaccard": 0.031193998749739528
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1513,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@4",
+      "label": "160 m grid at 4 m, bilinear",
+      "maeM": 3.243857960066378,
+      "maxM": 30.3175048828125,
+      "streamJaccard": 0.029388682362660058
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1257,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@6",
+      "label": "160 m grid at 6 m, bilinear",
+      "maeM": 3.6673018302195843,
+      "maxM": 30.3175048828125,
+      "streamJaccard": 0.02602728601591684
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1105,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@8",
+      "label": "160 m grid at 8 m, bilinear",
+      "maeM": 4.154569082262174,
+      "maxM": 31.277496337890625,
+      "streamJaccard": 0.026485039747533256
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 873,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@12",
+      "label": "160 m grid at 12 m, bilinear",
+      "maeM": 5.510837631350851,
+      "maxM": 34.712493896484375,
+      "streamJaccard": 0.021086584013708297
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 701,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level4@16",
+      "label": "160 m grid at 16 m, bilinear",
+      "maeM": 7.280620061308198,
+      "maxM": 37.80000305175781,
+      "streamJaccard": 0.01752096187312134
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1910,
+      "dominatedBy": "q32dz-level4@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.01",
+      "label": "320 m grid at 0.01 m, bilinear",
+      "maeM": 5.090954607796931,
+      "maxM": 42.9812548160553,
+      "streamJaccard": 0.022522623170595463
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1651,
+      "dominatedBy": "q32dz-level4@4",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.02",
+      "label": "320 m grid at 0.02 m, bilinear",
+      "maeM": 5.091084083209628,
+      "maxM": 42.99750208854675,
+      "streamJaccard": 0.022438126865169297
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1445,
+      "dominatedBy": "q32dz-level4@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.05",
+      "label": "320 m grid at 0.05 m, bilinear",
+      "maeM": 5.09158495077055,
+      "maxM": 42.99562668800354,
+      "streamJaccard": 0.02264252661844647
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1377,
+      "dominatedBy": "q32dz-level4@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.075",
+      "label": "320 m grid at 0.075 m, bilinear",
+      "maeM": 5.09176928303224,
+      "maxM": 43.04562282562256,
+      "streamJaccard": 0.021739616649146743
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1374,
+      "dominatedBy": "q32dz-level4@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.1",
+      "label": "320 m grid at 0.1 m, bilinear",
+      "maeM": 5.0911285070967205,
+      "maxM": 43.00500154495239,
+      "streamJaccard": 0.02261172063152261
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1503,
+      "dominatedBy": "q32dz-level4@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.15",
+      "label": "320 m grid at 0.15 m, bilinear",
+      "maeM": 5.090820361765398,
+      "maxM": 42.895628213882446,
+      "streamJaccard": 0.021812004530011326
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1438,
+      "dominatedBy": "q32dz-level4@6",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.2",
+      "label": "320 m grid at 0.2 m, bilinear",
+      "maeM": 5.088071750442397,
+      "maxM": 42.805004596710205,
+      "streamJaccard": 0.02034164980894583
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1248,
+      "dominatedBy": "q32dz-level4@8",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.3",
+      "label": "320 m grid at 0.3 m, bilinear",
+      "maeM": 5.0901248200310905,
+      "maxM": 43.16749906539917,
+      "streamJaccard": 0.021993386448878136
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1128,
+      "dominatedBy": "q32dz-level4@8",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.5",
+      "label": "320 m grid at 0.5 m, bilinear",
+      "maeM": 5.091852940427654,
+      "maxM": 42.98625183105469,
+      "streamJaccard": 0.022613737734165924
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 994,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@0.75",
+      "label": "320 m grid at 0.75 m, bilinear",
+      "maeM": 5.085791112605905,
+      "maxM": 43.43937683105469,
+      "streamJaccard": 0.020853442277043256
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 933,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@1",
+      "label": "320 m grid at 1 m, bilinear",
+      "maeM": 5.101611999533504,
+      "maxM": 42.08000183105469,
+      "streamJaccard": 0.018026839961720786
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 824,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@1.5",
+      "label": "320 m grid at 1.5 m, bilinear",
+      "maeM": 5.126343570293039,
+      "maxM": 42.08000183105469,
+      "streamJaccard": 0.02239157234114087
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 741,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@2",
+      "label": "320 m grid at 2 m, bilinear",
+      "maeM": 5.128464551805159,
+      "maxM": 42.08000183105469,
+      "streamJaccard": 0.022037297434360666
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 639,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@3",
+      "label": "320 m grid at 3 m, bilinear",
+      "maeM": 5.167435333342725,
+      "maxM": 42.08000183105469,
+      "streamJaccard": 0.018230491825040378
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 597,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@4",
+      "label": "320 m grid at 4 m, bilinear",
+      "maeM": 5.3077780609149015,
+      "maxM": 46.08000183105469,
+      "streamJaccard": 0.017170407768756682
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 476,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@6",
+      "label": "320 m grid at 6 m, bilinear",
+      "maeM": 5.583735837483675,
+      "maxM": 42.08000183105469,
+      "streamJaccard": 0.017651346057486448
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 431,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@8",
+      "label": "320 m grid at 8 m, bilinear",
+      "maeM": 5.812830909931425,
+      "maxM": 41.10749816894531,
+      "streamJaccard": 0.01526274684815352
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 361,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@12",
+      "label": "320 m grid at 12 m, bilinear",
+      "maeM": 6.729678869156891,
+      "maxM": 54.08000183105469,
+      "streamJaccard": 0.01457653807220785
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 307,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level5@16",
+      "label": "320 m grid at 16 m, bilinear",
+      "maeM": 8.082425343772076,
+      "maxM": 54.08000183105469,
+      "streamJaccard": 0.01536252999657182
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 670,
+      "dominatedBy": "q32dz-level5@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.01",
+      "label": "640 m grid at 0.01 m, bilinear",
+      "maeM": 8.487033513565633,
+      "maxM": 55.973100455477834,
+      "streamJaccard": 0.016381113539683658
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 675,
+      "dominatedBy": "q32dz-level5@3",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.02",
+      "label": "640 m grid at 0.02 m, bilinear",
+      "maeM": 8.487468736620732,
+      "maxM": 55.98809198476374,
+      "streamJaccard": 0.015250183523171281
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 466,
+      "dominatedBy": "q32dz-level5@8",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.05",
+      "label": "640 m grid at 0.05 m, bilinear",
+      "maeM": 8.48792744421756,
+      "maxM": 55.95748272165656,
+      "streamJaccard": 0.015322173923485194
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 433,
+      "dominatedBy": "q32dz-level5@8",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.075",
+      "label": "640 m grid at 0.075 m, bilinear",
+      "maeM": 8.485676474340348,
+      "maxM": 55.98950288258493,
+      "streamJaccard": 0.015617953525907289
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 419,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.1",
+      "label": "640 m grid at 0.1 m, bilinear",
+      "maeM": 8.48768198476067,
+      "maxM": 56.03245823457837,
+      "streamJaccard": 0.016492578339747113
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 412,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.15",
+      "label": "640 m grid at 0.15 m, bilinear",
+      "maeM": 8.489514705189672,
+      "maxM": 56.01055748388171,
+      "streamJaccard": 0.016977275459901405
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 419,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.2",
+      "label": "640 m grid at 0.2 m, bilinear",
+      "maeM": 8.488175208662803,
+      "maxM": 55.98241017013788,
+      "streamJaccard": 0.01549365419482446
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 408,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.3",
+      "label": "640 m grid at 0.3 m, bilinear",
+      "maeM": 8.497515205631013,
+      "maxM": 56.07625639438629,
+      "streamJaccard": 0.017292312126233878
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 426,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.5",
+      "label": "640 m grid at 0.5 m, bilinear",
+      "maeM": 8.490513907875183,
+      "maxM": 56.10101318359375,
+      "streamJaccard": 0.01664166845225341
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 388,
+      "dominatedBy": "q32dz-level5@12",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@0.75",
+      "label": "640 m grid at 0.75 m, bilinear",
+      "maeM": 8.478572919263959,
+      "maxM": 55.71063232421875,
+      "streamJaccard": 0.015961344691765137
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 345,
+      "dominatedBy": "q32dz-level5@16",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@1",
+      "label": "640 m grid at 1 m, bilinear",
+      "maeM": 8.467220975317833,
+      "maxM": 55.85076904296875,
+      "streamJaccard": 0.017342931937172776
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 316,
+      "dominatedBy": "q32dz-level5@16",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@1.5",
+      "label": "640 m grid at 1.5 m, bilinear",
+      "maeM": 8.536429393006278,
+      "maxM": 55.71063232421875,
+      "streamJaccard": 0.016248940549703352
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 290,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@2",
+      "label": "640 m grid at 2 m, bilinear",
+      "maeM": 8.558810138139151,
+      "maxM": 56.50848388671875,
+      "streamJaccard": 0.01564248528195397
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 254,
+      "dominatedBy": "q32dz-level6@4",
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@3",
+      "label": "640 m grid at 3 m, bilinear",
+      "maeM": 8.610908213146239,
+      "maxM": 56.13104248046875,
+      "streamJaccard": 0.017986327736112032
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 237,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@4",
+      "label": "640 m grid at 4 m, bilinear",
+      "maeM": 8.602271622217872,
+      "maxM": 54.63250732421875,
+      "streamJaccard": 0.013257528737059014
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 214,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@6",
+      "label": "640 m grid at 6 m, bilinear",
+      "maeM": 8.724132317639588,
+      "maxM": 54.26043701171875,
+      "streamJaccard": 0.013893161078642469
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 198,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@8",
+      "label": "640 m grid at 8 m, bilinear",
+      "maeM": 8.804790095530004,
+      "maxM": 57.302490234375,
+      "streamJaccard": 0.015530285230957192
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 164,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@12",
+      "label": "640 m grid at 12 m, bilinear",
+      "maeM": 9.719611271410596,
+      "maxM": 57.26336669921875,
+      "streamJaccard": 0.012731751588227667
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 144,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "conventional",
+      "id": "q32dz-level6@16",
+      "label": "640 m grid at 16 m, bilinear",
+      "maeM": 10.414846854957522,
+      "maxM": 57.83250427246094,
+      "streamJaccard": 0.012546866959100154
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "dense-envelope",
+      "family": "control",
+      "id": "constant-mean",
+      "label": "Stored field mean (one float32)",
+      "maeM": 23.501842357382717,
+      "maxM": 72.97781172649104,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 70520,
+      "dominatedBy": "q32dz-level1@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/float16",
+      "label": "bandlimited-t23, float16 weights",
+      "maeM": 2.907854383123071,
+      "maxM": 37.54082148552719,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 23114,
+      "dominatedBy": "q32dz-level2@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int8-ptq",
+      "label": "bandlimited-t23, int8-ptq weights",
+      "maeM": 3.0646609610816116,
+      "maxM": 38.42781520483513,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 22637,
+      "dominatedBy": "q32dz-level2@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int8-qat",
+      "label": "bandlimited-t23, int8-qat weights",
+      "maeM": 2.7617220829275664,
+      "maxM": 39.05635937448591,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 17115,
+      "dominatedBy": "q32dz-level2@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int6-ptq",
+      "label": "bandlimited-t23, int6-ptq weights",
+      "maeM": 3.972857491719022,
+      "maxM": 41.37287191923653,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 17556,
+      "dominatedBy": "q32dz-level2@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int6-qat",
+      "label": "bandlimited-t23, int6-qat weights",
+      "maeM": 2.884927084534783,
+      "maxM": 40.857132112262605,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5303,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int4-ptq",
+      "label": "bandlimited-t23, int4-ptq weights",
+      "maeM": 13.73499797080089,
+      "maxM": 90.06917510735606,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7303,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t23/int4-qat",
+      "label": "bandlimited-t23, int4-qat weights",
+      "maeM": 4.208414932301509,
+      "maxM": 43.920558754294746,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5614,
+      "dominatedBy": "q32dz-level3@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/float16",
+      "label": "bandlimited-t6, float16 weights",
+      "maeM": 5.938667697452442,
+      "maxM": 48.37767877883199,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2390,
+      "dominatedBy": "q32dz-level4@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int8-ptq",
+      "label": "bandlimited-t6, int8-ptq weights",
+      "maeM": 5.952281065080528,
+      "maxM": 50.26680933307459,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2381,
+      "dominatedBy": "q32dz-level4@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int8-qat",
+      "label": "bandlimited-t6, int8-qat weights",
+      "maeM": 5.921933758449678,
+      "maxM": 48.40175887395944,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1922,
+      "dominatedBy": "q32dz-level4@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int6-ptq",
+      "label": "bandlimited-t6, int6-ptq weights",
+      "maeM": 6.292161324949252,
+      "maxM": 49.02799284503091,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1922,
+      "dominatedBy": "q32dz-level4@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int6-qat",
+      "label": "bandlimited-t6, int6-qat weights",
+      "maeM": 5.9781833785823775,
+      "maxM": 51.29560753079484,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1213,
+      "dominatedBy": "q32dz-level4@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int4-ptq",
+      "label": "bandlimited-t6, int4-ptq weights",
+      "maeM": 11.451677511941659,
+      "maxM": 62.61997164827466,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1216,
+      "dominatedBy": "q32dz-level4@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "bandlimited-t6/int4-qat",
+      "label": "bandlimited-t6, int4-qat weights",
+      "maeM": 7.322349198388853,
+      "maxM": 59.56835624907461,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4758,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/float16",
+      "label": "fourier-t0, float16 weights",
+      "maeM": 17.231159968755744,
+      "maxM": 83.78400470739044,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2101,
+      "dominatedBy": "q32dz-level3@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int8-ptq",
+      "label": "fourier-t0, int8-ptq weights",
+      "maeM": 17.4372927647184,
+      "maxM": 79.11248523189091,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2098,
+      "dominatedBy": "q32dz-level3@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int8-qat",
+      "label": "fourier-t0, int8-qat weights",
+      "maeM": 17.341309519440603,
+      "maxM": 77.59696078564257,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1702,
+      "dominatedBy": "q32dz-level4@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int6-ptq",
+      "label": "fourier-t0, int6-ptq weights",
+      "maeM": 18.39051848209664,
+      "maxM": 83.27608128413436,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1700,
+      "dominatedBy": "q32dz-level4@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int6-qat",
+      "label": "fourier-t0, int6-qat weights",
+      "maeM": 18.274448256147497,
+      "maxM": 82.76647485519817,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 978,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int4-ptq",
+      "label": "fourier-t0, int4-ptq weights",
+      "maeM": 18.80634456937494,
+      "maxM": 86.01171978005857,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 977,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t0/int4-qat",
+      "label": "fourier-t0, int4-qat weights",
+      "maeM": 18.50806434471402,
+      "maxM": 84.29953916680515,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 103434,
+      "dominatedBy": "q32dz-level1@0.75",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/float16",
+      "label": "fourier-t22, float16 weights",
+      "maeM": 1.819886386598077,
+      "maxM": 26.396577028991345,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 32609,
+      "dominatedBy": "q32dz-level2@0.75",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int8-ptq",
+      "label": "fourier-t22, int8-ptq weights",
+      "maeM": 2.114536735814806,
+      "maxM": 26.643496093824893,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 32086,
+      "dominatedBy": "q32dz-level2@0.75",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int8-qat",
+      "label": "fourier-t22, int8-qat weights",
+      "maeM": 1.799405744538565,
+      "maxM": 22.750206552835834,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 24658,
+      "dominatedBy": "q32dz-level2@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int6-ptq",
+      "label": "fourier-t22, int6-ptq weights",
+      "maeM": 4.650771289117494,
+      "maxM": 40.593054267053816,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 24428,
+      "dominatedBy": "q32dz-level2@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int6-qat",
+      "label": "fourier-t22, int6-qat weights",
+      "maeM": 3.1145089025829793,
+      "maxM": 35.87580805831664,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6965,
+      "dominatedBy": "q32dz-level2@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int4-ptq",
+      "label": "fourier-t22, int4-ptq weights",
+      "maeM": 19.149326050248696,
+      "maxM": 115.55969106724545,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7412,
+      "dominatedBy": "q32dz-level2@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "fourier-t22/int4-qat",
+      "label": "fourier-t22, int4-qat weights",
+      "maeM": 8.517569886934591,
+      "maxM": 90.13238629429634,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 281377,
+      "dominatedBy": "q32dz-level1@0.05",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/float16",
+      "label": "hybrid-t0, float16 weights",
+      "maeM": 0.36691112847791285,
+      "maxM": 9.030173495751058,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 181587,
+      "dominatedBy": "q32dz-level1@0.15",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int8-ptq",
+      "label": "hybrid-t0, int8-ptq weights",
+      "maeM": 0.3671152390981585,
+      "maxM": 9.074952844346797,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 181235,
+      "dominatedBy": "q32dz-level1@0.15",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int8-qat",
+      "label": "hybrid-t0, int8-qat weights",
+      "maeM": 0.3544626614296851,
+      "maxM": 8.975628018068363,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 167349,
+      "dominatedBy": "q32dz-level1@0.2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int6-ptq",
+      "label": "hybrid-t0, int6-ptq weights",
+      "maeM": 0.3670540192601855,
+      "maxM": 9.184364744422368,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 166930,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int6-qat",
+      "label": "hybrid-t0, int6-qat weights",
+      "maeM": 0.3547263121066811,
+      "maxM": 8.94821161025989,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 137785,
+      "dominatedBy": "q32dz-level1@0.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int4-ptq",
+      "label": "hybrid-t0, int4-ptq weights",
+      "maeM": 0.3675219717884484,
+      "maxM": 8.981063914075989,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 137972,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t0/int4-qat",
+      "label": "hybrid-t0, int4-qat weights",
+      "maeM": 0.355702372811259,
+      "maxM": 8.942180874318197,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10404,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/float16",
+      "label": "hybrid-t5, float16 weights",
+      "maeM": 1.796012924446581,
+      "maxM": 18.96973826462012,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7210,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int8-ptq",
+      "label": "hybrid-t5, int8-ptq weights",
+      "maeM": 1.8410310060425685,
+      "maxM": 19.35905680061849,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7215,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int8-qat",
+      "label": "hybrid-t5, int8-qat weights",
+      "maeM": 1.8237021288201765,
+      "maxM": 19.48973141589076,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6725,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int6-ptq",
+      "label": "hybrid-t5, int6-ptq weights",
+      "maeM": 2.310757858926643,
+      "maxM": 23.437963283065102,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6725,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int6-qat",
+      "label": "hybrid-t5, int6-qat weights",
+      "maeM": 2.0681274706977595,
+      "maxM": 24.14898226162478,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5971,
+      "dominatedBy": "q32dz-level3@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int4-ptq",
+      "label": "hybrid-t5, int4-ptq weights",
+      "maeM": 3.467574862771186,
+      "maxM": 23.538208639200263,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5955,
+      "dominatedBy": "q32dz-level3@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "hybrid",
+      "id": "hybrid-t5/int4-qat",
+      "label": "hybrid-t5, int4-qat weights",
+      "maeM": 2.3231328519470282,
+      "maxM": 22.765441286424647,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1098,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/float16",
+      "label": "mlp-t38, float16 weights",
+      "maeM": 7.997725041642021,
+      "maxM": 62.38298706994311,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 437,
+      "dominatedBy": "q32dz-level5@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int8-ptq",
+      "label": "mlp-t38, int8-ptq weights",
+      "maeM": 8.668875935309476,
+      "maxM": 67.28625600711618,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 437,
+      "dominatedBy": "q32dz-level5@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int8-qat",
+      "label": "mlp-t38, int8-qat weights",
+      "maeM": 7.976703591538128,
+      "maxM": 61.238985531665705,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 352,
+      "dominatedBy": "q32dz-level5@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int6-ptq",
+      "label": "mlp-t38, int6-ptq weights",
+      "maeM": 13.680566469451135,
+      "maxM": 84.59829276564273,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 352,
+      "dominatedBy": "q32dz-level5@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int6-qat",
+      "label": "mlp-t38, int6-qat weights",
+      "maeM": 8.431026839922678,
+      "maxM": 61.72891082307757,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 268,
+      "dominatedBy": "q32dz-level6@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int4-ptq",
+      "label": "mlp-t38, int4-ptq weights",
+      "maeM": 36.86133151025249,
+      "maxM": 181.06281211745656,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 268,
+      "dominatedBy": "q32dz-level6@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t38/int4-qat",
+      "label": "mlp-t38, int4-qat weights",
+      "maeM": 15.160586814762974,
+      "maxM": 86.30409292742948,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 34622,
+      "dominatedBy": "q32dz-level2@0.75",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/float16",
+      "label": "mlp-t43, float16 weights",
+      "maeM": 2.371476788940783,
+      "maxM": 32.95436427055765,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 12411,
+      "dominatedBy": "q32dz-level2@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int8-ptq",
+      "label": "mlp-t43, int8-ptq weights",
+      "maeM": 3.9099682503242317,
+      "maxM": 36.808885881294174,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 12514,
+      "dominatedBy": "q32dz-level3@0.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int8-qat",
+      "label": "mlp-t43, int8-qat weights",
+      "maeM": 2.494346660992042,
+      "maxM": 33.65708734812017,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10029,
+      "dominatedBy": "q32dz-level2@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int6-ptq",
+      "label": "mlp-t43, int6-ptq weights",
+      "maeM": 11.48443052580752,
+      "maxM": 85.95409274023217,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10084,
+      "dominatedBy": "q32dz-level3@0.75",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int6-qat",
+      "label": "mlp-t43, int6-qat weights",
+      "maeM": 3.5091339622816617,
+      "maxM": 39.40729471349529,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3677,
+      "dominatedBy": "q32dz-level3@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int4-ptq",
+      "label": "mlp-t43, int4-ptq weights",
+      "maeM": 46.17468573554021,
+      "maxM": 189.05021864722983,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3665,
+      "dominatedBy": "q32dz-level3@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "mlp-t43/int4-qat",
+      "label": "mlp-t43, int4-qat weights",
+      "maeM": 6.180325396498263,
+      "maxM": 49.191401743246104,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5430,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/float16",
+      "label": "shared-t29, float16 weights",
+      "maeM": 9.011216399868548,
+      "maxM": 104.19563174449735,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2207,
+      "dominatedBy": "q32dz-level3@16",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int8-ptq",
+      "label": "shared-t29, int8-ptq weights",
+      "maeM": 9.142413703464738,
+      "maxM": 102.59224910391987,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2205,
+      "dominatedBy": "q32dz-level4@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int8-qat",
+      "label": "shared-t29, int8-qat weights",
+      "maeM": 7.170159489130769,
+      "maxM": 91.24595293719807,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1843,
+      "dominatedBy": "q32dz-level4@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int6-ptq",
+      "label": "shared-t29, int6-ptq weights",
+      "maeM": 10.187128335880702,
+      "maxM": 103.46467428585962,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1838,
+      "dominatedBy": "q32dz-level4@3",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int6-qat",
+      "label": "shared-t29, int6-qat weights",
+      "maeM": 7.529773579133837,
+      "maxM": 95.85778727413293,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 946,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int4-ptq",
+      "label": "shared-t29, int4-ptq weights",
+      "maeM": 14.694963161583766,
+      "maxM": 90.72300125753775,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 957,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t29/int4-qat",
+      "label": "shared-t29, int4-qat weights",
+      "maeM": 19.769085101515685,
+      "maxM": 97.11956675099606,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10698,
+      "dominatedBy": "q32dz-level2@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/float16",
+      "label": "shared-t42, float16 weights",
+      "maeM": 9.040908145423893,
+      "maxM": 104.90856588920067,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4607,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int8-ptq",
+      "label": "shared-t42, int8-ptq weights",
+      "maeM": 9.04735232372285,
+      "maxM": 104.73555820668287,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4607,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int8-qat",
+      "label": "shared-t42, int8-qat weights",
+      "maeM": 7.051915021475952,
+      "maxM": 104.64715857490206,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3707,
+      "dominatedBy": "q32dz-level3@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int6-ptq",
+      "label": "shared-t42, int6-ptq weights",
+      "maeM": 9.405659318920305,
+      "maxM": 103.95816290505695,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3715,
+      "dominatedBy": "q32dz-level3@8",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int6-qat",
+      "label": "shared-t42, int6-qat weights",
+      "maeM": 7.2466313838744965,
+      "maxM": 103.36368219513565,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2065,
+      "dominatedBy": "q32dz-level4@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int4-ptq",
+      "label": "shared-t42, int4-ptq weights",
+      "maeM": 18.736409812216756,
+      "maxM": 93.80684975570726,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2072,
+      "dominatedBy": "q32dz-level4@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "shared-t42/int4-qat",
+      "label": "shared-t42, int4-qat weights",
+      "maeM": 10.7398216571795,
+      "maxM": 100.36475838811515,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2742,
+      "dominatedBy": "q32dz-level4@1",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/float16",
+      "label": "siren-t42, float16 weights",
+      "maeM": 3.86028104815111,
+      "maxM": 37.23985426527156,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1147,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int8-ptq",
+      "label": "siren-t42, int8-ptq weights",
+      "maeM": 4.092059997757718,
+      "maxM": 39.06099369086422,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1141,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int8-qat",
+      "label": "siren-t42, int8-qat weights",
+      "maeM": 3.84991315835745,
+      "maxM": 40.732535914056,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 903,
+      "dominatedBy": "q32dz-level4@12",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int6-ptq",
+      "label": "siren-t42, int6-ptq weights",
+      "maeM": 7.775098277168434,
+      "maxM": 67.20429792042948,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 903,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int6-qat",
+      "label": "siren-t42, int6-qat weights",
+      "maeM": 4.560637191083712,
+      "maxM": 45.58739127114086,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 621,
+      "dominatedBy": "q32dz-level5@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int4-ptq",
+      "label": "siren-t42, int4-ptq weights",
+      "maeM": 20.857225184657814,
+      "maxM": 112.74655960932395,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 626,
+      "dominatedBy": "q32dz-level5@4",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t42/int4-qat",
+      "label": "siren-t42, int4-qat weights",
+      "maeM": 8.661825789243572,
+      "maxM": 59.42877094320234,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 20930,
+      "dominatedBy": "q32dz-level2@2",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/float16",
+      "label": "siren-t8, float16 weights",
+      "maeM": 2.6116952683304406,
+      "maxM": 34.96857041042074,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9586,
+      "dominatedBy": "q32dz-level3@1",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int8-ptq",
+      "label": "siren-t8, int8-ptq weights",
+      "maeM": 2.7214078291820156,
+      "maxM": 37.772309380503,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9583,
+      "dominatedBy": "q32dz-level3@1",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int8-qat",
+      "label": "siren-t8, int8-qat weights",
+      "maeM": 2.6249276453198997,
+      "maxM": 36.51963697155938,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7556,
+      "dominatedBy": "q32dz-level3@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int6-ptq",
+      "label": "siren-t8, int6-ptq weights",
+      "maeM": 3.943848161734675,
+      "maxM": 44.28101264217679,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7552,
+      "dominatedBy": "q32dz-level3@1.5",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int6-qat",
+      "label": "siren-t8, int6-qat weights",
+      "maeM": 2.942055952097929,
+      "maxM": 40.5134866955832,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4380,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int4-ptq",
+      "label": "siren-t8, int4-ptq weights",
+      "maeM": 11.249665486741703,
+      "maxM": 84.27119494908175,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4388,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "quantised-ladder",
+      "family": "neural",
+      "id": "siren-t8/int4-qat",
+      "label": "siren-t8, int4-qat weights",
+      "maeM": 6.681606170489997,
+      "maxM": 62.323462376250745,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 8528,
+      "dominatedBy": "q32dz-level2@12",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/bandlimited-t20",
+      "label": "bandlimited-t20 (codec fit, float32)",
+      "maeM": 5.720635642103253,
+      "maxM": 47.337824135941474,
+      "streamJaccard": 0.016360105106820517
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5052,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/bandlimited-t20/fp16",
+      "label": "bandlimited-t20 (codec fit, float16)",
+      "maeM": 5.7220904587602455,
+      "maxM": 47.28341476570131,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9512,
+      "dominatedBy": "q32dz-level3@1",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/codegrid-t18",
+      "label": "codegrid-t18 (codec fit, float32)",
+      "maeM": 4.611296630473982,
+      "maxM": 45.753516291633446,
+      "streamJaccard": 0.026497448031757825
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 5172,
+      "dominatedBy": "q32dz-level3@4",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/codegrid-t18/fp16",
+      "label": "codegrid-t18 (codec fit, float16)",
+      "maeM": 4.612203757568032,
+      "maxM": 45.86387926346801,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 9012,
+      "dominatedBy": "q32dz-level2@12",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/fourier-t0",
+      "label": "fourier-t0 (codec fit, float32)",
+      "maeM": 17.224984774724067,
+      "maxM": 83.308808256335,
+      "streamJaccard": 0.01677448604160491
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4758,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/fourier-t0/fp16",
+      "label": "fourier-t0 (codec fit, float16)",
+      "maeM": 17.23173246214217,
+      "maxM": 83.33340505564243,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4471,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/grid-t3",
+      "label": "grid-t3 (codec fit, float32)",
+      "maeM": 5.439637444128182,
+      "maxM": 57.96879587602152,
+      "streamJaccard": 0.014578722821747166
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2573,
+      "dominatedBy": "q32dz-level4@1.5",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/grid-t3/fp16",
+      "label": "grid-t3 (codec fit, float16)",
+      "maeM": 5.43958656999518,
+      "maxM": 57.95711332053682,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 15150,
+      "dominatedBy": "q32dz-level3@0.75",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "hybrid",
+      "id": "fit/hybrid-t5",
+      "label": "hybrid-t5 (codec fit, float32)",
+      "maeM": 1.8003047198993138,
+      "maxM": 20.996065940570432,
+      "streamJaccard": 0.04369521240728254
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10404,
+      "dominatedBy": "q32dz-level3@0.75",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "hybrid",
+      "id": "fit/hybrid-t5/fp16",
+      "label": "hybrid-t5 (codec fit, float16)",
+      "maeM": 1.8005974425681541,
+      "maxM": 21.09885730578665,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 3004,
+      "dominatedBy": "q32dz-level3@12",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/mlp-t8",
+      "label": "mlp-t8 (codec fit, float32)",
+      "maeM": 7.4835070928143415,
+      "maxM": 62.01455782047174,
+      "streamJaccard": 0.018819137974609716
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 1714,
+      "dominatedBy": "q32dz-level4@4",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/mlp-t8/fp16",
+      "label": "mlp-t8 (codec fit, float16)",
+      "maeM": 7.484561256072042,
+      "maxM": 61.92519320241129,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 10117,
+      "dominatedBy": "q32dz-level3@0.75",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "hybrid",
+      "id": "fit/residual-t20",
+      "label": "residual-t20 (codec fit, float32)",
+      "maeM": 2.2918769428099197,
+      "maxM": 31.21234898995567,
+      "streamJaccard": 0.03354746609564597
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 6915,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "hybrid",
+      "id": "fit/residual-t20/fp16",
+      "label": "residual-t20 (codec fit, float16)",
+      "maeM": 2.2897644853511148,
+      "maxM": 31.21574495466399,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 13284,
+      "dominatedBy": "q32dz-level2@6",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/shared-t4",
+      "label": "shared-t4 (codec fit, float32)",
+      "maeM": 4.813852894002326,
+      "maxM": 103.9615827915141,
+      "streamJaccard": 0.02109704641350211
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 7210,
+      "dominatedBy": "q32dz-level3@2",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/shared-t4/fp16",
+      "label": "shared-t4 (codec fit, float16)",
+      "maeM": 4.841876293609134,
+      "maxM": 103.50375768293988,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 4716,
+      "dominatedBy": "q32dz-level3@6",
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/siren-t17",
+      "label": "siren-t17 (codec fit, float32)",
+      "maeM": 3.2062656018109017,
+      "maxM": 26.468154365997407,
+      "streamJaccard": 0.030389269224645757
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 2742,
+      "dominatedBy": null,
+      "evidence": "reproduced",
+      "experiment": "codec-fit",
+      "family": "neural",
+      "id": "fit/siren-t17/fp16",
+      "label": "siren-t17 (codec fit, float16)",
+      "maeM": 3.207711181012119,
+      "maxM": 26.52078929846816,
+      "streamJaccard": null
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 292397,
+      "dominatedBy": "q32dz-full@0.75",
+      "evidence": "reproduced",
+      "experiment": "corrections",
+      "family": "corrected",
+      "id": "corrected-r0@1",
+      "label": "1 m quantiser + exact corrections, band radius 0",
+      "maeM": 0.48095201922654623,
+      "maxM": 1.0,
+      "streamJaccard": 0.45805386711381263
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 382671,
+      "dominatedBy": "q32dz-full@0.5",
+      "evidence": "reproduced",
+      "experiment": "corrections",
+      "family": "corrected",
+      "id": "corrected-r1@1",
+      "label": "1 m quantiser + exact corrections, band radius 1",
+      "maeM": 0.4453459164446502,
+      "maxM": 1.0,
+      "streamJaccard": 0.6766413310192112
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 461688,
+      "dominatedBy": "q32dz-full@0.3",
+      "evidence": "reproduced",
+      "experiment": "corrections",
+      "family": "corrected",
+      "id": "corrected-r2@1",
+      "label": "1 m quantiser + exact corrections, band radius 2",
+      "maeM": 0.4111725924257441,
+      "maxM": 1.0,
+      "streamJaccard": 0.7108883047013511
+    },
+    {
+      "boundGuaranteed": true,
+      "bytes": 604025,
+      "dominatedBy": "q32dz-full@0.15",
+      "evidence": "reproduced",
+      "experiment": "corrections",
+      "family": "corrected",
+      "id": "corrected-r4@1",
+      "label": "1 m quantiser + exact corrections, band radius 4",
+      "maeM": 0.3472585123664997,
+      "maxM": 1.0,
+      "streamJaccard": 0.7487641846727809
+    },
+    {
+      "boundGuaranteed": false,
+      "bytes": 134788,
+      "dominatedBy": "q32dz-level1@0.5",
+      "evidence": "reproduced",
+      "experiment": "checkpoint-evaluation",
+      "family": "neural",
+      "id": "checkpoint/siren-codec-fit",
+      "label": "SIREN 128x3, saved checkpoint",
+      "maeM": 0.6132913365806021,
+      "maxM": 16.580730438232422,
+      "streamJaccard": 0.1487688241956458
+    }
+  ],
+  "closure": {
+    "encoding": "raw little-endian float32, see closure.json",
+    "meta": "lab/closure.json",
+    "surfaces": {
+      "bytes": 34312,
+      "count": 4,
+      "encoding": "f32",
+      "file": "lab/surfaces.f32.bin",
+      "note": "Synthetic rough surfaces from the training distribution, not seen in training.",
+      "seed": 4242,
+      "sha256": "9e0eb99928f4290d2d6d1e66db2617fb3dc4628ae585e3bcf67e1f0118f26824",
+      "side": 48,
+      "spacingM": 50.0
+    },
+    "weights": {
+      "flux": "lab/flux.bin",
+      "kfield": "lab/kfield.bin",
+      "penalty": "lab/penalty.bin"
+    }
+  },
+  "createdUtc": "2026-10-03T21:05:23.698673+00:00",
+  "geology": {
+    "classes": {
+      "bytes": 11104,
+      "encoding": "u8",
+      "file": "geology.classes.bin",
+      "sha256": "40f48ec8aa05aa62d9c93aa5941ac3ce89526ea2ff12b66bf2e62307993ea2b3"
+    },
+    "faults": [
+      [
+        [
+          3392.3,
+          4069.4
+        ],
+        [
+          3453.6,
+          4026.9
+        ],
+        [
+          3463.4,
+          4020.5
+        ],
+        [
+          3490.5,
+          4000.4
+        ],
+        [
+          3517.8,
+          3980.2
+        ],
+        [
+          3564.4,
+          3939.8
+        ],
+        [
+          3579.6,
+          3926.6
+        ],
+        [
+          3600.9,
+          3908.8
+        ],
+        [
+          3664.8,
+          3857.1
+        ]
+      ],
+      [
+        [
+          3271.9,
+          3328.9
+        ],
+        [
+          3303.8,
+          3276.5
+        ],
+        [
+          3352.6,
+          3246.5
+        ],
+        [
+          3381.1,
+          3232.3
+        ],
+        [
+          3420.2,
+          3211.7
+        ],
+        [
+          3481.7,
+          3174.2
+        ],
+        [
+          3531.5,
+          3119.1
+        ],
+        [
+          3578.6,
+          3047.1
+        ],
+        [
+          3593.8,
+          3002.5
+        ],
+        [
+          3607.2,
+          2963.9
+        ],
+        [
+          3648.2,
+          2890.2
+        ],
+        [
+          3667.4,
+          2844.4
+        ]
+      ],
+      [
+        [
+          1781.1,
+          2573.4
+        ],
+        [
+          1846.6,
+          2487.7
+        ],
+        [
+          1882.2,
+          2428.2
+        ],
+        [
+          1892.5,
+          2411.7
+        ],
+        [
+          1944.9,
+          2321.5
+        ],
+        [
+          1960.0,
+          2299.9
+        ],
+        [
+          2012.8,
+          2221.7
+        ],
+        [
+          2131.4,
+          2013.7
+        ]
+      ],
+      [
+        [
+          6285.6,
+          4690.3
+        ],
+        [
+          6324.8,
+          4622.7
+        ],
+        [
+          6355.7,
+          4570.4
+        ],
+        [
+          6410.8,
+          4475.1
+        ],
+        [
+          6413.6,
+          4469.9
+        ],
+        [
+          6543.6,
+          4247.5
+        ],
+        [
+          6693.5,
+          4022.2
+        ],
+        [
+          6699.0,
+          4011.0
+        ],
+        [
+          6736.6,
+          3928.4
+        ],
+        [
+          6757.8,
+          3882.5
+        ],
+        [
+          6848.0,
+          3618.6
+        ],
+        [
+          6867.8,
+          3562.8
+        ],
+        [
+          7017.3,
+          3035.3
+        ]
+      ],
+      [
+        [
+          5091.7,
+          4197.9
+        ],
+        [
+          5170.6,
+          4218.7
+        ],
+        [
+          5244.5,
+          4216.6
+        ],
+        [
+          5303.9,
+          4224.2
+        ],
+        [
+          5369.9,
+          4223.5
+        ],
+        [
+          5422.7,
+          4218.4
+        ],
+        [
+          5452.2,
+          4205.1
+        ],
+        [
+          5484.1,
+          4177.8
+        ],
+        [
+          5524.3,
+          4133.1
+        ],
+        [
+          5595.4,
+          4038.2
+        ],
+        [
+          5615.0,
+          4003.3
+        ],
+        [
+          5655.2,
+          3934.7
+        ],
+        [
+          5726.2,
+          3810.7
+        ],
+        [
+          5865.4,
+          3593.8
+        ],
+        [
+          5907.9,
+          3531.1
+        ],
+        [
+          5929.6,
+          3499.2
+        ],
+        [
+          5946.6,
+          3475.4
+        ],
+        [
+          6092.0,
+          3262.4
+        ]
+      ],
+      [
+        [
+          6205.1,
+          3116.6
+        ],
+        [
+          6259.0,
+          3039.4
+        ],
+        [
+          6264.7,
+          3032.2
+        ]
+      ],
+      [
+        [
+          4544.7,
+          4743.6
+        ],
+        [
+          4562.9,
+          4676.8
+        ],
+        [
+          4595.9,
+          4626.5
+        ],
+        [
+          4600.7,
+          4621.3
+        ],
+        [
+          4624.4,
+          4590.3
+        ],
+        [
+          4679.8,
+          4526.0
+        ],
+        [
+          4749.7,
+          4472.1
+        ],
+        [
+          4789.4,
+          4441.4
+        ],
+        [
+          4799.1,
+          4434.0
+        ],
+        [
+          4823.7,
+          4415.3
+        ],
+        [
+          4844.7,
+          4399.1
+        ],
+        [
+          4854.4,
+          4391.7
+        ],
+        [
+          4877.8,
+          4376.8
+        ],
+        [
+          4919.8,
+          4350.0
+        ],
+        [
+          4984.2,
+          4286.4
+        ],
+        [
+          5050.0,
+          4231.6
+        ],
+        [
+          5054.8,
+          4227.4
+        ],
+        [
+          5082.0,
+          4205.3
+        ],
+        [
+          5091.7,
+          4197.9
+        ],
+        [
+          5144.9,
+          4154.7
+        ],
+        [
+          5293.1,
+          4009.5
+        ]
+      ],
+      [
+        [
+          4203.3,
+          4495.3
+        ],
+        [
+          4205.1,
+          4492.2
+        ],
+        [
+          4224.8,
+          4458.6
+        ],
+        [
+          4231.2,
+          4443.3
+        ],
+        [
+          4255.0,
+          4391.5
+        ],
+        [
+          4255.1,
+          4391.3
+        ],
+        [
+          4258.7,
+          4382.1
+        ],
+        [
+          4303.0,
+          4266.2
+        ],
+        [
+          4328.1,
+          4172.1
+        ],
+        [
+          4321.3,
+          4103.4
+        ],
+        [
+          4316.4,
+          4057.5
+        ],
+        [
+          4310.1,
+          4025.8
+        ],
+        [
+          4295.2,
+          3955.4
+        ],
+        [
+          4278.5,
+          3864.0
+        ],
+        [
+          4284.7,
+          3772.7
+        ],
+        [
+          4291.2,
+          3661.3
+        ]
+      ],
+      [
+        [
+          70.5,
+          1047.4
+        ],
+        [
+          145.2,
+          989.3
+        ],
+        [
+          196.5,
+          948.2
+        ],
+        [
+          285.4,
+          894.5
+        ],
+        [
+          345.9,
+          858.0
+        ],
+        [
+          383.3,
+          841.5
+        ],
+        [
+          464.9,
+          806.1
+        ],
+        [
+          577.6,
+          772.5
+        ],
+        [
+          591.4,
+          767.9
+        ],
+        [
+          642.1,
+          759.9
+        ],
+        [
+          688.9,
+          752.9
+        ],
+        [
+          786.5,
+          742.9
+        ]
+      ],
+      [
+        [
+          735.2,
+          2323.1
+        ],
+        [
+          743.9,
+          2292.7
+        ],
+        [
+          760.7,
+          2212.9
+        ],
+        [
+          780.0,
+          2173.1
+        ],
+        [
+          814.1,
+          2100.7
+        ],
+        [
+          913.2,
+          1930.5
+        ],
+        [
+          922.5,
+          1914.1
+        ],
+        [
+          939.7,
+          1868.4
+        ],
+        [
+          975.0,
+          1777.9
+        ],
+        [
+          992.1,
+          1732.2
+        ],
+        [
+          1003.9,
+          1701.7
+        ],
+        [
+          1090.4,
+          1516.0
+        ],
+        [
+          1138.4,
+          1442.0
+        ],
+        [
+          1176.0,
+          1383.4
+        ],
+        [
+          1192.0,
+          1358.7
+        ],
+        [
+          1265.0,
+          1236.7
+        ]
+      ],
+      [
+        [
+          780.0,
+          2173.1
+        ],
+        [
+          671.3,
+          2108.5
+        ],
+        [
+          560.3,
+          2037.0
+        ],
+        [
+          440.4,
+          1917.9
+        ],
+        [
+          339.3,
+          1795.9
+        ],
+        [
+          228.7,
+          1683.4
+        ],
+        [
+          228.6,
+          1683.4
+        ],
+        [
+          124.8,
+          1567.5
+        ],
+        [
+          124.8,
+          1567.5
+        ],
+        [
+          68.4,
+          1507.8
+        ],
+        [
+          68.4,
+          1507.8
+        ]
+      ],
+      [
+        [
+          4203.2,
+          4495.5
+        ],
+        [
+          4110.5,
+          4599.3
+        ]
+      ],
+      [
+        [
+          4110.5,
+          4599.3
+        ],
+        [
+          4062.4,
+          4639.8
+        ],
+        [
+          4026.1,
+          4717.6
+        ],
+        [
+          4008.7,
+          4801.4
+        ]
+      ],
+      [
+        [
+          4008.7,
+          4801.4
+        ],
+        [
+          3980.8,
+          4958.8
+        ],
+        [
+          3940.7,
+          5265.5
+        ],
+        [
+          3884.3,
+          5491.3
+        ],
+        [
+          3739.5,
+          5810.2
+        ],
+        [
+          3305.9,
+          6256.9
+        ],
+        [
+          3305.9,
+          6256.9
+        ],
+        [
+          3305.9,
+          6256.9
+        ]
+      ],
+      [
+        [
+          5806.3,
+          -1270.7
+        ],
+        [
+          5527.2,
+          -877.1
+        ],
+        [
+          5504.2,
+          -853.1
+        ],
+        [
+          5423.5,
+          -770.8
+        ],
+        [
+          5399.5,
+          -745.8
+        ],
+        [
+          5399.4,
+          -745.6
+        ],
+        [
+          5395.8,
+          -740.6
+        ],
+        [
+          5386.3,
+          -727.2
+        ],
+        [
+          5367.4,
+          -700.4
+        ],
+        [
+          5297.2,
+          -604.5
+        ],
+        [
+          5268.8,
+          -566.3
+        ],
+        [
+          5256.4,
+          -549.9
+        ],
+        [
+          5233.7,
+          -519.9
+        ],
+        [
+          5119.3,
+          -355.9
+        ],
+        [
+          5092.9,
+          -317.0
+        ],
+        [
+          5053.2,
+          -260.3
+        ],
+        [
+          5046.8,
+          -253.3
+        ],
+        [
+          4944.9,
+          -141.8
+        ],
+        [
+          4944.5,
+          -141.4
+        ],
+        [
+          4864.7,
+          -53.7
+        ],
+        [
+          4863.6,
+          -52.4
+        ],
+        [
+          4836.6,
+          -16.6
+        ],
+        [
+          4834.0,
+          -13.2
+        ],
+        [
+          4768.6,
+          73.5
+        ]
+      ],
+      [
+        [
+          4468.7,
+          447.1
+        ],
+        [
+          4056.0,
+          973.3
+        ],
+        [
+          4056.0,
+          973.3
+        ],
+        [
+          3987.6,
+          1062.1
+        ],
+        [
+          3783.2,
+          1324.7
+        ],
+        [
+          3737.6,
+          1383.6
+        ],
+        [
+          3649.3,
+          1498.3
+        ]
+      ],
+      [
+        [
+          1043.5,
+          298.1
+        ],
+        [
+          1114.5,
+          223.2
+        ],
+        [
+          1228.5,
+          100.4
+        ],
+        [
+          1228.7,
+          100.2
+        ],
+        [
+          1304.7,
+          22.3
+        ],
+        [
+          1304.8,
+          22.3
+        ],
+        [
+          1413.3,
+          -78.2
+        ],
+        [
+          1506.9,
+          -164.1
+        ],
+        [
+          1674.8,
+          -316.1
+        ],
+        [
+          1686.4,
+          -325.6
+        ],
+        [
+          1713.9,
+          -346.7
+        ],
+        [
+          1765.0,
+          -385.8
+        ],
+        [
+          1771.8,
+          -391.1
+        ],
+        [
+          1808.7,
+          -419.3
+        ],
+        [
+          1810.6,
+          -420.7
+        ],
+        [
+          1978.6,
+          -544.7
+        ]
+      ],
+      [
+        [
+          5935.4,
+          733.2
+        ],
+        [
+          5723.6,
+          619.8
+        ],
+        [
+          5437.3,
+          469.4
+        ],
+        [
+          5213.0,
+          320.5
+        ],
+        [
+          5213.0,
+          320.5
+        ],
+        [
+          5032.0,
+          175.8
+        ],
+        [
+          4898.2,
+          61.2
+        ],
+        [
+          4836.6,
+          -16.6
+        ],
+        [
+          4836.6,
+          -16.6
+        ]
+      ],
+      [
+        [
+          6444.2,
+          1796.0
+        ],
+        [
+          6281.9,
+          1619.6
+        ],
+        [
+          6281.9,
+          1619.6
+        ],
+        [
+          6119.1,
+          1457.1
+        ],
+        [
+          6119.1,
+          1457.1
+        ],
+        [
+          5986.3,
+          1317.5
+        ],
+        [
+          5986.3,
+          1317.5
+        ],
+        [
+          5896.7,
+          1231.1
+        ],
+        [
+          5896.7,
+          1231.1
+        ],
+        [
+          5850.1,
+          1192.0
+        ],
+        [
+          5850.1,
+          1192.0
+        ]
+      ],
+      [
+        [
+          6444.2,
+          1796.0
+        ],
+        [
+          6471.2,
+          1772.9
+        ],
+        [
+          6499.8,
+          1736.7
+        ],
+        [
+          6579.6,
+          1633.4
+        ],
+        [
+          6646.2,
+          1501.6
+        ],
+        [
+          6673.2,
+          1450.5
+        ],
+        [
+          6698.2,
+          1402.4
+        ],
+        [
+          6753.8,
+          1317.1
+        ],
+        [
+          6782.9,
+          1271.9
+        ],
+        [
+          6860.1,
+          1200.7
+        ]
+      ],
+      [
+        [
+          6785.6,
+          2193.3
+        ],
+        [
+          6753.0,
+          2152.6
+        ],
+        [
+          6738.2,
+          2134.2
+        ],
+        [
+          6690.1,
+          2059.1
+        ],
+        [
+          6625.9,
+          1956.7
+        ],
+        [
+          6552.9,
+          1836.6
+        ],
+        [
+          6518.4,
+          1775.0
+        ],
+        [
+          6506.4,
+          1752.5
+        ],
+        [
+          6499.8,
+          1736.7
+        ]
+      ],
+      [
+        [
+          6752.3,
+          2282.7
+        ],
+        [
+          6785.6,
+          2193.3
+        ],
+        [
+          6791.1,
+          2179.1
+        ],
+        [
+          6836.0,
+          2103.2
+        ],
+        [
+          7011.9,
+          1805.8
+        ]
+      ],
+      [
+        [
+          7364.4,
+          2374.7
+        ],
+        [
+          7202.1,
+          2295.3
+        ],
+        [
+          7023.0,
+          2197.6
+        ],
+        [
+          6877.7,
+          2119.5
+        ],
+        [
+          6836.0,
+          2103.2
+        ]
+      ],
+      [
+        [
+          7610.8,
+          2379.6
+        ],
+        [
+          7510.8,
+          2331.7
+        ],
+        [
+          7452.2,
+          2294.1
+        ],
+        [
+          7420.4,
+          2276.4
+        ]
+      ],
+      [
+        [
+          7329.8,
+          2433.2
+        ],
+        [
+          7346.6,
+          2404.5
+        ],
+        [
+          7360.7,
+          2380.9
+        ],
+        [
+          7364.4,
+          2374.7
+        ],
+        [
+          7414.8,
+          2286.6
+        ],
+        [
+          7420.4,
+          2276.4
+        ],
+        [
+          7466.3,
+          2198.5
+        ],
+        [
+          7648.4,
+          1904.8
+        ]
+      ],
+      [
+        [
+          8110.1,
+          1426.6
+        ],
+        [
+          8133.7,
+          1391.6
+        ],
+        [
+          8157.3,
+          1358.7
+        ]
+      ],
+      [
+        [
+          4427.4,
+          3394.6
+        ],
+        [
+          4453.9,
+          3359.5
+        ],
+        [
+          4470.0,
+          3336.8
+        ],
+        [
+          4479.9,
+          3306.2
+        ],
+        [
+          4492.2,
+          3267.9
+        ],
+        [
+          4522.8,
+          3183.6
+        ],
+        [
+          4544.2,
+          3096.6
+        ],
+        [
+          4573.7,
+          3033.4
+        ],
+        [
+          4609.1,
+          2969.9
+        ],
+        [
+          4652.1,
+          2921.1
+        ],
+        [
+          4717.7,
+          2861.4
+        ],
+        [
+          4775.7,
+          2835.0
+        ]
+      ],
+      [
+        [
+          4496.2,
+          3755.0
+        ],
+        [
+          4528.5,
+          3713.7
+        ],
+        [
+          4556.7,
+          3668.5
+        ],
+        [
+          4579.2,
+          3633.5
+        ],
+        [
+          4611.2,
+          3583.2
+        ],
+        [
+          4643.8,
+          3523.8
+        ],
+        [
+          4668.9,
+          3476.8
+        ],
+        [
+          4688.3,
+          3438.9
+        ],
+        [
+          4717.3,
+          3363.7
+        ],
+        [
+          4745.1,
+          3286.5
+        ],
+        [
+          4768.4,
+          3218.5
+        ],
+        [
+          4791.8,
+          3155.5
+        ],
+        [
+          4842.5,
+          3073.4
+        ],
+        [
+          4877.2,
+          3042.0
+        ],
+        [
+          4944.1,
+          2990.2
+        ],
+        [
+          4944.1,
+          2990.2
+        ]
+      ],
+      [
+        [
+          4791.7,
+          3715.9
+        ],
+        [
+          4789.9,
+          3645.9
+        ],
+        [
+          4791.5,
+          3636.8
+        ],
+        [
+          4799.4,
+          3584.5
+        ],
+        [
+          4803.7,
+          3567.3
+        ],
+        [
+          4822.0,
+          3502.5
+        ],
+        [
+          4847.7,
+          3420.4
+        ],
+        [
+          4858.0,
+          3380.0
+        ],
+        [
+          4880.4,
+          3291.0
+        ],
+        [
+          4925.2,
+          3090.0
+        ],
+        [
+          4944.1,
+          2990.2
+        ],
+        [
+          4944.1,
+          2990.2
+        ],
+        [
+          4963.1,
+          2892.3
+        ],
+        [
+          4979.6,
+          2804.6
+        ]
+      ],
+      [
+        [
+          9286.6,
+          4133.1
+        ],
+        [
+          9200.2,
+          4028.6
+        ],
+        [
+          9022.6,
+          3794.7
+        ],
+        [
+          8928.8,
+          3656.5
+        ],
+        [
+          8918.2,
+          3639.9
+        ],
+        [
+          8812.4,
+          3476.1
+        ],
+        [
+          8739.6,
+          3385.0
+        ],
+        [
+          8677.2,
+          3301.6
+        ],
+        [
+          8636.6,
+          3264.2
+        ],
+        [
+          8619.9,
+          3247.9
+        ],
+        [
+          8520.4,
+          3138.9
+        ],
+        [
+          8395.8,
+          3004.9
+        ],
+        [
+          8265.4,
+          2849.1
+        ],
+        [
+          8229.7,
+          2783.6
+        ],
+        [
+          8182.3,
+          2726.5
+        ]
+      ],
+      [
+        [
+          9050.8,
+          3190.2
+        ],
+        [
+          9121.4,
+          3056.2
+        ],
+        [
+          9147.4,
+          3008.1
+        ],
+        [
+          9152.1,
+          2998.9
+        ],
+        [
+          9184.1,
+          2950.6
+        ],
+        [
+          9253.9,
+          2846.7
+        ],
+        [
+          9371.6,
+          2691.8
+        ],
+        [
+          9441.9,
+          2600.8
+        ],
+        [
+          9547.3,
+          2462.4
+        ]
+      ],
+      [
+        [
+          -1003.8,
+          10947.9
+        ],
+        [
+          -960.7,
+          10850.1
+        ],
+        [
+          -948.8,
+          10823.5
+        ],
+        [
+          -897.7,
+          10703.4
+        ],
+        [
+          -877.4,
+          10661.5
+        ],
+        [
+          -846.3,
+          10611.2
+        ],
+        [
+          -834.2,
+          10591.7
+        ],
+        [
+          -795.3,
+          10541.1
+        ],
+        [
+          -743.9,
+          10477.9
+        ],
+        [
+          -683.1,
+          10422.4
+        ],
+        [
+          -646.9,
+          10402.9
+        ],
+        [
+          -646.9,
+          10402.9
+        ],
+        [
+          -626.6,
+          10384.1
+        ],
+        [
+          -556.5,
+          10337.2
+        ],
+        [
+          -494.0,
+          10299.6
+        ],
+        [
+          -434.8,
+          10278.1
+        ],
+        [
+          -372.5,
+          10237.5
+        ],
+        [
+          -303.4,
+          10188.7
+        ],
+        [
+          -236.1,
+          10146.9
+        ],
+        [
+          -180.7,
+          10107.6
+        ],
+        [
+          -119.6,
+          10060.1
+        ],
+        [
+          -65.0,
+          10023.8
+        ],
+        [
+          -11.2,
+          9970.6
+        ],
+        [
+          19.9,
+          9948.3
+        ],
+        [
+          42.3,
+          9932.4
+        ],
+        [
+          98.8,
+          9894.0
+        ],
+        [
+          144.5,
+          9861.1
+        ],
+        [
+          183.6,
+          9815.5
+        ],
+        [
+          233.1,
+          9753.4
+        ],
+        [
+          274.0,
+          9702.7
+        ],
+        [
+          327.2,
+          9632.5
+        ],
+        [
+          334.7,
+          9620.2
+        ],
+        [
+          364.8,
+          9571.9
+        ],
+        [
+          401.8,
+          9500.3
+        ],
+        [
+          429.6,
+          9446.2
+        ],
+        [
+          480.4,
+          9390.1
+        ],
+        [
+          519.3,
+          9339.4
+        ],
+        [
+          555.6,
+          9295.9
+        ],
+        [
+          613.3,
+          9240.5
+        ],
+        [
+          649.7,
+          9200.0
+        ],
+        [
+          701.9,
+          9154.8
+        ],
+        [
+          754.4,
+          9117.7
+        ],
+        [
+          809.9,
+          9081.4
+        ],
+        [
+          906.8,
+          9028.4
+        ],
+        [
+          996.4,
+          8992.7
+        ],
+        [
+          1081.3,
+          8964.2
+        ],
+        [
+          1193.2,
+          8934.6
+        ],
+        [
+          1302.1,
+          8906.1
+        ],
+        [
+          1410.0,
+          8877.6
+        ],
+        [
+          1536.6,
+          8842.4
+        ],
+        [
+          1604.7,
+          8794.6
+        ],
+        [
+          1634.5,
+          8715.3
+        ],
+        [
+          1628.5,
+          8619.5
+        ],
+        [
+          1612.9,
+          8530.1
+        ],
+        [
+          1589.8,
+          8430.0
+        ],
+        [
+          1570.0,
+          8314.7
+        ],
+        [
+          1555.5,
+          8228.3
+        ],
+        [
+          1574.5,
+          8130.4
+        ],
+        [
+          1583.1,
+          8097.0
+        ]
+      ],
+      [
+        [
+          1768.4,
+          7664.0
+        ],
+        [
+          1806.9,
+          7577.1
+        ],
+        [
+          1851.0,
+          7477.4
+        ],
+        [
+          1905.5,
+          7403.6
+        ],
+        [
+          1943.7,
+          7352.0
+        ],
+        [
+          2030.2,
+          7223.8
+        ],
+        [
+          2080.7,
+          7152.4
+        ],
+        [
+          2159.3,
+          7071.5
+        ],
+        [
+          2235.9,
+          7006.6
+        ],
+        [
+          2298.2,
+          6941.0
+        ],
+        [
+          2371.6,
+          6875.0
+        ],
+        [
+          2394.8,
+          6856.0
+        ],
+        [
+          2394.8,
+          6856.0
+        ],
+        [
+          2446.2,
+          6815.9
+        ],
+        [
+          2505.8,
+          6757.4
+        ],
+        [
+          2581.0,
+          6712.3
+        ],
+        [
+          2676.1,
+          6662.4
+        ],
+        [
+          2751.9,
+          6633.2
+        ],
+        [
+          2824.4,
+          6595.2
+        ],
+        [
+          2889.8,
+          6554.5
+        ],
+        [
+          2949.2,
+          6514.1
+        ],
+        [
+          3160.5,
+          6409.4
+        ]
+      ],
+      [
+        [
+          5354.7,
+          1801.6
+        ],
+        [
+          5458.4,
+          1695.3
+        ],
+        [
+          5466.8,
+          1680.0
+        ],
+        [
+          5511.4,
+          1595.1
+        ],
+        [
+          5548.5,
+          1523.5
+        ],
+        [
+          5654.3,
+          1248.0
+        ],
+        [
+          5692.4,
+          1176.4
+        ],
+        [
+          5780.5,
+          1007.7
+        ],
+        [
+          5814.0,
+          946.3
+        ],
+        [
+          5895.9,
+          795.9
+        ],
+        [
+          5935.4,
+          733.2
+        ],
+        [
+          5980.5,
+          663.3
+        ],
+        [
+          5994.6,
+          640.7
+        ],
+        [
+          6016.2,
+          606.8
+        ],
+        [
+          6028.6,
+          590.3
+        ],
+        [
+          6188.1,
+          380.7
+        ],
+        [
+          6190.9,
+          376.5
+        ],
+        [
+          6232.8,
+          323.8
+        ],
+        [
+          6286.1,
+          256.6
+        ],
+        [
+          6366.9,
+          154.2
+        ],
+        [
+          6519.6,
+          -4.2
+        ],
+        [
+          6535.9,
+          -20.9
+        ],
+        [
+          6554.1,
+          -39.6
+        ],
+        [
+          6575.2,
+          -62.5
+        ],
+        [
+          6627.8,
+          -121.7
+        ],
+        [
+          6706.3,
+          -207.9
+        ],
+        [
+          6759.9,
+          -267.1
+        ],
+        [
+          7044.9,
+          -565.0
+        ],
+        [
+          7268.7,
+          -819.3
+        ],
+        [
+          7273.4,
+          -824.5
+        ],
+        [
+          7341.1,
+          -906.3
+        ],
+        [
+          7435.6,
+          -1019.3
+        ],
+        [
+          7482.4,
+          -1074.2
+        ]
+      ]
+    ],
+    "faultsFrame": "metres east and north of the south-west reference node",
+    "legend": [
+      {
+        "code": 0,
+        "color": "#00000000",
+        "label": "not mapped"
+      },
+      {
+        "code": 1,
+        "color": "#b9a88c",
+        "label": "anthropogenic unconsolidated material"
+      },
+      {
+        "code": 2,
+        "color": "#8fa3a8",
+        "label": "carbonate rich mudstone"
+      },
+      {
+        "code": 3,
+        "color": "#7f8f6a",
+        "label": "claystone"
+      },
+      {
+        "code": 4,
+        "color": "#c9c3a3",
+        "label": "limestone"
+      },
+      {
+        "code": 5,
+        "color": "#d8b46a",
+        "label": "pebble gravel size sediment"
+      },
+      {
+        "code": 6,
+        "color": "#e6d29a",
+        "label": "sand"
+      },
+      {
+        "code": 7,
+        "color": "#c98f5f",
+        "label": "sandstone"
+      },
+      {
+        "code": 8,
+        "color": "#a7b58a",
+        "label": "silt"
+      },
+      {
+        "code": 9,
+        "color": "#8a7f9e",
+        "label": "siltstone"
+      }
+    ],
+    "note": "Mapped surface units and fault traces. No depth, dip or throw.",
+    "scale": "1:100,000",
+    "source": "GK100, Geologischer Dienst NRW, INSPIRE WFS; DL-DE-BY-2.0",
+    "unknownFraction": 0.029444957422796757
+  },
+  "grid": {
+    "heightOffsetM": 34.0,
+    "heightQuantumM": 0.01,
+    "note": "Every second node of the 10 m reference. Metrics are computed at 10 m.",
+    "rowOrder": "north-to-south",
+    "side": 513,
+    "spacingM": 20.0,
+    "stride": 2
+  },
+  "labTerrain": {
+    "classes": {
+      "bytes": 2138,
+      "encoding": "u8",
+      "file": "lab/geology.u8.bin",
+      "sha256": "96db32b8ba81353807e945acd37401184f1552e7b54a8f9552f0e43c7130583d"
+    },
+    "height": {
+      "bytes": 47522,
+      "encoding": "f32",
+      "file": "lab/terrain.f32.bin",
+      "sha256": "ccd7dfffd5dd7e8f5196b2f66fa592bf6d244500b40b3bf3142ce8bb15b0adf1"
+    },
+    "note": "Every eighth reference node (80 m). A starting surface for scenarios, not a forecast.",
+    "side": 129,
+    "spacingM": 80.0
+  },
+  "reference": {
+    "height": {
+      "bytes": 370655,
+      "encoding": "u16-delta",
+      "file": "reference.height.bin",
+      "sha256": "a5cbb311b60900fc0dc364deb93bd078059d919cbbf08a0b36e77a6cfbc5ba64"
+    },
+    "maxM": 168.60250854492188,
+    "minM": 39.125,
+    "streams": {
+      "bytes": 12267,
+      "encoding": "bits",
+      "file": "reference.streams.bin",
+      "sha256": "9c76e3938523e28c051cee02cc10fc8ac33df9fa0e2a7cdae920d89614703d25"
+    }
+  },
+  "region": {
+    "bounds": [
+      356000.5,
+      5694000.5,
+      366240.5,
+      5704240.5
+    ],
+    "crs": "EPSG:25832",
+    "id": "essen-ruhr",
+    "northUp": true,
+    "referenceSha256": "ece831c680febbc95c7eb473fc2c95da5006ccfc39172c0e132cc1a3d2986618",
+    "referenceSide": 1025,
+    "referenceSpacingM": 10.0,
+    "sampleCentres": true,
+    "title": "Southern Essen and the Ruhr valley",
+    "verticalCrs": "EPSG:7837"
+  },
+  "schema": "geoneural-web-bundle-v1",
+  "streamThresholdCells": 500
+}

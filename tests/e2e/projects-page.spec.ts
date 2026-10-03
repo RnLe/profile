@@ -9,6 +9,7 @@ import { expect, test } from '@playwright/test';
 const order = [
   'blaze2d',
   'envelope-approximation',
+  'geo-neural',
   'recover-in-real-time',
   'residual-worlds',
   'facial-emotion-recognition',
@@ -47,6 +48,7 @@ test('the rail lists every card in order, title left and start year right', asyn
     '2026',
     '2026',
     '2026',
+    '2026',
     '2024',
     '2023',
   ]);
@@ -74,6 +76,7 @@ test('the rail marks each project as robotics, machine learning, or theory', asy
   const kinds: Record<string, string[]> = {
     blaze2d: ['theory'],
     'envelope-approximation': ['theory'],
+    'geo-neural': ['learning', 'theory'],
     'recover-in-real-time': ['robotics', 'learning'],
     'residual-worlds': ['robotics', 'learning'],
     'facial-emotion-recognition': ['learning'],

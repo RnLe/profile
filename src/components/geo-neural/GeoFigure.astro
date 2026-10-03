@@ -1,0 +1,17 @@
+---
+/** Picks a drawn GeoNeural figure by its figure id. */
+import GeoClosure from './GeoClosure.astro';
+import GeoError from './GeoError.astro';
+import GeoStreams from './GeoStreams.astro';
+
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+const known = ['geo-streams', 'geo-error', 'geo-closure'];
+if (!known.includes(name)) throw new Error(`Unknown GeoNeural figure '${name}'`);
+---
+
+{name === 'geo-streams' && <GeoStreams />}
+{name === 'geo-error' && <GeoError />}
+{name === 'geo-closure' && <GeoClosure />}

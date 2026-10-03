@@ -62,6 +62,7 @@ describe('shipped registries', () => {
       'blaze2d',
       'envelope-approximation',
       'facial-emotion-recognition',
+      'geo-neural',
       'grounded-recovery',
       'hard-spheres',
       'recover-in-real-time',

@@ -738,3 +738,259 @@ claims:
     source_commit: 0c0ac09
     last_verified: '2026-10-03'
     allowed_surfaces: [project]
+
+  # ------------------------------------------------------------- GeoNeural ---
+
+  - claim_id: GEO-ROLE-001
+    project_id: geo-neural
+    claim_type: scope
+    publication_policy: allowed
+    short_copy: >-
+      A solo project by Rene-Marcel Lehner: data acquisition and checks, codecs
+      and byte accounting, neural models and search, drainage diagnostics, the
+      physics experiments, the Rust kernel and the browser lab.
+    evidence_state: verified
+    source_urls: ['https://github.com/RnLe/geo-neural']
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GEO-DATA-001
+    project_id: geo-neural
+    claim_type: scope
+    publication_policy: allowed
+    short_copy: >-
+      The reference is the DGM1 terrain of southern Essen at 10 m: 1025 by 1025
+      nodes over 10.24 km. The 341 core benchmarks among 403 official height
+      benchmarks place it within a fraction of a 10 m cell (shift -0.02 m east,
+      +0.41 m north), and 52 of the 55 long water axes with a stated flow
+      direction descend along it.
+    scope: Registration and datum checks, not a measure of source accuracy.
+    evidence_state: verified
+    measurement_context: >-
+      results/reproduced/height-benchmarks-essen.json and dlm-essen.json; the
+      reference array has SHA-256 ece831c6...2986618 and is rebuilt from the
+      shipped tiles by geoneural reproduce.
+    source_paths: [results/summary.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-CODEC-001
+    project_id: geo-neural
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      Over all five pyramid levels, SZ3 is the smallest of twelve codecs at
+      every error bound (237,851 B of payload at 1 m), with q32-delta-zstd
+      next (361,951 B); every bounded codec met its bound on every page. The
+      JSON page index (220,815 B) is 38% of the q32-delta-zstd package at 1 m.
+    scope: Essen reference, 341 pages, bounds 0.01 to 1 m.
+    evidence_state: verified
+    measurement_context: results/reproduced/tournament-essen.json.
+    source_paths: [results/reproduced/tournament-essen.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-DRAIN-001
+    project_id: geo-neural
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Uniform error bounds lose the drainage fast: stream overlap (Jaccard)
+      with the reference is 0.85 at 1 cm, 0.53 at 10 cm and 0.22 at 1 m, where
+      65% of the reference stream cells are lost or moved and the 268 reference
+      catchments break into 2,798. On slopes under 0.5%, a 5 cm bound
+      changes 41% of flow directions.
+    scope: >-
+      D8 routing after priority-flood filling, streams at 500 cells (0.05 km2).
+      A comparison between surfaces, not a hydrological model.
+    evidence_state: verified
+    measurement_context: results/reproduced/drainage-essen.json.
+    source_paths: [results/reproduced/drainage-essen.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-CORR-001
+    project_id: geo-neural
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Exact heights on a band reaching one cell either side of the reference
+      streams, on top of a 1 m bound, cost 141,611 B and raise stream overlap from 0.22 to 0.68
+      (382,671 B in total). The best uniform bound within that size reaches
+      0.31, and reaching 0.68 uniformly takes more than twice the bytes. The
+      gain holds when scored at 250, 1,000 and 2,000-cell stream thresholds.
+    scope: Essen reference; the band is chosen from the reference streams, which the encoder has.
+    evidence_state: verified
+    measurement_context: results/reproduced/corrections-essen.json and the dense envelope.
+    source_paths: [results/reproduced/corrections-essen.json, results/candidates.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GEO-NEURAL-001
+    project_id: geo-neural
+    claim_type: negative-result
+    publication_policy: scoped
+    short_copy: >-
+      Against a dense conventional sweep (grids from 10 to 640 m, each at 19
+      error targets), 9 of 103 learned
+      candidates are not jointly dominated on bytes, mean and maximum error;
+      none has more than 11% lower mean error than the best
+      conventional candidate of the same size or smaller, and those that gain
+      are metres worse at their maximum. All 10 networks whose
+      streams were measured keep fewer of them than a conventional candidate
+      of the same size.
+    scope: Essen reference, codec fit (every node encoded), finest-level pages.
+    evidence_state: verified
+    measurement_context: results/candidates.json and results/summary.json.
+    source_paths: [results/candidates.json, results/summary.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GEO-SIREN-001
+    project_id: geo-neural
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      A stand-alone SIREN stored in float32 (134,788 B) reaches 0.61 m mean and
+      16.6 m maximum error with stream overlap 0.15. A 20 m grid at a 0.5 m
+      error bound with bilinear interpolation needs 111,219 B for 0.36 m, 8.9 m
+      and 0.19.
+    scope: Essen reference, codec fit.
+    evidence_state: verified
+    measurement_context: results/reproduced/siren-checkpoint.json and dense-envelope-essen.json.
+    source_paths: [results/candidates.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-HYBRID-001
+    project_id: geo-neural
+    claim_type: negative-result
+    publication_policy: scoped
+    short_copy: >-
+      The smallest hybrid that is not jointly dominated stores the same 20 m
+      grid (111,219 B) plus 26,753 B of 4-bit weights and lowers its mean error
+      by 2 mm, to 0.356 m. Spending
+      those bytes on the grid instead gives 0.315 m at 0.1 m more maximum
+      error.
+    scope: Essen reference, codec fit, weights quantised with quantisation-aware training.
+    evidence_state: verified
+    measurement_context: results/reproduced/quantised-ladder.json and dense-envelope-essen.json.
+    source_paths: [results/candidates.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-FLUX-001
+    project_id: geo-neural
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Over five seeds, the network that predicts one flux per cell face has the
+      lowest error in the predicted rate of height change on unseen surfaces
+      (median 0.0048 m/yr, against 0.0059 m/yr without that structure and
+      0.0162 m/yr for linear diffusion with the teacher's coefficient), a
+      relative conservation residual of about 8e-9, which is float32
+      rounding, and finite 64-step rollouts for every seed.
+    scope: Synthetic teacher and surfaces, 48 by 48 cells at 50 m, closed boundaries.
+    evidence_state: verified
+    measurement_context: results/reproduced/flux-closure-seeds.json.
+    source_paths: [results/reproduced/flux-closure-seeds.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: GEO-PENALTY-001
+    project_id: geo-neural
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      A conservation penalty swept from 0.0001 to 10 trades accuracy for
+      balance: the median residual falls from 0.027 to about 0.0001 (0.00011
+      to 0.00013 at weights 0.1 to 10) while the error rises from 0.0061 m/yr
+      to 0.0142 m/yr, close to linear diffusion. No penalty weight
+      approaches the flux network on either measure.
+    scope: Same teacher, data, capacity and training budget for every arm; medians over five seeds.
+    evidence_state: verified
+    measurement_context: results/reproduced/flux-closure-seeds.json.
+    source_paths: [results/reproduced/flux-closure-seeds.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-TEACH-001
+    project_id: geo-neural
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      The landscape-evolution model behind the emulator experiments passes its
+      audit: time-step and grid refinement
+      converge, the closed-domain balance closes, the slope-area exponent
+      matches, and the coarsest grid that still converges is 100 m.
+    scope: The idealised landscape model with the audited parameters; not a model of Ruhr history.
+    evidence_state: verified
+    measurement_context: results/reproduced/teacher-audit.json.
+    source_paths: [results/reproduced/teacher-audit.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-GEOL-001
+    project_id: geo-neural
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Given the GK100 surface lithology as an extra input, a network that
+      predicts withheld pages improves by 0.30 to 0.41 m (7 to 9%) over a
+      misaligned copy of the map on every seed, but only with concatenated
+      input, and its held-out error stays above 4 m. With FiLM conditioning, or
+      when the network corrects a conventional 40 m grid, the map has no effect
+      larger than the seed spread. The map costs 28.5 kB.
+    scope: >-
+      GK100 surface lithology at 1:100,000, rasterised at 10 m; held-out test
+      pages of the Essen reference; three seeds per arm, compared seed by seed.
+    evidence_state: verified
+    measurement_context: results/reproduced/geology-*.json.
+    source_paths: [results/summary.json]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-AUDIT-001
+    project_id: geo-neural
+    claim_type: limitation
+    publication_policy: scoped
+    short_copy: >-
+      An earlier summary of the same study said no network survives on bytes,
+      mean and maximum error together; it compared each network against two
+      different conventional points. With one comparator and a dense sweep a
+      few networks are formally undominated, by small margins. Earlier gains
+      from an uncharged base, a capped comparison grid and a missing
+      back-projection step were withdrawn.
+    evidence_state: verified
+    source_paths: [docs/results.md]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: GEO-LIMIT-001
+    project_id: geo-neural
+    claim_type: limitation
+    publication_policy: allowed
+    short_copy: >-
+      One region is studied in depth, and the five other prepared regions were
+      examined during development, so there is no untouched confirmation
+      region. Drainage overlap compares surfaces and is not a flood model. The
+      closure experiment is synthetic, and timings are ratios from a shared
+      workstation.
+    evidence_state: verified
+    source_paths: [README.md]
+    source_commit: 8006f6d
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]

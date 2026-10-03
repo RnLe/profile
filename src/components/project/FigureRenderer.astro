@@ -15,6 +15,10 @@ import MoireBuilder from '../islands/MoireBuilder';
 import OperatorPosters from '../islands/OperatorPosters';
 import BlazeScale from '../islands/BlazeScale';
 import FerFigure from '../fer/FerFigure.astro';
+import GeoFigure from '../geo-neural/GeoFigure.astro';
+import GeoExplorer from '../islands/GeoExplorer';
+import GeoLab from '../islands/GeoLab';
+import '../geo-neural/geo-neural.css';
 import { blazeScale } from '../../data/blaze-scale';
 
 interface Props {
@@ -94,6 +98,7 @@ const figure = getFigure(figureId);
     {figure.component === 'blaze-accuracy' && <BlazeAccuracy />}
     {figure.component === 'blaze-speed' && <BlazeSpeed />}
     {figure.component.startsWith('fer-') && <FerFigure name={figure.component} />}
+    {figure.component.startsWith('geo-') && <GeoFigure name={figure.component} />}
     {figure.component === 'msc-operators' && <OperatorPosters client:visible posters={operatorPosters} />}
     {figure.component === 'blaze-scale' && (
       <BlazeScale client:visible={{ rootMargin: '200px' }} metrics={blazeScale} />
@@ -106,6 +111,8 @@ const figure = getFigure(figureId);
   <figure class="figure figure--island">
     {figure.previewLabel && <p class="preview-label">{figure.previewLabel}</p>}
     {figure.island === 'moire-builder' && <MoireBuilder client:visible />}
+    {figure.island === 'geo-explorer' && <GeoExplorer client:visible />}
+    {figure.island === 'geo-lab' && <GeoLab client:visible />}
     <noscript>
       <p class="noscript-note">{figure.fallbackText}</p>
     </noscript>

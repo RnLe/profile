@@ -45,6 +45,7 @@ import robotArm from '../assets/recover-in-real-time/arm.webp';
 import assemblyKit from '../assets/recover-in-real-time/assembly-kit.webp';
 import followerLabels from '../assets/recover-in-real-time/follower-labels.webp';
 import servoBuses from '../assets/recover-in-real-time/servo-buses.webp';
+import geoHero from '../assets/geo-neural/hero.webp';
 
 export type FigureDef =
   | {
@@ -78,16 +79,17 @@ export type FigureDef =
        * A figure drawn by a component of its own: the Blaze2D roadmap
        * (StageRoadmap), the accuracy and speed comparisons of the Blaze2D
        * pitch page (BlazeAccuracy, BlazeSpeed), and its scale (BlazeScale);
-       * the plots of the facial emotion study (src/components/fer, `fer-*`).
+       * the plots of the facial emotion study (src/components/fer, `fer-*`);
+       * the GeoNeural plots (src/components/geo-neural, `geo-*`).
        */
       kind: 'component';
-      component: 'blaze-roadmap' | 'blaze-accuracy' | 'blaze-speed' | 'blaze-scale' | 'msc-operators' | `fer-${string}`;
+      component: 'blaze-roadmap' | 'blaze-accuracy' | 'blaze-speed' | 'blaze-scale' | 'msc-operators' | `fer-${string}` | `geo-${string}`;
       wide?: boolean;
       caption?: string;
     }
   | {
       kind: 'island';
-      island: 'moire-builder';
+      island: 'moire-builder' | 'geo-explorer' | 'geo-lab';
       title?: string;
       caption?: string;
       /** Visible label required for method previews. */
@@ -98,7 +100,49 @@ export type FigureDef =
 
 const fer = (component: `fer-${string}`, caption: string, wide = true): FigureDef => ({ kind: 'component', component, caption, wide });
 
+const geo = (component: `geo-${string}`, caption: string): FigureDef => ({ kind: 'component', component, caption, wide: true });
+
 export const figures: Record<string, FigureDef> = {
+  /* ---------------------------------------------------------- GeoNeural --- */
+  'geo-hero': {
+    kind: 'image',
+    src: geoHero,
+    alt: 'Hillshaded 10 m terrain of southern Essen: valleys draining north and south, the Ruhr bend and Lake Baldeney in the south',
+    caption: 'The reference: 1,050,625 heights at 10 m from the state survey, over 10.24 by 10.24 km.',
+    widths: [480, 720, 960],
+  },
+  'geo-explorer': {
+    kind: 'island',
+    island: 'geo-explorer',
+    title: 'Terrain explorer',
+    caption:
+      'The 10 m reference of southern Essen and seven decoded candidates, shown on a 20 m display grid. Pick a candidate, then compare it with the reference through the signed error, the mapped geology or the derived streams. The fields were decoded offline; the view is rendered live.',
+    fallbackText:
+      'An interactive 3D view of the terrain and its candidates needs JavaScript and WebGL 2. The plots below show the same results.',
+    wide: true,
+  },
+  'geo-lab': {
+    kind: 'island',
+    island: 'geo-lab',
+    title: 'Landscape lab',
+    caption:
+      'Hillslope experiments recomputed in the browser by the project kernel, written in Rust and compiled to WebAssembly. Runs start only when you press Run.',
+    fallbackText: 'The lab needs JavaScript, WebAssembly and Web Workers.',
+    wide: true,
+  },
+  'geo-streams': geo(
+    'geo-streams',
+    'Bytes against the drainage a routing algorithm still finds. Each marker is one serialised candidate; stream overlap compares D8 streams on the decoded surface with those of the reference, a routing diagnostic rather than discharge.',
+  ),
+  'geo-error': geo(
+    'geo-error',
+    'Bytes against mean height error over all 1,050,625 reference nodes. The line is the best conventional candidate at each size or smaller.',
+  ),
+  'geo-closure': geo(
+    'geo-closure',
+    'Learned hillslope updates over five seeds against a nonlinear teacher, on 24 unseen surfaces: the error of the predicted rate of height change against the relative conservation residual. The dashed line joins the median of each penalty weight, from 0.0001 to 10. Residuals below 1e-9 are drawn at 1e-9.',
+  ),
+
   /* ------------------------------------------ Facial emotion recognition --- */
   'fer-pipeline': fer('fer-pipeline', 'The five parts of the study. Each card opens its tab.'),
   'fer-classes': fer('fer-classes', 'Training faces per emotion. RAF-DB adds the most where FER2013 is thinnest.'),

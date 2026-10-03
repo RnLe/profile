@@ -11,3 +11,53 @@ files:
     sha256: 7a842f172f953ee848417e1947c37436ab05e49c6deb25c4bdbdb333a9f085b7
   - path: .nojekyll
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: geo-neural/bundle/checkpoint--siren-codec-fit.height.bin
+    sha256: dca82764df08e9923422e82788ba0d1aaf2df751dc7317e9f67cf675d435a781
+  - path: geo-neural/bundle/checkpoint--siren-codec-fit.streams.bin
+    sha256: dde1ca3797c419c0a15d573b7d7d434fa7f1a8c6c6ad74596f58767603bd8b23
+  - path: geo-neural/bundle/corrected-r1-at-1.height.bin
+    sha256: 95400245796911e73a2bd1e6fb9a9303bcbd6e7cb38fc7de14ce345c6f34e526
+  - path: geo-neural/bundle/corrected-r1-at-1.streams.bin
+    sha256: c1bdfd6f154114118cc46d88bf0b9ce973d15d799786a5851833435220317dbd
+  - path: geo-neural/bundle/fit--hybrid-t5.height.bin
+    sha256: 01ffbb034de917906ca91e655bd2c612ef368f90ea0690b5466ee730d6746bcb
+  - path: geo-neural/bundle/fit--hybrid-t5.streams.bin
+    sha256: 5780851eef14fa6e4d0262b5cbf90115303ae6c25008375fea27d1507b1c6e2d
+  - path: geo-neural/bundle/fit--siren-t17.height.bin
+    sha256: af246653dd90f3151ee4357d9533e7476b0d91d6678e9809c95bc9d6a62c48bd
+  - path: geo-neural/bundle/fit--siren-t17.streams.bin
+    sha256: 84c618d56804b12523942656989a8e094621be2ce74737921ce64e9a0e597042
+  - path: geo-neural/bundle/geology.classes.bin
+    sha256: 40f48ec8aa05aa62d9c93aa5941ac3ce89526ea2ff12b66bf2e62307993ea2b3
+  - path: geo-neural/bundle/lab/closure.json
+    sha256: 80b66dbb497cb0ea9efbc5e8c94d882e05c9cbfdc5b3c93badcb0f22597583cf
+  - path: geo-neural/bundle/lab/flux.bin
+    sha256: bc206e947b233de2bc542c973548737784b6546c032524bc8207503f3a1a06fb
+  - path: geo-neural/bundle/lab/geology.u8.bin
+    sha256: 96db32b8ba81353807e945acd37401184f1552e7b54a8f9552f0e43c7130583d
+  - path: geo-neural/bundle/lab/kfield.bin
+    sha256: 73f612cc694e192026a5017cdef24e7e4f2b3ad0e81626c89825b7ad2dcb108b
+  - path: geo-neural/bundle/lab/penalty.bin
+    sha256: 91d98da1ba8ac34915912969123255dbb2e1921bc9aeacecaf298894c8f4807e
+  - path: geo-neural/bundle/lab/surfaces.f32.bin
+    sha256: 9e0eb99928f4290d2d6d1e66db2617fb3dc4628ae585e3bcf67e1f0118f26824
+  - path: geo-neural/bundle/lab/terrain.f32.bin
+    sha256: ccd7dfffd5dd7e8f5196b2f66fa592bf6d244500b40b3bf3142ce8bb15b0adf1
+  - path: geo-neural/bundle/manifest.json
+    sha256: df04276e4343aa72a78bd654efb68ed6183d119d6e843b24310245f5bee35bf8
+  - path: geo-neural/bundle/q32dz-full-at-0.1.height.bin
+    sha256: 5fc7866f1b8d402d17e7c583122f217e01ce06a668c2d917335212f9ef188b49
+  - path: geo-neural/bundle/q32dz-full-at-0.1.streams.bin
+    sha256: 70635b74ef4908056f8249cf4b68e367b49cecdee6ad75a09e48e5d7478af2fb
+  - path: geo-neural/bundle/q32dz-full-at-1.height.bin
+    sha256: f4ab8030a77336f3ac0cad1611c17f376d5393b838acbc11a68a2257aa21935e
+  - path: geo-neural/bundle/q32dz-full-at-1.streams.bin
+    sha256: 6268e3165426be45874ce349e1cd4b669bf42ca3d30ee5626d33ef209c4f475a
+  - path: geo-neural/bundle/q32dz-level1-at-0.5.height.bin
+    sha256: c67dcf4eb22c57c3c7e6f64463d3811e1bff42bcbc53a8dd6519cf69dab4485b
+  - path: geo-neural/bundle/q32dz-level1-at-0.5.streams.bin
+    sha256: 1e2fe20ad8798d8fefc9de713dc034d88e3fde020f8a9e4b4c1bf648756efc8c
+  - path: geo-neural/bundle/reference.height.bin
+    sha256: a5cbb311b60900fc0dc364deb93bd078059d919cbbf08a0b36e77a6cfbc5ba64
+  - path: geo-neural/bundle/reference.streams.bin
+    sha256: 9c76e3938523e28c051cee02cc10fc8ac33df9fa0e2a7cdae920d89614703d25

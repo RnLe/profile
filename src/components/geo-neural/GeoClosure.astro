@@ -1,0 +1,43 @@
+---
+/**
+ * Learned closures over five seeds: the error of the predicted rate of height change against
+ * the teacher and the relative conservation residual, on unseen surfaces. Penalty weights are
+ * joined in order of weight.
+ */
+import seeds from '../../data/geo-neural/flux-closure-seeds.json';
+import Plot from '../fer/Plot.astro';
+import { GEO_COLORS } from './geo';
+
+type Run = { arm: string; seed: number; penaltyWeight: number | null; maeVsTeacher: number; conservationResidualRelative: number; linearDiffusionMae: number };
+const runs = seeds.runs as Run[];
+const FLOOR = 1e-9;
+const at = (r: Run) => [Math.max(r.conservationResidualRelative, FLOOR), r.maeVsTeacher] as [number, number];
+const arm = (name: string) => runs.filter((r) => r.arm === name);
+const weights = [...new Set(runs.filter((r) => r.penaltyWeight != null).map((r) => r.penaltyWeight!))].sort((a, b) => a - b);
+const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
+const sweep = weights.map((w) => {
+  const picked = runs.filter((r) => r.penaltyWeight === w);
+  return [median(picked.map((r) => r.conservationResidualRelative)), median(picked.map((r) => r.maeVsTeacher))] as [number, number];
+});
+const tipOf = (r: Run) =>
+  `${r.arm}, seed ${r.seed}: error ${r.maeVsTeacher.toFixed(5)} m/yr, residual ${r.conservationResidualRelative.toExponential(1)}`;
+const penalties = runs.filter((r) => r.penaltyWeight != null);
+const series = [
+  { label: 'Conservation penalty (median per weight)', color: GEO_COLORS.coarse, width: 1.4, dash: '4 3', points: sweep },
+  { label: 'Penalty runs', color: GEO_COLORS.coarse, kind: 'scatter' as const, marker: 'ring' as const, size: 2.6, points: penalties.map(at), tips: penalties.map(tipOf), quiet: true },
+  { label: 'Learned K-field, no penalty', color: GEO_COLORS.neural, kind: 'scatter' as const, marker: 'cross' as const, size: 3.4, points: arm('kfield').map(at), tips: arm('kfield').map(tipOf) },
+  { label: 'Learned face flux (conservative by construction)', color: GEO_COLORS.corrected, kind: 'scatter' as const, marker: 'diamond' as const, size: 3.6, points: arm('flux').map(at), tips: arm('flux').map(tipOf) },
+];
+const linear = runs[0].linearDiffusionMae;
+---
+
+<Plot
+  id="geo-closure"
+  label="Error against the nonlinear teacher and conservation residual for the learned closures"
+  x={{ label: 'Relative conservation residual (log scale)', log: true }}
+  y={{ label: 'Error in the rate of height change (m/yr)', min: 0 }}
+  series={series}
+  annotations={[{ kind: 'hline', y: linear }, { kind: 'label', x: 1e-6, y: linear, text: 'linear diffusion, teacher coefficient', dy: -6 }]}
+  width={600}
+  height={320}
+/>
