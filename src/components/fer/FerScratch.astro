@@ -1,0 +1,36 @@
+---
+/**
+ * The fair baseline: a network of the same size trained from scratch (ring)
+ * against the repaired compressed model chosen on validation (dot), test
+ * accuracy, for 4x and 8x fewer parameters.
+ */
+import compress from '../../data/fer/compress.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Rep = { method: string; budget: number; val: number; test: number };
+const rep = compress.repair as Record<string, Rep>;
+const scratch = compress.scratch as Record<string, { test: number }>;
+const rows = (['vgg', 'resnet', 'densenet'] as const).flatMap((m) => [4, 8].map((t) => {
+  const cands = Object.entries(rep).filter(([k, r]) => k.startsWith(`${m}/`) && r.budget === t).map(([, r]) => r);
+  const best = cands.reduce((a, b) => (b.val > a.val ? b : a));
+  return { m, t, scratch: scratch[`${m}/${t}x`].test, comp: best.test };
+}));
+const ys = rows.map((_, i) => rows.length - 1 - i);
+---
+
+<Plot
+  id="fer-scratch"
+  label="Test accuracy of networks trained small from scratch against repaired compressed models of the same size: within a point for VGG and ResNet-18, clearly better from scratch for DenseNet."
+  x={{ percent: true, label: 'test accuracy (%)', min: 0.74, max: 0.87 }}
+  y={{ ticks: ys, hideLabels: true, min: -0.5, max: rows.length - 0.25 }}
+  series={[
+    ...rows.map((r, i) => ({ color: MODEL_COLORS[r.m], kind: 'segments' as const, width: 3, opacity: 0.3, quiet: true, points: [[r.scratch, ys[i]], [r.comp, ys[i]]] as [number, number][] })),
+    { label: 'trained small from scratch', color: '#6a46a8', kind: 'scatter' as const, marker: 'ring' as const, size: 4.4, points: rows.map((r, i) => [r.scratch, ys[i]] as [number, number]) },
+    { label: 'compressed and repaired', color: '#182129', kind: 'scatter' as const, size: 4.4, points: rows.map((r, i) => [r.comp, ys[i]] as [number, number]) },
+  ]}
+  annotations={rows.map((r, i) => ({ kind: 'label' as const, x: 0.74, y: ys[i] + 0.4, dx: 2, anchor: 'start' as const, text: `${MODEL_NAMES[r.m]}, ${r.t}× fewer parameters`, row: true }))}
+  left={12}
+  height={300}
+  width={460}
+/>

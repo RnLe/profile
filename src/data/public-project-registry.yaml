@@ -80,6 +80,25 @@ projects:
       on 2026-09-02: the repository and its thesis, manuscript, and slide PDFs
       all resolve, so the CV links them directly.
 
+  - id: hard-spheres
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: HardSphereSystem
+      visibilityAtAudit: public
+      auditedCommit: b29b68b4d0c510b6f7c74b16e1f44ab3d61d6520
+      auditedAt: '2026-09-30'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: granted
+    notes: >-
+      Team project of three students. The repository archives the co-authored
+      final report and its figures; the simulation code was lost and is not in
+      it. Owner confirmation on 2026-09-30: both co-authors agree to the report
+      being hosted on this site. Logged-out check on 2026-09-30: the
+      repository, its README, and the report PDF all resolve.
+
   - id: grounded-recovery
     registryClass: public-origin
     repository:
@@ -96,3 +115,21 @@ projects:
       project site with its study page, and the technical report all resolve.
       The case study lives on the project's own site, so this site links there
       instead of hosting a page.
+
+  - id: facial-emotion-recognition
+    registryClass: public-origin
+    repository:
+      owner: RnLe
+      name: facial_emotion_detection
+      visibilityAtAudit: public
+      auditedCommit: 08046d1
+      auditedAt: '2026-10-03'
+    sourceVisibility: public
+    sourceUrlAllowed: true
+    sourceExcerptAllowed: false
+    collaboratorPermission: not-applicable
+    notes: >-
+      Solo study, made public by owner decision on 2026-10-03. Logged-out check
+      on 2026-10-03: the repository, its README, and its figures resolve. The
+      repository holds only FER2013 sample faces; RAF-DB images are never
+      redistributed. The study's report is parked and not linked.

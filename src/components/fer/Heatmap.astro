@@ -1,0 +1,95 @@
+---
+/**
+ * A matrix of values as coloured cells for the facial emotion study (a
+ * confusion matrix, setting importances): rows and columns labelled, each
+ * cell's value written in it, the shade from white to one hue.
+ */
+interface Props {
+  label: string;
+  rows: string[];
+  cols: string[];
+  values: number[][];
+  /** Hue of the largest value. */
+  color?: string;
+  /** Value written in the cell; percent of 0..1 by default. */
+  digits?: number;
+  percent?: boolean;
+  max?: number;
+  rowTitle?: string;
+  colTitle?: string;
+  cell?: number;
+  labelWidth?: number;
+  /** Highlights the diagonal (a confusion matrix). */
+  diagonal?: boolean;
+}
+
+const { label, rows, cols, values, color = '#2f6db0', digits = 0, percent = true, max, rowTitle, colTitle, cell = 44, labelWidth = 70, diagonal = false } = Astro.props;
+const top = 58;
+const width = labelWidth + cols.length * cell + 60; // room for the last rotated column label
+const height = top + rows.length * cell + 4;
+const peak = max ?? Math.max(...values.flat());
+const text = (v: number) => (percent ? (v * 100).toFixed(digits) : v.toFixed(digits));
+---
+
+<div class="fer-heat" style={`max-width:${Math.round(width * 1.45)}px`}>
+  <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
+    {colTitle && <text class="title" x={labelWidth + (cols.length * cell) / 2} y="12" text-anchor="middle">{colTitle}</text>}
+    {cols.map((c, j) => (
+      <text class="col" transform={`translate(${labelWidth + j * cell + cell / 2 + 4},${top - 6}) rotate(-40)`}>{c}</text>
+    ))}
+    {rows.map((r, i) => (
+      <g>
+        <text class="row" x={labelWidth - 6} y={top + i * cell + cell / 2 + 4} text-anchor="end">{r}</text>
+        {values[i].map((v, j) => {
+          const t = Math.max(0, Math.min(1, v / peak));
+          return (
+            <g>
+              <rect x={labelWidth + j * cell} y={top + i * cell} width={cell - 2} height={cell - 2} rx="3"
+                style={`fill:color-mix(in srgb, ${color} ${Math.round(t * 88)}%, var(--surface))`}
+                class:list={[diagonal && i === j && 'diag']}>
+                <title>{`${r} / ${cols[j]}: ${text(v)}${percent ? '%' : ''}`}</title>
+              </rect>
+              <text class:list={['val', t > 0.55 && 'on-dark']} x={labelWidth + j * cell + cell / 2 - 1} y={top + i * cell + cell / 2 + 3.5} text-anchor="middle">{text(v)}</text>
+            </g>
+          );
+        })}
+      </g>
+    ))}
+    {rowTitle && <text class="title" transform={`translate(10,${top + (rows.length * cell) / 2}) rotate(-90)`} text-anchor="middle">{rowTitle}</text>}
+  </svg>
+</div>
+
+<style>
+  .fer-heat svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .row,
+  .col {
+    font-size: 11.5px;
+    fill: var(--ink);
+  }
+
+  .title {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-faint);
+  }
+
+  .val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--ink);
+  }
+
+  .val.on-dark {
+    fill: #fff;
+  }
+
+  .diag {
+    stroke: var(--ink-heading);
+    stroke-width: 1.2;
+  }
+</style>

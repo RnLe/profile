@@ -1,0 +1,51 @@
+---
+/**
+ * VGG without batch norm on 1,000 faces: the weight norm falls slowly and
+ * jumps back within 250 steps, about every 5,000 steps. Without batch norm
+ * this is likely Adam's slingshot effect (Thilak et al. 2022); validation is
+ * no higher after a jump than before it.
+ */
+import grok from '../../data/fer/grok.json';
+import Plot from './Plot.astro';
+
+type Run = { dense_step: number[]; dense_weight_norm: number[]; dense_val: number[] };
+const v = (grok as Record<string, Run>)['vgg/a2.8_wd0.1'];
+const jumps = v.dense_step.filter((_, i) => i > 0 && v.dense_weight_norm[i] - v.dense_weight_norm[i - 1] > 0.2);
+const gains = v.dense_step.map((_, i) => i).filter((i) => i > 0 && v.dense_weight_norm[i] - v.dense_weight_norm[i - 1] > 0.2)
+  .map((i) => v.dense_weight_norm[i] / v.dense_weight_norm[i - 1] - 1).sort((a, b) => a - b);
+const typical = gains[Math.floor(gains.length / 2)];
+const peak = v.dense_val.indexOf(Math.max(...v.dense_val));
+---
+
+<div class="stack">
+  <Plot
+    id="fer-sling-norm"
+    title="Weight norm, relative to the usual start"
+    label={`Weight norm of VGG without batch norm against steps: a sawtooth, ${jumps.length} jumps of about ${(typical * 100).toFixed(0)}% within 250 steps.`}
+    x={{ min: 1000, max: 100000, ticks: [20000, 40000, 60000, 80000, 100000], tickLabels: [20000, 40000, 60000, 80000, 100000].map((t) => ({ at: t, label: `${t / 1000}k` })) }}
+    y={{ min: 0.8, max: 2.8 }}
+    series={[{ label: 'weight norm', color: '#b7791f', width: 1.3, points: v.dense_step.map((s, i) => [s, v.dense_weight_norm[i]] as [number, number]) }]}
+    annotations={jumps.slice(1, 2).map((s) => ({ kind: 'label' as const, x: s, y: 2.25, text: 'jump: Adam slingshot', anchor: 'start' as const, dx: 4 }))}
+    legend={false}
+    height={170}
+  />
+  <Plot
+    id="fer-sling-val"
+    title="Validation accuracy"
+    label={`Validation accuracy of VGG without batch norm against steps: it peaks at ${(v.dense_val[peak] * 100).toFixed(1)}% at step ${v.dense_step[peak].toLocaleString('en-US')} and then slips; it is no higher after a jump than before it.`}
+    x={{ label: 'training steps', min: 1000, max: 100000, ticks: [20000, 40000, 60000, 80000, 100000], tickLabels: [20000, 40000, 60000, 80000, 100000].map((t) => ({ at: t, label: `${t / 1000}k` })) }}
+    y={{ percent: true, min: 0.44, max: 0.56 }}
+    series={[{ label: 'validation', color: '#52606b', width: 1.2, points: v.dense_step.map((s, i) => [s, v.dense_val[i]] as [number, number]) }]}
+    annotations={jumps.map((s) => ({ kind: 'vline' as const, x: s }))}
+    legend={false}
+    height={170}
+  />
+</div>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+</style>

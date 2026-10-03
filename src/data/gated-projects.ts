@@ -31,5 +31,7 @@ export const knownProjectIds = [
   'recover-in-real-time',
   'swarm-dynamics',
   'grounded-recovery',
+  'hard-spheres',
+  'facial-emotion-recognition',
   ...Object.keys(gatedProjects),
 ];

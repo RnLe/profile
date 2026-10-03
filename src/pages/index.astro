@@ -37,12 +37,16 @@ const jsonLd = [personSchema(origin)];
     <div class="wrap">
       <div class="hero-grid">
         <div class="hero-text">
-          <h1 class="greeting">
-            {site.greeting}
-            <svg class="greeting-tail" viewBox="0 0 40 22" width="40" height="22" aria-hidden="true">
-              <path d="M0 1.5 L39 19.5 L0 12.5" />
-            </svg>
-          </h1>
+          {site.showGreeting ? (
+            <h1 class="greeting">
+              {site.greeting}
+              <svg class="greeting-tail" viewBox="0 0 40 22" width="40" height="22" aria-hidden="true">
+                <path d="M0 1.5 L39 19.5 L0 12.5" />
+              </svg>
+            </h1>
+          ) : (
+            <h1 class="visually-hidden">{site.name}</h1>
+          )}
           <ul class="fields spread">
             {site.fields.map((field, index) => (
               <>

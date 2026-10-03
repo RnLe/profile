@@ -1,0 +1,58 @@
+---
+/**
+ * Where the best model errs: the confusion matrix of the tuned ResNet-18 on
+ * the test set (rows: true emotion, in % of that row; mean of three seeds),
+ * and the recall per emotion for all seven tuned models.
+ */
+import models from '../../data/fer/models.json';
+import Heatmap from './Heatmap.astro';
+import { CLASSES, MODEL_NAMES } from './plot';
+
+type Final = { confusion: number[][]; recall: number[]; test: number };
+const final = models.final as Record<string, Final>;
+const order = Object.keys(final).sort((a, b) => final[b].test - final[a].test);
+const short = CLASSES.map((c) => c.slice(0, 3));
+const worst = CLASSES.map((c, k) => [c, final.resnet.confusion[k][k]] as const).sort((a, b) => a[1] - b[1]).slice(0, 2);
+const label = `Confusion matrix of the tuned ResNet-18 on the test set; the weakest classes are ${worst.map(([c, v]) => `${c} (${(v * 100).toFixed(0)}% recall)`).join(' and ')}.`;
+---
+
+<div class="pair">
+  <div>
+    <p class="cap">ResNet-18, tuned: true emotion (rows) against prediction</p>
+    <Heatmap {label} rows={CLASSES} cols={short} values={final.resnet.confusion} diagonal max={1} color="#2f6db0" cell={40} labelWidth={64} />
+  </div>
+  <div>
+    <p class="cap">Recall per emotion, all seven tuned models</p>
+    <Heatmap
+      label="Recall per emotion for the seven tuned models; disgust and fear are the weakest classes for every model."
+      rows={order.map((m) => MODEL_NAMES[m])}
+      cols={short}
+      values={order.map((m) => final[m].recall)}
+      max={1}
+      color="#2e8a5f"
+      cell={40}
+      labelWidth={86}
+    />
+  </div>
+</div>
+
+<style>
+  .pair {
+    display: grid;
+    gap: var(--sp-6);
+  }
+
+  @container (min-width: 46rem) {
+    .pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+
+  .cap {
+    margin: 0 0 var(--sp-1);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-heading);
+  }
+</style>

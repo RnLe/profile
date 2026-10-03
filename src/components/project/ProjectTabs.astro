@@ -1,0 +1,301 @@
+---
+/**
+ * A case study told in tabs, for a study with several parts. Each tab opens
+ * with its core questions and its lead figure, then a few short paragraphs,
+ * its steps, and its references. The first tab is the overview: it also
+ * carries the Markdown body, the project's own sections and citations, and
+ * the novelty scope.
+ *
+ * Without JavaScript every panel shows, one after another, each under its
+ * own heading. lib/tabs turns them into tabs, delegated from the document so
+ * the same markup works on the page and in the landing page's overlay.
+ */
+import FigureRenderer from './FigureRenderer.astro';
+import ProjectSteps from './ProjectSteps.astro';
+import Marked from '../ui/Marked.astro';
+import type { ResolvedProject } from '../../lib/publication';
+
+interface Props {
+  project: ResolvedProject;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const tabs = data.tabs.map((tab, i) => ({
+  ...tab,
+  overview: i === 0,
+  steps: i === 0 ? [...data.sections, ...tab.sections] : tab.sections,
+  citations: i === 0 ? [...data.citations, ...tab.citations] : tab.citations,
+}));
+const uid = data.slug;
+---
+
+<div class="band band--tight case-tabs">
+  <div class="wrap">
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label={`Parts of the ${data.shortTitle ?? data.title} case study`}>
+        {tabs.map((tab, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`${uid}-tab-${tab.id}`}
+            aria-controls={`${uid}-panel-${tab.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-tab={tab.id}
+          >
+            <span class="tab-num" aria-hidden="true">{i === 0 ? '·' : String(i).padStart(2, '0')}</span>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {tabs.map((tab) => (
+        <section
+          class="panel"
+          role="tabpanel"
+          id={`${uid}-panel-${tab.id}`}
+          aria-labelledby={`${uid}-tab-${tab.id}`}
+          data-panel={tab.id}
+        >
+          <h2 class="panel-title">{tab.label}</h2>
+
+          <div class="questions">
+            {tab.questions.map((question) => (
+              <p class="question marked"><Marked text={question} /></p>
+            ))}
+          </div>
+
+          {tab.figureId && (
+            <div class="lead-figure">
+              <FigureRenderer figureId={tab.figureId} />
+            </div>
+          )}
+
+          {(tab.paragraphs.length > 0 || tab.overview) && (
+            <div class="lead-text prose marked">
+              {tab.paragraphs.map((paragraph) => (
+                <p><Marked text={paragraph} /></p>
+              ))}
+              {tab.overview && <slot />}
+            </div>
+          )}
+
+          <ProjectSteps steps={tab.steps} claims={project.claims} />
+
+          {tab.citations.length > 0 && (
+            <div class="refs">
+              <h3>References</h3>
+              <ol class="citations">
+                {tab.citations.map((citation) => (
+                  <li>
+                    {citation.href ? <a href={citation.href} rel="noopener">{citation.label}</a> : citation.label}
+                    {citation.note && <span class="cite-note"> · {citation.note}</span>}
+                  </li>
+                ))}
+              </ol>
+              {tab.overview && <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>}
+            </div>
+          )}
+        </section>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  import '../../lib/tabs';
+</script>
+
+<style>
+  .case-tabs {
+    border-bottom: none;
+  }
+
+  .tablist {
+    display: none;
+  }
+
+  /* With scripts on (the page marks itself has-js before it paints): a row
+     of tabs that stays in view under the site header (at the top of the
+     overlay), one panel at a time. Until lib/tabs runs, the first shows. */
+  :global(.has-js) .tablist {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 3;
+    display: flex;
+    gap: var(--sp-1);
+    margin-block-end: var(--sp-8);
+    padding-block: var(--sp-2);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  :global(dialog) .tablist {
+    top: 0;
+  }
+
+  .tablist::-webkit-scrollbar {
+    display: none;
+  }
+
+  [role='tab'] {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--sp-2);
+    min-height: 2.25rem;
+    padding: var(--sp-1) var(--sp-3);
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    background: none;
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--ink-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tab-num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+  }
+
+  [role='tab'][aria-selected='true'] {
+    border-color: var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink-heading);
+  }
+
+  [role='tab'][aria-selected='true'] .tab-num {
+    color: var(--accent);
+  }
+
+  @media (hover: hover) {
+    [role='tab']:hover {
+      color: var(--ink);
+    }
+  }
+
+  [role='tab']:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+  }
+
+  /* Stacked panels (no script) are told apart by their headings. */
+  .panel + .panel {
+    margin-block-start: var(--sp-16);
+  }
+
+  :global(.has-js) .panel + .panel {
+    margin-block-start: 0;
+  }
+
+  :global(.has-js) .panel[hidden],
+  :global(.has-js) .tabs:not(.tabs--ready) .panel:not(:first-of-type) {
+    display: none;
+  }
+
+  :global(.has-js) .panel-title {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .panel-title {
+    font-size: var(--step-3);
+  }
+
+  /* The core questions: what the part set out to answer, before anything else. */
+  .questions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    max-width: 52rem;
+    padding: var(--sp-4) var(--sp-5);
+    border-inline-start: 4px solid var(--accent);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    background: var(--accent-wash);
+  }
+
+  .question {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: 620;
+    line-height: var(--lh-snug);
+    letter-spacing: -0.008em;
+    color: var(--accent-strong);
+  }
+
+  .lead-figure {
+    min-width: 0;
+  }
+
+  .lead-text {
+    max-width: var(--w-prose);
+  }
+
+  .lead-text :global(p) {
+    margin: 0;
+  }
+
+  .lead-text :global(p + p) {
+    margin-block-start: var(--sp-3);
+  }
+
+  .panel :global(.steps) {
+    margin-block-start: var(--sp-6);
+  }
+
+  .refs {
+    margin-block-start: var(--sp-8);
+    padding-block-start: var(--sp-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .refs h3 {
+    margin-block-end: var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .citations {
+    max-width: var(--w-prose);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .cite-note {
+    color: var(--ink-faint);
+  }
+
+  .novelty {
+    margin-block-start: var(--sp-5);
+    max-width: var(--w-prose);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    border-inline-start: 3px solid var(--line-strong);
+    padding-inline-start: var(--sp-4);
+  }
+</style>

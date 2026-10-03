@@ -1,0 +1,269 @@
+---
+/**
+ * A case study's steps: each a heading, a few short paragraphs, maybe a shell
+ * command to copy, the registered claims it shows, and its figures. A single
+ * figure sits beside the text, alternating sides down the page; a wide one,
+ * or a pair, runs under its text and breaks the run.
+ */
+import FigureRenderer from './FigureRenderer.astro';
+import Icon from '../ui/Icon.astro';
+import Marked from '../ui/Marked.astro';
+import { getFigure } from '../../lib/figures';
+import type { ResolvedProject } from '../../lib/publication';
+import type { ProjectFrontmatter } from '../../lib/schemas';
+
+interface Props {
+  steps: ProjectFrontmatter['sections'];
+  claims: ResolvedProject['claims'];
+}
+
+const { steps, claims: projectClaims } = Astro.props;
+
+// Side figures alternate, starting on the right; a wide one, or a pair,
+// runs under its text and breaks the run.
+let side = 0;
+const sections = steps.map((section) => {
+  const figures = section.figureIds.map(getFigure);
+  const wide = figures.length > 1 || figures.some((figure) => 'wide' in figure && figure.wide === true);
+  const figure = figures.length > 0;
+  const flip = figure && !wide && side++ % 2 === 1;
+  const claims = section.claimIds.flatMap((id) => projectClaims.filter((claim) => claim.claim_id === id));
+  return { ...section, figure, wide, flip, pair: figures.length > 1, claims };
+});
+---
+
+{sections.length > 0 && (
+        <div class="steps">
+          {sections.map((section) => (
+            <section
+              class:list={[
+                'step',
+                section.figure && !section.wide && 'step--side',
+                section.wide && 'step--wide',
+                section.flip && 'step--flip',
+              ]}
+            >
+              <div class="step-text marked">
+                <h2>{section.heading}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p>
+                    <Marked text={paragraph} />
+                  </p>
+                ))}
+                {section.code && (
+                  <>
+                    <button
+                      type="button"
+                      class="command"
+                      data-copy={section.code}
+                      aria-label={`Copy “${section.code}” to the clipboard`}
+                    >
+                      <code>
+                        <span class="prompt" aria-hidden="true">$</span>
+                        {section.code.split(' ').map((word, index, words) => (
+                          <>
+                            {index > 0 && ' '}
+                            <span class={index === 0 ? 'program' : index === words.length - 1 ? 'target' : 'argument'}>
+                              {word}
+                            </span>
+                          </>
+                        ))}
+                      </code>
+                      <span class="copy-state" aria-hidden="true">
+                        <Icon name="copy" size={15} />
+                        <Icon name="check" size={15} />
+                      </span>
+                    </button>
+                    <p class="visually-hidden" role="status" data-copy-status></p>
+                  </>
+                )}
+                {section.claims.map((claim) => (
+                  <div class="claim" data-claim-id={claim.claim_id}>
+                    <p>{claim.short_copy}</p>
+                    {claim.scope && <p class="claim-scope">{claim.scope}</p>}
+                  </div>
+                ))}
+              </div>
+              {section.figure && (
+                <div class:list={['step-figure', section.pair && 'step-figure--pair']}>
+                  {section.figureIds.map((figureId) => (
+                    <FigureRenderer {figureId} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
+      )}
+
+<style>
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-16);
+    margin-block-start: var(--sp-16);
+  }
+
+  .step {
+    display: grid;
+    gap: var(--sp-6) var(--sp-10);
+    align-items: center;
+  }
+
+  /* Text and figure side by side; every other one the figure on the left. */
+  @container (min-width: 50rem) {
+    .step--side {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+
+    .step--flip {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .step--flip .step-text {
+      order: 2;
+    }
+  }
+
+  .step-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    max-width: var(--w-prose);
+  }
+
+  .step-text h2 {
+    font-size: var(--step-2);
+  }
+
+  .step-text p {
+    color: var(--ink);
+  }
+
+  .step-figure {
+    min-width: 0;
+  }
+
+  /* A full-width figure keeps its caption on one line, as wide as itself. */
+  .step--wide .step-figure :global(figcaption) {
+    max-width: none;
+  }
+
+  .step-figure--pair {
+    display: grid;
+    gap: var(--sp-10);
+  }
+
+  @container (min-width: 56rem) {
+    .step-figure--pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+
+  /* A shell command as a small dark terminal line; a click copies it. */
+  .command {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-5);
+    max-width: 100%;
+    margin-block-start: var(--sp-1);
+    padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
+    border: 1px solid #1f2a36;
+    border-radius: var(--r-md);
+    background: #0f1720;
+    box-shadow: 0 1px 2px rgb(15 23 32 / 0.12), 0 6px 16px rgb(15 23 32 / 0.14);
+    font: inherit;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: #e6edf3;
+    text-align: start;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+
+  /* Not the site's inline-code chip: the line is the terminal itself. */
+  .command code {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    white-space: pre-wrap;
+  }
+
+  .command .prompt {
+    margin-inline-end: 0.6ch;
+    color: #7ee787;
+  }
+
+  .command .program {
+    color: #79c0ff;
+  }
+
+  .command .argument {
+    color: #e6edf3;
+  }
+
+  .command .target {
+    color: #ffa657;
+  }
+
+  .copy-state {
+    display: inline-flex;
+    color: #8b98a5;
+  }
+
+  .copy-state :global(svg:last-child),
+  .command.copied .copy-state :global(svg:first-child) {
+    display: none;
+  }
+
+  .command.copied .copy-state :global(svg:last-child) {
+    display: block;
+    color: #7ee787;
+  }
+
+  @media (hover: hover) {
+    .command:hover {
+      border-color: #3b4754;
+      background: #131e2a;
+    }
+
+    .command:hover .copy-state {
+      color: #e6edf3;
+    }
+  }
+
+  .command:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* A registered claim, word for word from the registry, with its scope. */
+  .claim {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    margin-block-start: var(--sp-2);
+    padding-inline-start: var(--sp-4);
+    border-inline-start: 3px solid var(--accent);
+  }
+
+  .claim p {
+    font-size: var(--step-0);
+    font-weight: 560;
+    line-height: var(--lh-snug);
+    color: var(--ink-heading);
+  }
+
+  .claim .claim-scope {
+    font-size: var(--step--1);
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+
+</style>

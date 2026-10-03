@@ -1,0 +1,33 @@
+---
+/**
+ * Which setting mattered most, per architecture: fANOVA importance in % of
+ * the variance of the stage 1 trial scores. Warmup leads for four models,
+ * the learning rate for the transformers, class weighting for ResNet-18.
+ */
+import tuning from '../../data/fer/tuning.json';
+import Heatmap from './Heatmap.astro';
+import { MODEL_NAMES } from './plot';
+
+type Study = { importance: Record<string, number>; best: number };
+const s1 = tuning.stage1 as unknown as Record<string, Study>;
+const order = Object.keys(s1).sort((a, b) => s1[b].best - s1[a].best);
+const names: Record<string, string> = {
+  lr: 'learning rate', weight_decay: 'weight decay', warmup_epochs: 'warmup', class_weights: 'class weights',
+  batch_size: 'batch size', label_smoothing: 'label smoothing', augment: 'augmentation', dropout: 'dropout', drop_path: 'drop path',
+};
+const keys = Object.keys(names).filter((k) => order.some((m) => k in s1[m].importance));
+const values = order.map((m) => keys.map((k) => s1[m].importance[k] ?? (k === 'dropout' ? s1[m].importance.drop_path ?? 0 : 0)));
+const cols = keys.filter((k) => k !== 'drop_path').map((k) => (k === 'dropout' ? 'dropout / drop path' : names[k]));
+const vals = values.map((row) => row.filter((_, j) => keys[j] !== 'drop_path'));
+---
+
+<Heatmap
+  label="fANOVA importance of each setting per architecture: warmup is the most important setting for four models, the learning rate for ViT and CCT, class weighting for ResNet-18."
+  rows={order.map((m) => MODEL_NAMES[m])}
+  cols={cols}
+  values={vals}
+  max={0.7}
+  color="#6a46a8"
+  cell={44}
+  labelWidth={86}
+/>

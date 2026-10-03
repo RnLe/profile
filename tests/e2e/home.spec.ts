@@ -8,13 +8,17 @@ const routedSlugs = [
   'residual-worlds',
   'envelope-approximation',
   'blaze2d',
+  'hard-spheres',
   'swarm-dynamics',
+  'facial-emotion-recognition',
 ];
 
 test('the homepage leads with the statement and a single projects band', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('h1')).toHaveText('Hey, I’m Rene! Welcome to my profile.');
+  // The greeting bubble is hidden for now; the H1 stays, visually hidden, with the name.
+  await expect(page.locator('h1')).toHaveText('Rene-Marcel Lehner');
+  await expect(page.locator('.greeting')).toHaveCount(0);
   await expect(page.locator('.hero-band blockquote')).toContainText('mathematical and physical models');
 
   const headings = await page.locator('main h2').allTextContents();
@@ -40,7 +44,7 @@ test('the homepage leads with the statement and a single projects band', async (
 test('the project list leads with its picks, then runs latest first', async ({ page }) => {
   await page.goto('/');
   const stripes = page.locator('[data-project-list] > li');
-  await expect(stripes).toHaveCount(6);
+  await expect(stripes).toHaveCount(8);
 
   // A title that leads off the site says so to a screen reader as well.
   expect(flat(await stripes.locator('.stripe-title').allTextContents())).toEqual([
@@ -48,7 +52,9 @@ test('the project list leads with its picks, then runs latest first', async ({ p
     'Envelope Approximation for Photonic Moiré Crystals',
     'Recover in Real Time',
     'Residual Worlds',
+    'Facial Emotion Recognition',
     'Grounded Recovery (the project’s own website, opens in a new tab)',
+    'Hard Sphere Simulations',
     'Neural Swarm Dynamics',
   ]);
   expect(flat(await stripes.locator('.stripe-year').allTextContents())).toEqual([
@@ -57,6 +63,8 @@ test('the project list leads with its picks, then runs latest first', async ({ p
     '2026 – present',
     '2026 – present',
     '2026',
+    '2026',
+    '2024',
     '2023',
   ]);
 
@@ -65,12 +73,13 @@ test('the project list leads with its picks, then runs latest first', async ({ p
   const label = (id: string) => page.locator(`[data-project-list] li[data-project-id="${id}"] .stripe-label`);
   await expect(label('blaze2d')).toHaveText('Strongest Research Artifact');
   await expect(label('envelope-approximation')).toHaveText('Master Thesis');
+  await expect(label('hard-spheres')).toHaveText('Team Project');
   await expect(label('swarm-dynamics')).toHaveText('Bachelor Thesis');
   const mark = (id: string) => page.locator(`[data-project-list] li[data-project-id="${id}"] .activity`);
   for (const id of ['blaze2d', 'envelope-approximation', 'recover-in-real-time', 'residual-worlds']) {
     await expect(mark(id)).toHaveAttribute('aria-label', 'Active Research');
   }
-  for (const id of ['grounded-recovery', 'swarm-dynamics']) {
+  for (const id of ['facial-emotion-recognition', 'grounded-recovery', 'hard-spheres', 'swarm-dynamics']) {
     await expect(mark(id)).toHaveAttribute('aria-label', 'Done, closed and archived.');
   }
   // Hover or focus (a tap focuses it): the tooltip shows at once.

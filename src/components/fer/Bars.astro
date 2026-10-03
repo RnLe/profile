@@ -1,0 +1,202 @@
+---
+/**
+ * Horizontal bars for the facial emotion study: one row per category, its
+ * parts either stacked or side by side, the value written at the end. Legend
+ * in HTML under the drawing.
+ */
+import { format, scale, type AxisSpec } from './plot';
+
+export interface Part {
+  label: string;
+  color: string;
+}
+
+interface Props {
+  label: string;
+  rows: { label: string; values: number[]; note?: string; strong?: boolean }[];
+  parts: Part[];
+  stacked?: boolean;
+  x: AxisSpec;
+  width?: number;
+  rowHeight?: number;
+  /** Width kept for the row labels. */
+  labelWidth?: number;
+  /** Format of the value at the bar's end (the stack's total). */
+  value?: AxisSpec;
+  /** A reference value drawn as a dashed line, e.g. the uncompressed model. */
+  reference?: { at: number; text: string };
+}
+
+const { label, rows, parts, stacked = true, x: xs, width = 560, rowHeight = 26, labelWidth = 92, value = xs, reference } = Astro.props;
+const groupH = stacked ? rowHeight : rowHeight * parts.length * 0.62 + 8;
+const top = reference ? 16 : 6;
+const height = top + rows.length * groupH + (xs.label ? 36 : 22);
+const totals = rows.map((r) => (stacked ? r.values.reduce((a, b) => a + b, 0) : Math.max(...r.values)));
+const X = scale([0, ...totals, ...(xs.max != null ? [xs.max] : []), ...(reference ? [reference.at] : [])], { ...xs, min: xs.min ?? 0 }, labelWidth, width - 52, 0.02);
+const plotBottom = top + rows.length * groupH;
+---
+
+<div class="fer-bars" style={`max-width:${Math.round(width * 1.4)}px`}>
+  <div class="scroll">
+  <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} style={`min-width:${Math.round(width * 0.72)}px`}>
+    <g class="grid">
+      {X.ticks.map((t) => <line x1={X(t)} x2={X(t)} y1={top} y2={plotBottom} />)}
+    </g>
+    {rows.map((row, i) => {
+      const y0 = top + i * groupH;
+      let acc = 0;
+      return (
+        <g>
+          <text class:list={['row-label', row.strong && 'strong']} x={labelWidth - 8} y={y0 + groupH / 2 + 4} text-anchor="end">{row.label}</text>
+          {stacked
+            ? row.values.map((v, k) => {
+                const x0 = X(acc);
+                acc += v;
+                return (
+                  <rect x={x0} y={y0 + 4} width={Math.max(0, X(acc) - x0)} height={groupH - 8} fill={parts[k].color} rx="2">
+                    <title>{`${row.label}, ${parts[k].label}: ${format(v, value)}`}</title>
+                  </rect>
+                );
+              })
+            : row.values.map((v, k) => {
+                const h = (groupH - 8) / parts.length;
+                if (!Number.isFinite(v)) {
+                  return <text class="value" x={X(0) + 5} y={y0 + 4 + k * h + h / 2 + 2.5}>n/a</text>;
+                }
+                return (
+                  <g>
+                    <rect x={X(0)} y={y0 + 4 + k * h} width={Math.max(0, X(v) - X(0))} height={h - 2} fill={parts[k].color} rx="2">
+                      <title>{`${row.label}, ${parts[k].label}: ${format(v, value)}`}</title>
+                    </rect>
+                    <text class="value" x={X(v) + 5} y={y0 + 4 + k * h + h / 2 + 2.5}>{format(v, value)}</text>
+                  </g>
+                );
+              })}
+          {stacked && (
+            <text class="value" x={X(totals[i]) + 5} y={y0 + groupH / 2 + 4}>{row.note ?? format(totals[i], value)}</text>
+          )}
+        </g>
+      );
+    })}
+    {reference && (
+      <g class="reference">
+        <line x1={X(reference.at)} x2={X(reference.at)} y1={top - 6} y2={plotBottom} />
+        <text x={X(reference.at)} y={top - 8} text-anchor="middle">{reference.text}</text>
+      </g>
+    )}
+    <line class="axis" x1={labelWidth} x2={labelWidth} y1={top} y2={plotBottom} />
+    <g class="ticks">
+      {X.ticks.map((t) => <text x={X(t)} y={plotBottom + 14} text-anchor="middle">{format(t, xs, X.ticks)}</text>)}
+    </g>
+    {xs.label && <text class="axis-label" x={(labelWidth + width - 52) / 2} y={height - 6} text-anchor="middle">{xs.label}</text>}
+  </svg>
+  </div>
+  {parts.length > 1 && (
+    <ul class="legend">
+      {parts.map((p) => (
+        <li><span class="swatch" style={`background:${p.color}`} />{p.label}</li>
+      ))}
+    </ul>
+  )}
+</div>
+
+<style>
+  .fer-bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .grid line {
+    stroke: var(--line);
+    stroke-width: 0.8;
+  }
+
+  .axis {
+    stroke: var(--line-strong);
+  }
+
+  .row-label {
+    font-size: 12px;
+    fill: var(--ink);
+  }
+
+  .row-label.strong {
+    font-weight: 650;
+  }
+
+  .value,
+  .ticks text,
+  .axis-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-muted);
+  }
+
+  .ticks text {
+    fill: var(--ink-faint);
+  }
+
+  .reference line {
+    stroke: var(--ink-heading);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 3;
+  }
+
+  .reference text {
+    font-size: 10.5px;
+    font-weight: 600;
+    fill: var(--ink-heading);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+  }
+
+  .swatch {
+    display: inline-block;
+    inline-size: 0.8rem;
+    block-size: 0.6rem;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 40rem) {
+    .row-label {
+      font-size: 13.5px;
+    }
+
+    .value,
+    .ticks text,
+    .axis-label,
+    .reference text {
+      font-size: 12.5px;
+    }
+  }
+</style>

@@ -16,6 +16,8 @@ import swarmDetail from '../assets/swarm-dynamics/metric-topological-detail.webp
 import pairedContrast from '../assets/grounded-recovery/paired-contrast.webp';
 import robotArm from '../assets/recover-in-real-time/arm.webp';
 import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
+import sedimentationThumb from '../assets/hard-spheres/sedimentation-thumb.webp';
+import ferThumb from '../assets/fer/thumb.webp';
 
 export interface ThumbImage {
   kind: 'image';
@@ -81,6 +83,22 @@ export const projectThumbs: Record<string, Thumb> = {
     kind: 'image',
     src: robotArm,
     alt: 'The assembled follower arm, a printed six-joint arm with a two-finger gripper',
+  },
+  // The report's six snapshots of the box, without their frame titles. The
+  // box stands on white like the card, so it is shown whole in any frame.
+  'hard-spheres': {
+    kind: 'image',
+    src: sedimentationThumb,
+    alt: 'A box of hard spheres settling under gravity: a regular lattice at first, then layers of green and red crystal growing at the bottom under a gray fluid',
+    animated: true,
+    fit: 'contain',
+  },
+  // Training faces from FER2013 (RAF-DB images may not be redistributed), one
+  // column per emotion from angry to surprise.
+  'facial-emotion-recognition': {
+    kind: 'image',
+    src: ferThumb,
+    alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
   },
 };
 

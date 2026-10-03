@@ -1,0 +1,67 @@
+---
+/**
+ * The long runs: validation accuracy over 100 epochs at a constant learning
+ * rate, for the tuned, larger and memorize runs of each winner, and the test
+ * accuracy each reaches after a 10-epoch cooldown (dots at the right edge).
+ */
+import long from '../../data/fer/long.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Run = { val_accuracy: number[]; test: number };
+const runs = long.runs as Record<string, Run>;
+const variants = [
+  { key: 'tuned', label: 'tuned', dash: undefined },
+  { key: 'larger', label: 'larger shape', dash: '6 3' },
+  { key: 'memorize', label: 'memorize (no regularisation)', dash: '2 3' },
+];
+const trio = ['vgg', 'resnet', 'densenet'];
+const panel = (m: string) => [
+  ...variants.map((v) => ({
+    label: v.label, color: MODEL_COLORS[m], dash: v.dash, width: 1.5,
+    points: runs[`${m}/${v.key}`].val_accuracy.map((a, i) => [i + 1, a] as [number, number]),
+  })),
+  ...variants.map((v) => ({
+    color: MODEL_COLORS[m], kind: 'scatter' as const, marker: v.key === 'memorize' ? 'ring' as const : 'dot' as const, size: 4, quiet: true,
+    points: [[110, runs[`${m}/${v.key}`].test]] as [number, number][],
+    tips: [`${MODEL_NAMES[m]}, ${v.label}: ${(runs[`${m}/${v.key}`].test * 100).toFixed(1)}% test after the cooldown`],
+  })),
+];
+const vggMem = runs['vgg/memorize'].val_accuracy;
+const peak = vggMem.indexOf(Math.max(...vggMem));
+---
+
+<div class="trio">
+  {trio.map((m, i) => (
+    <Plot
+      id={`fer-long-${m}`}
+      title={MODEL_NAMES[m]}
+      label={`${MODEL_NAMES[m]}: validation accuracy over 100 epochs for the tuned, larger and memorize runs, and the test accuracy after the cooldown.`}
+      x={{ label: 'epoch', min: 0, max: 114, ticks: [0, 25, 50, 75, 100], tickLabels: [{ at: 0, label: '0' }, { at: 50, label: '50' }, { at: 100, label: '100' }, { at: 110, label: 'test' }] }}
+      y={{ percent: true, min: 0.6, max: 0.9 }}
+      series={panel(m)}
+      annotations={m === 'vgg' ? [
+        { kind: 'point', x: peak + 1, y: vggMem[peak], dx: 22, dy: -26, text: 'memorize run peaks,\nthen overfits', anchor: 'start' },
+        { kind: 'vline', x: 104 },
+      ] : [{ kind: 'vline', x: 104 }]}
+      legend={i === 2}
+      height={240}
+      width={360}
+      left={38}
+    />
+  ))}
+</div>
+
+<style>
+  .trio {
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  @container (min-width: 50rem) {
+    .trio {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+</style>

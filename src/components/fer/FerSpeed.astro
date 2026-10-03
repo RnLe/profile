@@ -1,0 +1,49 @@
+---
+/**
+ * Speed for one face against the uncompressed model: on the GPU every
+ * factorised model is slower (more, thinner layers to launch); on one CPU
+ * thread, the closest to a browser, they are faster, and int8 most of all.
+ */
+import compress from '../../data/fer/compress.json';
+import Bars from './Bars.astro';
+import { MODEL_NAMES } from './plot';
+
+type Speed = { gpu_1_ms?: number; cpu1_1_ms: number };
+const sweep = compress.sweep as unknown as Record<string, { baseline: Speed & { cpu_1_ms: number }; int8: Speed }>;
+const rep = compress.repair as Record<string, { speed: Speed }>;
+const quant = compress.quant as Record<string, { speed: Speed }>;
+const pick: [string, string, string][] = [
+  ['resnet', 'int8', 'int8'],
+  ['resnet', 'tucker2_8x', 'Tucker-2, 8×'],
+  ['resnet', 'spatial_8x', 'spatial split, 8×'],
+  ['resnet', 'spatial_8x_int8', 'spatial 8× + int8'],
+  ['vgg', 'int8', 'int8'],
+  ['vgg', 'low_rank_8x', 'low rank, 8×'],
+  ['vgg', 'low_rank_8x_int8', 'low rank 8× + int8'],
+  ['densenet', 'low_rank_2x', 'low rank, 2×'],
+];
+const rows = pick.map(([m, key, name]) => {
+  const b = sweep[m].baseline;
+  const s = key === 'int8' ? sweep[m].int8 : rep[`${m}/${key}`]?.speed ?? quant[`${m}/${key}`].speed;
+  return {
+    label: `${MODEL_NAMES[m]}, ${name}`,
+    values: [s.gpu_1_ms ? b.gpu_1_ms! / s.gpu_1_ms : NaN, b.cpu1_1_ms / s.cpu1_1_ms],
+  };
+});
+---
+
+<Bars
+  label="Speedup for one face against the uncompressed model, on the GPU and on one CPU thread. Factorised models are slower on the GPU and faster on the CPU; int8 runs on the CPU only."
+  {rows}
+  parts={[
+    { label: 'GPU, one face', color: '#7d8790' },
+    { label: 'CPU, one thread, one face', color: '#2f6db0' },
+  ]}
+  stacked={false}
+  x={{ label: 'times faster than uncompressed', unit: '×', max: 7.5 }}
+  value={{ digits: 1, unit: '×' }}
+  labelWidth={200}
+  rowHeight={30}
+  width={640}
+  reference={{ at: 1, text: 'as fast' }}
+/>

@@ -1,0 +1,36 @@
+---
+/**
+ * Neural collapse (NC1, training faces) during the grokking runs: with the
+ * large start it stays high after memorising and falls about tenfold during
+ * the late rise; with the normal start it is low from the beginning.
+ */
+import grok from '../../data/fer/grok.json';
+import Plot from './Plot.astro';
+
+type Run = { step: number[]; nc1: number[]; weight_decay: number; alpha: number };
+const g = grok as Record<string, Run>;
+const a3 = g['cnn/a3_wd0.1'];
+const at = (step: number) => a3.nc1[a3.step.findIndex((x) => x >= step)];
+const drop = at(1e4) / at(3e4);
+const runs = [
+  { key: 'cnn/a1_wd0.1', label: 'normal start', color: '#7d8790', dash: undefined },
+  { key: 'cnn/a3_wd0.1', label: '3× start, weight decay 0.1', color: '#b4503a', dash: undefined },
+  { key: 'cnn/a3_wd0.01', label: '3× start, 0.01', color: '#b4503a', dash: '6 3' },
+  { key: 'cnn/a3_wd0', label: '3× start, none', color: '#b4503a', dash: '1.5 3' },
+];
+---
+
+<Plot
+  id="fer-nc1"
+  label={`NC1 on the training faces against steps, both on log scales: for the large start with weight decay 0.1 it falls ${drop.toFixed(0)}-fold between steps 10,000 and 30,000, when validation accuracy rises.`}
+  x={{ log: true, label: 'training steps (log scale)', min: 100, max: 1e5 }}
+  y={{ log: true, label: 'NC1 (log scale)', min: 0.001, max: 20 }}
+  series={runs.map((r) => ({ label: r.label, color: r.color, dash: r.dash, width: 1.7,
+    points: g[r.key].step.map((s, i) => [s, g[r.key].nc1[i]] as [number, number]).filter(([s]) => s >= 100) }))}
+  annotations={[
+    { kind: 'band', x: 1e4, x2: 3e4 },
+    { kind: 'label', x: 1.75e4, y: 12, text: 'late rise', color: 'var(--ink-muted)' },
+  ]}
+  height={300}
+  width={460}
+/>

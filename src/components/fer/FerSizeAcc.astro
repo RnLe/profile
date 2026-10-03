@@ -1,0 +1,36 @@
+---
+/**
+ * Size against accuracy for the seven tuned models: DenseNet matches
+ * ResNet-18 with a fourteenth of the parameters.
+ */
+import models from '../../data/fer/models.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Final = { test: number; params: number };
+const final = models.final as Record<string, Final>;
+const names = Object.keys(final);
+const ratio = final.resnet.params / final.densenet.params;
+const offsets: Record<string, [number, number, 'start' | 'end' | 'middle']> = {
+  densenet: [8, 14, 'start'], resnet: [-8, -10, 'end'], vgg: [-8, 14, 'end'], cct: [8, 4, 'start'],
+  cnn: [8, 12, 'start'], convnext: [8, 4, 'start'], vit: [8, 4, 'start'],
+};
+---
+
+<Plot
+  id="fer-size-acc"
+  label={`Parameters against test accuracy for the seven tuned models; DenseNet matches ResNet-18 with ${ratio.toFixed(0)} times fewer parameters.`}
+  x={{ log: true, label: 'parameters (log scale)', min: 2e5, max: 3e7 }}
+  y={{ percent: true, label: 'test accuracy (%)', min: 0.77, max: 0.86 }}
+  series={names.map((m) => ({
+    label: MODEL_NAMES[m], color: MODEL_COLORS[m], kind: 'scatter' as const, size: 5, quiet: true,
+    points: [[final[m].params, final[m].test]] as [number, number][],
+    tips: [`${MODEL_NAMES[m]}: ${(final[m].params / 1e6).toFixed(2)} M parameters, ${(final[m].test * 100).toFixed(1)}%`],
+  }))}
+  annotations={names.map((m) => ({
+    kind: 'label' as const, x: final[m].params, y: final[m].test, dx: offsets[m][0], dy: offsets[m][1] - 4, anchor: offsets[m][2],
+    text: MODEL_NAMES[m], color: MODEL_COLORS[m],
+  }))}
+  height={290}
+  width={460}
+/>

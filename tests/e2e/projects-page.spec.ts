@@ -11,7 +11,9 @@ const order = [
   'envelope-approximation',
   'recover-in-real-time',
   'residual-worlds',
+  'facial-emotion-recognition',
   'grounded-recovery',
+  'hard-spheres',
   'swarm-dynamics',
 ];
 
@@ -29,7 +31,13 @@ test('the rail lists every card in order, title left and start year right', asyn
   // The rail uses a short name where a title is long; otherwise the card's title.
   expect(trimmed(await rows.locator('.rail-title').allTextContents())).toEqual(
     trimmed(await cards.locator('h2').allTextContents()).map((title) =>
-      title.startsWith('Envelope Approximation') ? 'Master Thesis' : title,
+      title.startsWith('Envelope Approximation')
+        ? 'Master Thesis'
+        : title === 'Hard Sphere Simulations'
+          ? 'Hard Spheres'
+          : title === 'Facial Emotion Recognition'
+            ? 'Facial Emotions'
+            : title,
     ),
   );
   expect(trimmed(await rows.locator('.rail-year').allTextContents())).toEqual([
@@ -38,6 +46,8 @@ test('the rail lists every card in order, title left and start year right', asyn
     '2026',
     '2026',
     '2026',
+    '2026',
+    '2024',
     '2023',
   ]);
   for (const id of order) {
@@ -66,7 +76,9 @@ test('the rail marks each project as robotics, machine learning, or theory', asy
     'envelope-approximation': ['theory'],
     'recover-in-real-time': ['robotics', 'learning'],
     'residual-worlds': ['robotics', 'learning'],
+    'facial-emotion-recognition': ['learning'],
     'grounded-recovery': ['learning'],
+    'hard-spheres': ['theory'],
     'swarm-dynamics': ['learning', 'theory'],
   };
   for (const id of order) {

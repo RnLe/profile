@@ -1,0 +1,200 @@
+---
+/**
+ * The study at a glance: its five parts in order, each with the question it
+ * asked and its main result, computed from the exported data. Each card opens
+ * its tab of the case study.
+ */
+import data from '../../data/fer/data.json';
+import models from '../../data/fer/models.json';
+import tuning from '../../data/fer/tuning.json';
+import grok from '../../data/fer/grok.json';
+import compress from '../../data/fer/compress.json';
+import { MODEL_NAMES } from './plot';
+
+const disgustBefore = data.counts.train_fer.disgust;
+const disgustAfter = data.counts.train_fer.disgust + data.counts.train_raf.disgust;
+
+const finals = Object.entries(models.final);
+const [bestName, best] = finals.reduce((a, b) => (b[1].test > a[1].test ? b : a));
+const base = Object.entries(models.baseline).filter(([m]) => m !== 'resnet_pretrained').map(([, r]) => r.test);
+const tuned = finals.map(([, r]) => r.test);
+const spread = (v: number[]) => (Math.max(...v) - Math.min(...v)) * 100;
+
+const gain = (m: string) => (models.final[m as keyof typeof models.final].test - models.baseline[m as keyof typeof models.baseline].test) * 100;
+const bnGain = Math.max(gain('vgg'), gain('resnet'), gain('densenet'));
+const others = ['cnn', 'vit', 'convnext', 'cct'].map(gain);
+
+const a3 = (grok as Record<string, { step: number[]; val_accuracy: number[] }>)['cnn/a3_wd0.1'];
+const memorised = a3.val_accuracy[a3.step.findIndex((s) => s >= 1500)];
+const late = a3.val_accuracy.at(-1)!;
+
+const resnetBase = { bytes: compress.sweep.resnet.baseline.bytes, test: compress.sweep.resnet.test };
+const tucker = (compress.quant as Record<string, { bytes: number; test: number }>)['resnet/tucker2_4x_int8'];
+const smaller = resnetBase.bytes / tucker.bytes;
+
+const steps = [
+  {
+    tab: 'data',
+    title: 'Data',
+    question: 'Can two datasets be merged into one clean set?',
+    figure: data.kept,
+    format: (v: number) => v.toLocaleString('en-US'),
+    result: `faces after cleaning; the rarest class grew from ${disgustBefore} to ${disgustAfter} training faces`,
+  },
+  {
+    tab: 'architectures',
+    title: 'Architectures',
+    question: 'Which of seven architectures works best?',
+    figure: best.test * 100,
+    format: (v: number) => `${v.toFixed(1)}%`,
+    result: `test accuracy, ${MODEL_NAMES[bestName]}; the gap between models shrinks from ${spread(base).toFixed(0)} to ${spread(tuned).toFixed(0)} points with tuning`,
+  },
+  {
+    tab: 'tuning',
+    title: 'Tuning',
+    question: 'How much does each model gain from tuning?',
+    figure: bnGain,
+    format: (v: number) => `+${v.toFixed(1)}`,
+    result: `points at most for the CNNs with batch norm, against +${Math.min(...others).toFixed(1)} to +${Math.max(...others).toFixed(1)} for the others`,
+  },
+  {
+    tab: 'grokking',
+    title: 'Grokking',
+    question: 'Does a network generalise late, long after memorising?',
+    figure: (late - memorised) * 100,
+    format: (v: number) => `+${v.toFixed(0)}`,
+    result: 'points of validation accuracy, long after every training face was memorised; gradual, never a sudden jump',
+  },
+  {
+    tab: 'compression',
+    title: 'Compression',
+    question: 'How much smaller can the winners get?',
+    figure: smaller,
+    format: (v: number) => `${v.toFixed(0)}×`,
+    result: `smaller ResNet-18 at the same test accuracy (${(tucker.test * 100).toFixed(1)}% against ${(resnetBase.test * 100).toFixed(1)}%)`,
+  },
+];
+---
+
+<ol class="fer-pipeline">
+  {steps.map((step, i) => (
+    <li>
+      <a class="card" href={`#${step.tab}`} data-tab-link={step.tab}>
+        <span class="num">{String(i + 1).padStart(2, '0')}</span>
+        <span class="title">{step.title}</span>
+        <span class="question">{step.question}</span>
+        <span class="figure">{step.format(step.figure)}</span>
+        <span class="result">{step.result}</span>
+        <span class="open" aria-hidden="true">Open →</span>
+      </a>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .fer-pipeline {
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+
+  .fer-pipeline li {
+    position: relative;
+    display: flex;
+    min-width: 0;
+  }
+
+  /* A thin arrow between the cards. */
+  .fer-pipeline li + li::before {
+    content: '';
+    position: absolute;
+    top: 1.55rem;
+    left: calc(-1 * var(--sp-3));
+    inline-size: var(--sp-3);
+    border-top: 1.5px solid var(--line-strong);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    inline-size: 100%;
+    padding: var(--sp-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+  }
+
+  .title {
+    font-size: var(--step-0);
+    font-weight: 650;
+    color: var(--ink-heading);
+  }
+
+  .question {
+    font-size: var(--step--1);
+    font-weight: 560;
+    line-height: var(--lh-snug);
+    color: var(--accent-strong);
+  }
+
+  .figure {
+    margin-block-start: auto;
+    font-size: var(--step-3);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result {
+    font-size: 0.8125rem;
+    line-height: var(--lh-snug);
+    color: var(--ink-muted);
+  }
+
+  .open {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--accent);
+  }
+
+  @container (max-width: 60rem) {
+    .fer-pipeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fer-pipeline li + li::before {
+      display: none;
+    }
+  }
+
+  @container (max-width: 34rem) {
+    .fer-pipeline {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

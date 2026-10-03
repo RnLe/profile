@@ -1,0 +1,319 @@
+---
+/**
+ * A line and scatter plot for the facial emotion study: shared axes, any
+ * number of series (lines, markers, or segments between paired points), and
+ * annotations (labelled points, reference lines, shaded bands). Title and
+ * legend are HTML around the SVG, so they stay readable when a phone shrinks
+ * the drawing; tick labels and annotations live in the SVG.
+ */
+import { format, path, scale, type AxisSpec } from './plot';
+
+export interface Series {
+  label?: string;
+  color: string;
+  points: [number, number][];
+  /** line (default), scatter (markers only), or segments (pairs of points). */
+  kind?: 'line' | 'scatter' | 'segments';
+  dash?: string;
+  width?: number;
+  marker?: 'dot' | 'ring' | 'cross' | 'square' | 'diamond';
+  size?: number;
+  opacity?: number;
+  /** Left out of the legend. */
+  quiet?: boolean;
+  /** Native tooltips, one per point. */
+  tips?: string[];
+}
+
+export interface Annotation {
+  kind: 'label' | 'point' | 'vline' | 'hline' | 'band' | 'hband';
+  x?: number;
+  y?: number;
+  x2?: number;
+  y2?: number;
+  text?: string;
+  /** Offset of the label from its anchor, in drawing units. */
+  dx?: number;
+  dy?: number;
+  anchor?: 'start' | 'middle' | 'end';
+  color?: string;
+  /** A row's name, set in plain ink. */
+  row?: boolean;
+}
+
+interface Props {
+  id: string;
+  label: string;
+  title?: string;
+  x: AxisSpec;
+  y: AxisSpec;
+  series: Series[];
+  annotations?: Annotation[];
+  width?: number;
+  height?: number;
+  legend?: boolean;
+  /** Extra room on the left for long tick labels. */
+  left?: number;
+  /** The smallest the drawing may shrink to before it scrolls sideways. */
+  minScale?: number;
+}
+
+const { id, label, title, x: xs, y: ys, series, annotations = [], width = 560, height = 300, legend = true, left = 46, minScale = 0.72 } = Astro.props;
+const m = { l: left, r: 14, t: 12, b: xs.label ? 40 : 26 };
+const xv = series.flatMap((s) => s.points.map((p) => p[0])).concat(annotations.flatMap((a) => [a.x, a.x2].filter((v): v is number => v != null)));
+const yv = series.flatMap((s) => s.points.map((p) => p[1])).concat(annotations.flatMap((a) => (a.kind === 'hline' || a.kind === 'hband' ? [a.y, a.y2].filter((v): v is number => v != null) : [])));
+const X = scale(xv, xs, m.l, width - m.r);
+const Y = scale(yv, ys, height - m.b, m.t);
+const xTicks = xs.tickLabels ? xs.tickLabels.map((t) => ({ at: t.at, text: t.label })) : X.ticks.map((t) => ({ at: t, text: format(t, xs, X.ticks) }));
+const yTicks = ys.tickLabels ? ys.tickLabels.map((t) => ({ at: t.at, text: t.label })) : Y.ticks.map((t) => ({ at: t, text: format(t, ys, Y.ticks) }));
+const inX = (v: number) => X(v) >= m.l - 0.5 && X(v) <= width - m.r + 0.5;
+const inY = (v: number) => Y(v) >= m.t - 0.5 && Y(v) <= height - m.b + 0.5;
+const clip = `fer-clip-${id}`;
+const shown = series.filter((s) => s.label && !s.quiet);
+
+const marker = (s: Series, px: number, py: number) => {
+  const r = s.size ?? 3.2;
+  switch (s.marker ?? 'dot') {
+    case 'ring':
+      return { tag: 'circle', attrs: { cx: px, cy: py, r, fill: 'var(--surface)', stroke: s.color, 'stroke-width': 1.6 } };
+    case 'square':
+      return { tag: 'rect', attrs: { x: px - r, y: py - r, width: 2 * r, height: 2 * r, fill: 'var(--surface)', stroke: s.color, 'stroke-width': 1.6 } };
+    case 'diamond':
+      return { tag: 'path', attrs: { d: `M${px},${py - r * 1.3}L${px + r * 1.3},${py}L${px},${py + r * 1.3}L${px - r * 1.3},${py}Z`, fill: s.color } };
+    case 'cross':
+      return { tag: 'path', attrs: { d: `M${px - r},${py - r}L${px + r},${py + r}M${px - r},${py + r}L${px + r},${py - r}`, stroke: s.color, 'stroke-width': 1.8, fill: 'none' } };
+    default:
+      return { tag: 'circle', attrs: { cx: px, cy: py, r, fill: s.color } };
+  }
+};
+---
+
+<div class="fer-plot" style={`max-width:${Math.round(width * 1.4)}px`}>
+  {title && <p class="fer-plot-title">{title}</p>}
+  <div class="scroll">
+  <svg class="chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} style={`min-width:${Math.round(width * minScale)}px`}>
+    <defs>
+      <clipPath id={clip}><rect x={m.l} y={m.t - 4} width={width - m.l - m.r} height={height - m.t - m.b + 8} /></clipPath>
+    </defs>
+    {annotations.filter((a) => a.kind === 'band' || a.kind === 'hband').map((a) =>
+      a.kind === 'band' ? (
+        <rect class="band" x={X(a.x!)} y={m.t} width={Math.max(0, X(a.x2!) - X(a.x!))} height={height - m.t - m.b} style={a.color ? `fill:${a.color}` : undefined} />
+      ) : (
+        <rect class="band" x={m.l} y={Y(a.y2!)} width={width - m.l - m.r} height={Math.max(0, Y(a.y!) - Y(a.y2!))} style={a.color ? `fill:${a.color}` : undefined} />
+      ),
+    )}
+    <g class="grid">
+      {yTicks.filter((t) => inY(t.at)).map((t) => <line x1={m.l} x2={width - m.r} y1={Y(t.at)} y2={Y(t.at)} />)}
+    </g>
+    <g class="ticks">
+      {!ys.hideLabels && yTicks.filter((t) => inY(t.at)).map((t) => <text x={m.l - 6} y={Y(t.at) + 3.6} text-anchor="end">{t.text}</text>)}
+      {xTicks.filter((t) => inX(t.at)).map((t) => <text x={X(t.at)} y={height - m.b + 15} text-anchor="middle">{t.text}</text>)}
+    </g>
+    <line class="axis" x1={m.l} x2={width - m.r} y1={height - m.b} y2={height - m.b} />
+    {xs.label && <text class="axis-label" x={(m.l + width - m.r) / 2} y={height - 6} text-anchor="middle">{xs.label}</text>}
+    {annotations.filter((a) => a.kind === 'vline' || a.kind === 'hline').map((a) =>
+      a.kind === 'vline' ? (
+        <line class="ref" x1={X(a.x!)} x2={X(a.x!)} y1={m.t} y2={height - m.b} style={a.color ? `stroke:${a.color}` : undefined} />
+      ) : (
+        <line class="ref" x1={m.l} x2={width - m.r} y1={Y(a.y!)} y2={Y(a.y!)} style={a.color ? `stroke:${a.color}` : undefined} />
+      ),
+    )}
+    <g clip-path={`url(#${clip})`}>
+      {series.map((s) =>
+        s.kind === 'segments' ? (
+          s.points.flatMap((p, i) => (i % 2 === 0 && s.points[i + 1] ? [
+            <line x1={X(p[0])} y1={Y(p[1])} x2={X(s.points[i + 1][0])} y2={Y(s.points[i + 1][1])} stroke={s.color} stroke-width={s.width ?? 2} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linecap="round" />,
+          ] : []))
+        ) : s.kind !== 'scatter' ? (
+          <path d={path(s.points, X, Y)} fill="none" stroke={s.color} stroke-width={s.width ?? 1.6} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linejoin="round" stroke-linecap="round" />
+        ) : null,
+      )}
+      {series.filter((s) => s.kind === 'scatter' || s.marker).map((s) =>
+        s.points.filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1])).map((p, i) => {
+          const mk = marker(s, X(p[0]), Y(p[1]));
+          const Tag = mk.tag as 'circle';
+          return (
+            <Tag {...(mk.attrs as Record<string, unknown>)} opacity={s.opacity}>
+              {s.tips?.[i] && <title>{s.tips[i]}</title>}
+            </Tag>
+          );
+        }),
+      )}
+    </g>
+    {annotations.filter((a) => a.kind === 'point' || a.kind === 'label').map((a) => (
+      <g class="note" style={a.color ? `--note:${a.color}` : undefined}>
+        {a.kind === 'point' && <circle cx={X(a.x!)} cy={Y(a.y!)} r="4.5" />}
+        {a.kind === 'point' && (a.dx || a.dy) && (
+          <line x1={X(a.x!)} y1={Y(a.y!)} x2={X(a.x!) + (a.dx ?? 0) * 0.82} y2={Y(a.y!) + (a.dy ?? 0) * 0.82} />
+        )}
+        {a.text && a.text.split('\n').map((line, i) => (
+          <text class:list={[a.row && 'row']} x={X(a.x!) + (a.dx ?? 0)} y={Y(a.y!) + (a.dy ?? 0) + i * 13 + (a.dy && a.dy < 0 ? -2 : 4)} text-anchor={a.anchor ?? 'middle'}>{line}</text>
+        ))}
+      </g>
+    ))}
+  </svg>
+  </div>
+  {(legend && shown.length > 0) || ys.label ? (
+    <div class="fer-plot-foot">
+      {ys.label && <span class="y-name">↑ {ys.label}</span>}
+      {legend && shown.length > 0 && (
+        <ul class="legend">
+          {shown.map((s) => (
+            <li>
+              <svg viewBox="0 0 22 10" width="22" height="10" aria-hidden="true">
+                {s.kind === 'scatter' && s.marker === 'diamond' ? (
+                  <path d="M11,0.6L15.4,5L11,9.4L6.6,5Z" fill={s.color} />
+                ) : s.kind === 'scatter' && s.marker === 'square' ? (
+                  <rect x="7.4" y="1.4" width="7.2" height="7.2" fill="var(--surface)" stroke={s.color} stroke-width="1.6" />
+                ) : s.kind === 'scatter' && s.marker === 'cross' ? (
+                  <path d="M7.5,1.5L14.5,8.5M7.5,8.5L14.5,1.5" stroke={s.color} stroke-width="1.8" />
+                ) : s.kind === 'scatter' ? (
+                  <circle cx="11" cy="5" r="3.6" fill={s.marker === 'ring' ? 'var(--surface)' : s.color} stroke={s.color} stroke-width="1.6" />
+                ) : (
+                  <line x1="1" x2="21" y1="5" y2="5" stroke={s.color} stroke-width="2.4" stroke-dasharray={s.dash} />
+                )}
+              </svg>
+              {s.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  ) : null}
+</div>
+
+<style>
+  .fer-plot {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
+
+  .fer-plot-title {
+    margin: 0;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-heading);
+  }
+
+  .chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .legend svg {
+    flex: none;
+  }
+
+  /* A narrow screen keeps the drawing legible and lets it scroll sideways. */
+  .scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .grid line {
+    stroke: var(--line);
+    stroke-width: 0.8;
+  }
+
+  .axis {
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+
+  .ticks text,
+  .axis-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-faint);
+  }
+
+  .axis-label {
+    font-size: 11px;
+    fill: var(--ink-muted);
+  }
+
+  .ref {
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  .band {
+    fill: var(--accent-wash);
+    opacity: 0.8;
+  }
+
+  .note {
+    --note: var(--accent-strong);
+  }
+
+  .note circle {
+    fill: none;
+    stroke: var(--note);
+    stroke-width: 1.6;
+  }
+
+  .note line {
+    stroke: var(--note);
+    stroke-width: 1;
+  }
+
+  .note text.row {
+    font-weight: 560;
+    fill: var(--ink);
+  }
+
+  .note text {
+    font-size: 11px;
+    font-weight: 600;
+    fill: var(--note);
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+
+  .fer-plot-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-1) var(--sp-4);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .y-name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 40rem) {
+    .ticks text,
+    .axis-label,
+    .note text {
+      font-size: 13.5px;
+    }
+  }
+</style>

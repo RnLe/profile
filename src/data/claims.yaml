@@ -407,3 +407,334 @@ claims:
     last_verified: '2026-08-30'
     allowed_surfaces: [home, research-index, project]
     notes: Shown before the fine print, not hidden behind an architecture figure.
+
+  - claim_id: HS-ROLE-001
+    project_id: hard-spheres
+    claim_type: scope
+    publication_policy: allowed
+    short_copy: >-
+      A team project of three students. Rene-Marcel Lehner wrote the sections
+      on the ray-tracing collision search and on sedimentation under gravity,
+      with his own implementation for both; the crystallization and
+      two-dimensional phase-transition studies are his colleagues' work, and
+      the event-chain basics were developed together.
+    evidence_state: verified
+    model_or_artifact_version: final-report-2024
+    source_urls: ['https://github.com/RnLe/HardSphereSystem']
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [research-index, project]
+    notes: Section authorship as marked in the report's table of contents and README.
+
+  - claim_id: HS-RAY-001
+    project_id: hard-spheres
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      Counted geometrically in three dimensions, the ray-tracing search adds a
+      constant nine cells per step, while the shell search grows with the
+      searched volume: after ten steps it has checked nearly 1,400 cells,
+      against just over 100 for ray tracing.
+    scope: >-
+      Numbers of checked cells from geometry, not measured run times. Ray
+      tracing pays off at low packing fractions and long chain displacements;
+      in dense systems or for short displacements both searches cost about the
+      same.
+    evidence_state: verified
+    measurement_context: >-
+      Report section 3.3.1: equations (15) and figure 12a (cells checked per
+      iteration, d = 3, up to ten iterations), and figure 12c (the same counts
+      combined with the mean free path as a function of packing fraction).
+    model_or_artifact_version: final-report-2024
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [project]
+    notes: >-
+      The report calls the shell search's growth exponential; its own count
+      grows polynomially, with the searched volume, which is how the site
+      states it.
+
+  - claim_id: HS-CHECK-001
+    project_id: hard-spheres
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      Without gravity, the pressure–density relation of the sedimentation code
+      followed the Carnahan–Starling equation in the fluid and showed a clear
+      phase transition, with a slight overestimate of the pressure in the
+      solid phase.
+    scope: A validation of the implementation before gravity was added.
+    evidence_state: verified
+    measurement_context: >-
+      Report section 8.1.1, figure 34: box of 20σ, displacement length 2σ,
+      10 million chains; the pair correlation at η = 0.6 (figure 35) shows no
+      overlaps.
+    model_or_artifact_version: final-report-2024
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [project]
+
+  - claim_id: HS-SED-001
+    project_id: hard-spheres
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      With gravity and a fixed floor and ceiling, a simulation of 91,125
+      spheres over 100 million chains formed a solid in the lower layers, a
+      phase transition over about three layers in the middle, and a fluid
+      above; a structure analysis (Ackland–Jones) found FCC and HCP crystal
+      with defects.
+    scope: >-
+      One system size and one gravitational strength (gravitational length
+      1); the lower layers were not a perfect crystal, and the run was not
+      fully equilibrated.
+    evidence_state: verified
+    measurement_context: >-
+      Report section 8.2, figure 39: N = 91,125, 100 million chains, box of
+      50σ, l_g = 1; structure types from the Ackland–Jones method.
+    model_or_artifact_version: final-report-2024
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: HS-EOS-001
+    project_id: hard-spheres
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      The pressure obtained from the height-dependent density profile, with a
+      reference pressure P₀ = 1 chosen to match, follows the Carnahan–Starling
+      equation of state reasonably well; it is slightly lower, and the phase
+      transition is less pronounced but still recognizable.
+    scope: >-
+      An indirect pressure, derived from the density profile of one run; the
+      report attributes the underestimate most likely to limited
+      equilibration time.
+    evidence_state: verified
+    measurement_context: >-
+      Report section 8.2.1, figure 42 and equation (40) (hydrostatic pressure
+      from the density, after Piazza et al.); density from z-layer scans about
+      3σ thick.
+    model_or_artifact_version: final-report-2024
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [project]
+    notes: >-
+      The repository README calls the agreement near-perfect; the report
+      itself says reasonable, which is the wording the site uses.
+
+  - claim_id: HS-TIME-001
+    project_id: hard-spheres
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      In a run of 64,000 spheres over 100 million chains, spheres in HCP order
+      rose quickly and levelled off after about 20 frames, while FCC grew
+      almost linearly and outnumbered HCP after about 90 frames (about 1,400
+      chains per particle).
+    scope: FCC was still growing when the run ended; the crystal had not reached equilibrium.
+    evidence_state: verified
+    measurement_context: >-
+      Report section 8.2.3, figure 47: 100 frames at intervals of one million
+      chains (15.62 chains per particle per frame).
+    model_or_artifact_version: final-report-2024
+    artifact_sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    last_verified: '2026-09-30'
+    allowed_surfaces: [project]
+
+  - claim_id: FER-ROLE-001
+    project_id: facial-emotion-recognition
+    claim_type: scope
+    publication_policy: allowed
+    short_copy: >-
+      A solo study by Rene-Marcel Lehner: data pipeline, seven model
+      implementations, training, tuning, and the follow-up experiments. It
+      rebuilds an earlier course project from scratch, after that
+      project's evaluation turned out to be invalid; nothing from it is reused.
+    evidence_state: verified
+    model_or_artifact_version: report-2026-10
+    source_urls: ['https://github.com/RnLe/facial_emotion_detection']
+    source_commit: 0c0ac09
+    artifact_sha256: 269778d516cf6bfc3111561abf541dee4d34b8a522352c57eb61bc37f5a2a06f
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+    notes: The old project's numbers are invalid and are never stated anywhere.
+
+  - claim_id: FER-DATA-001
+    project_id: facial-emotion-recognition
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      FER2013 with FER+ labels (35,887 faces) and RAF-DB were merged into one
+      cleaned dataset of 44,296 faces. Faces were dropped when the FER+
+      annotators disagreed, as near-duplicates, or with labels outside the
+      seven emotions. RAF-DB raises the rarest class, disgust, from 81 to 718
+      training faces, and fear from 378 to 628.
+    scope: Counts after cleaning; duplicate groups never cross the train, validation and test split.
+    evidence_state: verified
+    measurement_context: >-
+      results/data/summary.json of the study repository (scripts/03_build_dataset.py);
+      report section 2.
+    model_or_artifact_version: report-2026-10
+    source_paths: [results/data/summary.json]
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: FER-ARCH-001
+    project_id: facial-emotion-recognition
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      After tuning, ResNet-18 (85.1%), VGG (84.7%) and DenseNet (84.6%) lead in
+      test accuracy, ahead of CCT (81.6%), the simple CNN (81.2%), ConvNeXt
+      (80.1%) and ViT (78.4%). Tuning shrinks the spread between the best and
+      the worst model from 13 to 7 points. DenseNet matches ResNet-18 with 14
+      times fewer parameters; an ImageNet-pretrained ResNet-18 is no better
+      than one trained from scratch.
+    scope: >-
+      48 × 48 grayscale faces, trained from scratch for 60 epochs; mean of three
+      seeds for the tuned models and two for the defaults. Differences of a
+      point or less are within the test set's sampling error.
+    evidence_state: verified
+    measurement_context: >-
+      results/final.json and results/baselines.json of the study repository;
+      report sections 5 and 6.1.
+    model_or_artifact_version: report-2026-10
+    source_paths: [results/final.json, results/baselines.json]
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: FER-TUNE-001
+    project_id: facial-emotion-recognition
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      With the same tuning budget (30 Optuna trials of 25 epochs each), the
+      CNNs with batch norm gain at most 0.4 points of test accuracy, the simple
+      CNN, CCT, ConvNeXt and ViT 3.0 to 6.6 points. For the batch-norm CNNs, 30
+      to 43% of trials land within a point of the best; warmup is the most
+      important setting for four models, the learning rate for ViT and CCT.
+    scope: One study per model with 9 random trials before TPE; importances from 30 trials are rough.
+    evidence_state: verified
+    measurement_context: >-
+      Optuna journals and results/final.json of the study repository; report
+      section 6.
+    model_or_artifact_version: report-2026-10
+    source_paths: [runs/optuna, results/final.json]
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: FER-SHAPE-001
+    project_id: facial-emotion-recognition
+    claim_type: negative-result
+    publication_policy: scoped
+    short_copy: >-
+      Searching width, depth and number of stages as well (40 trials each for
+      ResNet-18, VGG and DenseNet) improved test accuracy by 0.2 points per
+      model, within the noise; smaller networks lost accuracy.
+    scope: Paired bootstrap intervals over the test images include zero for all three.
+    evidence_state: verified
+    measurement_context: results/shape_final.json of the study repository; report section 7.
+    model_or_artifact_version: report-2026-10
+    source_paths: [results/shape_final.json]
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: FER-LONG-001
+    project_id: facial-emotion-recognition
+    claim_type: negative-result
+    publication_policy: scoped
+    short_copy: >-
+      Training the three winners for 100 epochs at a constant learning rate,
+      then cooling down for 10, lands within 0.6 points of the 60-epoch runs on
+      the test set. Without regularisation, VGG's validation accuracy peaks at
+      epoch 18 and then falls while its training accuracy keeps rising.
+    scope: One seed per run.
+    evidence_state: verified
+    measurement_context: runs/long and runs/cooldown records of the study repository; report section 8.
+    model_or_artifact_version: report-2026-10
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: FER-GROK-001
+    project_id: facial-emotion-recognition
+    claim_type: negative-result
+    publication_policy: scoped
+    short_copy: >-
+      In the setting where grokking was shown on images (Omnigrok), a simple
+      CNN on 1,000 training faces generalised late in every run: validation
+      accuracy rose by up to 11 points long after training accuracy reached
+      100%, half of the rise coming 11 to 19 times later. The rise was gradual,
+      never the sudden jump of grokking. Neural collapse fell tenfold during
+      it. VGG with batch norm did not grok; its training broke down in loss
+      spikes.
+    scope: One seed per run; 1,000 training faces; up to 100,000 steps.
+    evidence_state: verified
+    measurement_context: runs/grok and runs/long/vgg/grok records of the study repository; report section 9.
+    model_or_artifact_version: report-2026-10
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: FER-COMP-001
+    project_id: facial-emotion-recognition
+    claim_type: result
+    publication_policy: scoped
+    short_copy: >-
+      With ranks chosen per layer, 10 epochs of repair and int8, ResNet-18
+      becomes 16 times smaller (3.2 MB instead of 52.3 MB) at its original test
+      accuracy (85.4% against 85.2%); with the spatial split at 8 times fewer
+      parameters plus int8 it is 29 times smaller and 6.8 times faster for one
+      face on one CPU thread, at 0.7 points less.
+    scope: >-
+      One seed; repeated repairs differ by about half a point. Timings are
+      medians in eager PyTorch on a shared machine; int8 runs on the CPU only.
+    evidence_state: verified
+    measurement_context: >-
+      runs/repair and runs/quant records and results/compress.json of the study
+      repository; report section 10.
+    model_or_artifact_version: report-2026-10
+    source_paths: [results/compress.json]
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [research-index, project]
+
+  - claim_id: FER-COMP-002
+    project_id: facial-emotion-recognition
+    claim_type: comparison
+    publication_policy: scoped
+    short_copy: >-
+      The layer outputs are low-dimensional while the weights are not: in VGG's
+      last convolution, 7 of 616 directions hold 95% of the output variance,
+      against 201 for the weights. One threshold for all layers breaks VGG
+      below 99% of the variance; ranks chosen per layer keep 85.8% before any
+      repair at 4 times fewer parameters.
+    scope: Validation accuracy; the larger long-run models after their cooldown.
+    evidence_state: verified
+    measurement_context: results/compress.json and runs/repair records of the study repository; report section 10.
+    model_or_artifact_version: report-2026-10
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]
+
+  - claim_id: FER-COMP-003
+    project_id: facial-emotion-recognition
+    claim_type: limitation
+    publication_policy: scoped
+    short_copy: >-
+      Networks of the same size trained from scratch are as accurate for VGG
+      and ResNet-18 (within a point) and better for DenseNet. On the GPU every
+      factorised model is slower for one face than the original. DenseNet
+      breaks in int8; quantisation-aware training recovers it only to 79.7%.
+    scope: One seed each; the networks from scratch trained 60 epochs.
+    evidence_state: verified
+    measurement_context: runs/scratch, runs/repair and runs/quant records of the study repository; report section 10.
+    model_or_artifact_version: report-2026-10
+    source_commit: 0c0ac09
+    last_verified: '2026-10-03'
+    allowed_surfaces: [project]

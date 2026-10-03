@@ -1,0 +1,49 @@
+---
+/**
+ * Every Optuna trial of stage 1, one column per architecture: validation
+ * macro-F1 after 25 epochs. Rings: the random start; dots: TPE; diamond: the
+ * default settings (trial 0). The CNNs with batch norm score well almost
+ * everywhere; the others only in a narrow band of settings.
+ */
+import tuning from '../../data/fer/tuning.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Study = { trials: [number, number | null, boolean][]; default: number; best: number };
+const s1 = tuning.stage1 as unknown as Record<string, Study>;
+const order = Object.keys(s1).sort((a, b) => s1[b].best - s1[a].best);
+const STARTUP = 10;
+const jitter = (n: number) => (((n * 0.618034) % 1) - 0.5) * 0.36;
+const series = order.flatMap((m, i) => {
+  const done = s1[m].trials.filter((t) => !t[2] && t[1] != null);
+  return [
+    { label: 'random start', color: MODEL_COLORS[m], kind: 'scatter' as const, marker: 'ring' as const, size: 3, quiet: i > 0,
+      points: done.filter((t) => t[0] > 0 && t[0] < STARTUP).map((t) => [i + jitter(t[0]), t[1]!] as [number, number]) },
+    { label: 'TPE', color: MODEL_COLORS[m], kind: 'scatter' as const, size: 3, quiet: i > 0,
+      points: done.filter((t) => t[0] >= STARTUP).map((t) => [i + jitter(t[0]), t[1]!] as [number, number]) },
+    { label: 'default settings', color: '#182129', kind: 'scatter' as const, marker: 'diamond' as const, size: 4, quiet: i > 0,
+      points: [[i, s1[m].default]] as [number, number][] },
+  ];
+});
+const within = (m: string) => {
+  const done = s1[m].trials.filter((t) => !t[2] && t[1] != null);
+  return done.filter((t) => s1[m].best - t[1]! <= 0.01).length / done.length;
+};
+const bn = ['vgg', 'resnet', 'densenet'];
+const label = `Validation macro-F1 of every stage 1 trial per architecture. For the CNNs with batch norm ${Math.round(Math.min(...bn.map(within)) * 100)} to ${Math.round(Math.max(...bn.map(within)) * 100)}% of trials land within a point of the best; for the others far fewer.`;
+---
+
+<Plot
+  id="fer-trials"
+  {label}
+  x={{ tickLabels: order.map((m, i) => ({ at: i, label: MODEL_NAMES[m] })), min: -0.6, max: order.length - 0.4 }}
+  y={{ percent: true, label: 'val macro-F1 after 25 epochs (%)', min: 0.2, max: 0.86 }}
+  {series}
+  annotations={[
+    { kind: 'hband', y: 0.74, y2: 0.8, color: 'rgb(47 109 176 / 0.07)' },
+    { kind: 'label', x: 1, y: 0.835, text: 'batch norm: tight', color: 'var(--ink-heading)' },
+    { kind: 'label', x: 4.5, y: 0.835, text: 'no batch norm: wide spread', color: 'var(--ink-heading)' },
+  ]}
+  height={310}
+  width={600}
+/>

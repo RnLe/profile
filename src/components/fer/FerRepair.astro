@@ -1,0 +1,29 @@
+---
+/**
+ * What the repair does: validation accuracy right after compression and after
+ * 10 epochs of repair, one line per compressed model. Deep cuts recover most
+ * of the way; mild ones barely move.
+ */
+import compress from '../../data/fer/compress.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Rep = { method: string; budget: number; zero_shot: number; val: number };
+const rep = Object.entries(compress.repair as Record<string, Rep>);
+const models = ['vgg', 'resnet', 'densenet'];
+---
+
+<Plot
+  id="fer-repair"
+  label="Validation accuracy before and after repair for each compressed model: models cut deeply recover most of the way, mildly cut ones barely change."
+  x={{ tickLabels: [{ at: 0, label: 'after compression' }, { at: 1, label: 'after repair' }], min: -0.15, max: 1.15 }}
+  y={{ percent: true, min: 0, max: 0.92 }}
+  series={[
+    ...rep.map(([k, r]) => ({ color: MODEL_COLORS[k.split('/')[0]], width: 1.4, opacity: 0.8, marker: 'dot' as const, size: 2.6, quiet: true,
+      points: [[0, r.zero_shot], [1, r.val]] as [number, number][],
+      tips: [`${k}: ${(r.zero_shot * 100).toFixed(1)}%`, `${k}: ${(r.val * 100).toFixed(1)}%`] })),
+    ...models.map((m) => ({ label: MODEL_NAMES[m], color: MODEL_COLORS[m], points: [] as [number, number][] })),
+  ]}
+  height={280}
+  width={420}
+/>

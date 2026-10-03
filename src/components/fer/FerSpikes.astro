@@ -1,0 +1,53 @@
+---
+/**
+ * VGG with batch norm, continued for 1,000 epochs from its memorised state:
+ * no grokking, but loss spikes. With batch norm, weight decay only shrinks
+ * the weights and so raises the effective step size until training breaks
+ * (Lobacheva et al. 2021).
+ */
+import long from '../../data/fer/long.json';
+import Plot from './Plot.astro';
+
+const g = long.vgg_bn_grok;
+const loss = g.epoch.map((e, i) => [e, g.train_loss[i]] as [number, number]);
+const val = g.epoch.map((e, i) => [e, g.val_accuracy[i]] as [number, number]);
+const dips = g.val_accuracy.map((v, i) => [i, v] as const).filter(([, v]) => v < 0.5).map(([i]) => i);
+// A spike: the loss jumps more than twentyfold within an epoch, to above 0.01.
+const spikes = g.train_loss.filter((v, i) => i > 0 && v > 0.01 && v > 20 * Math.max(g.train_loss[i - 1], 1e-6)).length;
+const early = Math.max(...g.val_accuracy.slice(0, 100));
+const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const count = words[spikes] ?? String(spikes);
+---
+
+<div class="stack">
+  <Plot
+    id="fer-spikes-loss"
+    title="Training loss (log scale)"
+    label={`Training loss per epoch over 1,000 epochs on a log scale: it falls by several orders of magnitude and then spikes up, ${count} times.`}
+    x={{ min: 110, max: 1110, ticks: [200, 400, 600, 800, 1000] }}
+    y={{ log: true, min: 1e-7, max: 3 }}
+    series={[{ label: 'training loss', color: '#52606b', width: 1, points: loss }]}
+    annotations={[{ kind: 'label', x: 660, y: 1.2, text: `${count} spikes as weight decay shrinks the weights`, color: 'var(--ink-muted)' }]}
+    legend={false}
+    height={170}
+  />
+  <Plot
+    id="fer-spikes-val"
+    title="Validation accuracy"
+    label={`Validation accuracy per epoch: it drifts down from ${(early * 100).toFixed(0)}% and collapses at ${dips.length} epochs, to ${(Math.min(...g.val_accuracy) * 100).toFixed(0)}% at the worst.`}
+    x={{ label: 'epoch', min: 110, max: 1110, ticks: [200, 400, 600, 800, 1000] }}
+    y={{ percent: true, min: 0.25, max: 0.9 }}
+    series={[{ label: 'validation accuracy', color: '#b7791f', width: 1.2, points: val }]}
+    annotations={dips.slice(0, 2).map((i, k) => ({ kind: 'point' as const, x: g.epoch[i], y: g.val_accuracy[i], dx: k === 0 ? 40 : 46, dy: 6, text: `collapse, epoch ${g.epoch[i]}`, anchor: 'start' as const }))}
+    legend={false}
+    height={190}
+  />
+</div>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+</style>
