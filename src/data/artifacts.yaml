@@ -156,6 +156,39 @@ records:
     pages: 54
     description: Historical presentation artifact from the bachelor-thesis defense.
 
+  - id: hs-report
+    title: 'Hard Sphere Simulations: final report'
+    kind: report
+    projectId: hard-spheres
+    version: '2024'
+    publication: public
+    academicStatus: official-submission
+    resultChanges: false
+    date: '2024-09-30'
+    file: HardSpheres_Report.pdf
+    sha256: fd9bc3b8274a9ab2e964abae5b196bb0886ec5bd10ca8b079373d2dff75e7dce
+    bytes: 8031678
+    pages: 74
+    description: >-
+      The final report of a three-student team project (L. Annuss, S.
+      Nienhaus, R.-M. Lehner), in the compressed copy archived in the project
+      repository. Sections 3 and 8 and parts of the abstract and summary are
+      Rene-Marcel Lehner's.
+
+  - id: fer-report
+    title: 'Facial emotion recognition: seven architectures and the value of tuning'
+    kind: report
+    projectId: facial-emotion-recognition
+    version: '2026-10'
+    publication: draft
+    academicStatus: independent-manuscript
+    resultChanges: false
+    date: '2026-10-03'
+    description: >-
+      The study's report, solo authored: data, seven architectures, tuning in
+      two stages, long training, grokking, and compression, with the guesses
+      written before each step and checked at the end.
+
   - id: blaze2d-report
     title: Blaze2D technical report
     kind: report

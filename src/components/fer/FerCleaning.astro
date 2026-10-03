@@ -1,0 +1,29 @@
+---
+/** Faces removed in cleaning, by reason, from both datasets together. */
+import data from '../../data/fer/data.json';
+import Bars from './Bars.astro';
+
+const names: Record<string, string> = {
+  'low agreement': 'annotators disagree',
+  duplicate: 'duplicate',
+  'duplicate, labels disagree': 'duplicate, conflicting labels',
+  unknown: 'labelled unknown',
+  contempt: 'contempt (8th class)',
+  'removed by FER+': 'removed by FER+',
+  'not a face': 'not a face',
+};
+const rows = Object.entries(data.dropped_by_reason as Record<string, number>)
+  .sort((a, b) => b[1] - a[1])
+  .map(([k, v]) => ({ label: names[k] ?? k, values: [v] }));
+---
+
+<Bars
+  label="Faces removed in cleaning by reason: most because the ten FER+ annotators disagreed, then near-duplicates."
+  {rows}
+  parts={[{ label: 'removed', color: '#a34f3d' }]}
+  x={{ label: 'faces removed' }}
+  value={{ digits: 0 }}
+  labelWidth={170}
+  rowHeight={22}
+  width={480}
+/>

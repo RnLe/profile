@@ -32,6 +32,14 @@ import mseVsK from '../assets/swarm-dynamics/mse-vs-k.svg';
 import marlSetup from '../assets/swarm-dynamics/marl-setup.svg';
 import rlVenn from '../assets/swarm-dynamics/rl-algorithms-venn.svg';
 import criticNetwork from '../assets/swarm-dynamics/critic-network.webp';
+import sedimentationFrames from '../assets/hard-spheres/sedimentation-frames.webp';
+import cellGrid from '../assets/hard-spheres/cell-grid.svg';
+import shellVsRay from '../assets/hard-spheres/shell-vs-ray.svg';
+import checkedCells from '../assets/hard-spheres/checked-cells.svg';
+import gravityEvents from '../assets/hard-spheres/gravity-events.svg';
+import bottomView from '../assets/hard-spheres/bottom-view.webp';
+import pressureVsPacking from '../assets/hard-spheres/pressure-vs-packing.svg';
+import structureEvolution from '../assets/hard-spheres/structure-evolution.svg';
 import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
 import robotArm from '../assets/recover-in-real-time/arm.webp';
 import assemblyKit from '../assets/recover-in-real-time/assembly-kit.webp';
@@ -69,10 +77,11 @@ export type FigureDef =
       /**
        * A figure drawn by a component of its own: the Blaze2D roadmap
        * (StageRoadmap), the accuracy and speed comparisons of the Blaze2D
-       * pitch page (BlazeAccuracy, BlazeSpeed), and its scale (BlazeScale).
+       * pitch page (BlazeAccuracy, BlazeSpeed), and its scale (BlazeScale);
+       * the plots of the facial emotion study (src/components/fer, `fer-*`).
        */
       kind: 'component';
-      component: 'blaze-roadmap' | 'blaze-accuracy' | 'blaze-speed' | 'blaze-scale' | 'msc-operators';
+      component: 'blaze-roadmap' | 'blaze-accuracy' | 'blaze-speed' | 'blaze-scale' | 'msc-operators' | `fer-${string}`;
       wide?: boolean;
       caption?: string;
     }
@@ -87,7 +96,35 @@ export type FigureDef =
       wide?: boolean;
     };
 
+const fer = (component: `fer-${string}`, caption: string, wide = true): FigureDef => ({ kind: 'component', component, caption, wide });
+
 export const figures: Record<string, FigureDef> = {
+  /* ------------------------------------------ Facial emotion recognition --- */
+  'fer-pipeline': fer('fer-pipeline', 'The five parts of the study. Each card opens its tab.'),
+  'fer-classes': fer('fer-classes', 'Training faces per emotion. RAF-DB adds the most where FER2013 is thinnest.'),
+  'fer-cleaning': fer('fer-cleaning', 'Faces removed in cleaning, by reason, from both datasets.', false),
+  'fer-samples': fer('fer-samples', 'Random training faces from FER2013, 48 × 48 pixels. RAF-DB images are not shown: they may not be redistributed.', false),
+  'fer-arch-gain': fer('fer-arch-gain', 'Test accuracy with default settings (ring) and after tuning (dot), mean of the final runs. The number is the gain from tuning, in points.'),
+  'fer-curves': fer('fer-curves', 'Training curves with default settings, mean of two seeds. Augmentation, label smoothing and a decaying learning rate keep the validation loss from turning up.'),
+  'fer-confusion': fer('fer-confusion', 'Test set, in % of each true emotion. Disgust and fear are the hardest classes for every model.'),
+  'fer-size-acc': fer('fer-size-acc', 'Parameters against test accuracy after tuning.', false),
+  'fer-trials': fer('fer-trials', 'Every trial of the first tuning stage: validation macro-F1 after 25 epochs. Rings: random start; dots: TPE; diamond: default settings.'),
+  'fer-importance': fer('fer-importance', 'fANOVA importance: the share of the spread in trial scores explained by each setting, in %.', false),
+  'fer-shape': fer('fer-shape', 'The second tuning stage: width, depth and number of stages join the search for the three winners.', false),
+  'fer-long': fer('fer-long', 'Validation accuracy at a constant learning rate. Right edge: test accuracy after a 10-epoch cooldown, which decays the learning rate to zero (warmup-stable-decay).'),
+  'fer-overfit': fer('fer-overfit', 'Overfitting by design: VGG trained without augmentation, label smoothing or dropout. Training accuracy and loss on fixed training faces.'),
+  'fer-grok': fer('fer-grok', 'Simple CNN on 1,000 training faces, MSE loss, AdamW, after Omnigrok (Liu et al. 2023). Dashed: training accuracy; solid: validation accuracy.'),
+  'fer-nc1': fer('fer-nc1', 'Neural collapse (Papyan et al. 2020): the spread of features within a class against the spread between classes. It falls while validation accuracy rises late.', false),
+  'fer-spikes': fer('fer-spikes', 'VGG with batch norm, trained 1,000 epochs past memorising. The spikes match the periodic behaviour of batch norm with weight decay (Lobacheva et al. 2021).'),
+  'fer-slingshot': fer('fer-slingshot', 'VGG without batch norm on 1,000 faces. Dashed lines in the lower panel mark the jumps, the slingshot pattern of Adam (Thilak et al. 2022).'),
+  'fer-tradeoff-resnet': fer('fer-tradeoff-resnet', 'ResNet-18. Dashed: one threshold for all layers, no fine-tuning. Solid: ranks chosen per layer, then 10 epochs of repair. Crosses: int8. Squares: same size, trained from scratch.'),
+  'fer-tradeoff-vgg': fer('fer-tradeoff-vgg', 'VGG, same routes.', false),
+  'fer-tradeoff-densenet': fer('fer-tradeoff-densenet', 'DenseNet, same routes.', false),
+  'fer-spectra': fer('fer-spectra', 'Cumulative share of variance kept by the leading directions of two VGG layers.', false),
+  'fer-speed': fer('fer-speed', 'Times faster than the uncompressed model for one face. Medians, eager PyTorch, fp32 except int8.'),
+  'fer-scratch': fer('fer-scratch', 'Test accuracy at the same size: trained small from scratch (60 epochs) against compressed and repaired.', false),
+  'fer-repair': fer('fer-repair', 'Validation accuracy of every compressed model before and after 10 epochs of repair.', false),
+
   /* ------------------------------------------------------------ Blaze2D --- */
   'blaze-bands': {
     kind: 'image',
@@ -302,6 +339,61 @@ export const figures: Record<string, FigureDef> = {
     kind: 'image',
     src: criticNetwork,
     alt: 'The critic network: the observation and the action each pass through dense layers, merge, and end in a single Q-value',
+  },
+
+  /* --------------------------------------------------------- Hard spheres --- */
+  // From the team's final report (sections 3 and 8) and its repository's
+  // plots; the vector figures are cut from the report PDF itself. The frames
+  // are the report's six snapshots of the 64,000-sphere run, each shown
+  // as it is, never blended into the next.
+  'hs-hero-frames': {
+    kind: 'image',
+    src: sedimentationFrames,
+    alt: 'Six snapshots of a box of 64,000 hard spheres: at frame 0 a regular lattice fills the box; from frame 10 on the spheres have sunk to the bottom, where layers of green and red crystal grow under a gray fluid',
+    caption: 'The run with 64,000 spheres, one frame per million chains. Green: FCC crystal, red: HCP, gray: no crystal order.',
+    animated: true,
+  },
+  'hs-cell-grid': {
+    kind: 'image',
+    src: cellGrid,
+    alt: 'A grid of square cells with spheres on it; the cells that hold a sphere’s centre are blue, although several spheres reach into neighboring cells',
+  },
+  'hs-shell-vs-ray': {
+    kind: 'image',
+    src: shellVsRay,
+    alt: 'Two grids side by side. Left, the naïve method: a circle around the start cell, as wide as the chain vector, fills a large square of orange cells. Right, ray tracing: only the cells along the arrow are blue, with a narrow band of orange cells around them',
+    caption: 'In two dimensions. Left: the shell search checks every cell within reach of the start (blue). Right: ray tracing walks the cells the path crosses (blue) and checks only their neighbors (orange).',
+  },
+  'hs-checked-cells': {
+    kind: 'image',
+    src: checkedCells,
+    alt: 'Plot of the number of checked cells against the search step, one to ten: the naïve method curves up to nearly 1,400 cells, ray tracing rises in a straight line to just over 100',
+    caption: 'Cells checked after each step of the search, in three dimensions, counted from geometry.',
+  },
+  'hs-gravity-events': {
+    kind: 'image',
+    src: gravityEvents,
+    alt: 'A sphere moving upward along a line meets, in turn, the point where its energy budget ΔU runs out (gravitation event), another sphere (collision event), the ceiling (wall event), or nothing (free movement)',
+    caption: 'Four ways an upward move can end: the energy budget runs out, another sphere, the ceiling, or no event at all.',
+  },
+  'hs-bottom-view': {
+    kind: 'image',
+    src: bottomView,
+    alt: 'Eight square views from below of the lowest layers, frames 9 to 79: scattered green and red spheres at first, then patches of crystal that grow and merge into large green domains with red borders',
+    caption: 'The lowest layers of the 64,000-sphere run seen from below (0 ≤ z ≤ 6.5), frames 9 to 79; only spheres in crystal order are drawn. Green: FCC, red: HCP.',
+    wide: true,
+  },
+  'hs-pressure': {
+    kind: 'image',
+    src: pressureVsPacking,
+    alt: 'Plot of pressure βP/ρ against packing fraction η: the simulation points with sedimentation lie slightly below the Carnahan–Starling curve through the gas and liquid region, flatten in the coexistence region, and rise along the Alder–Hoover–Young curve in the solid',
+    caption: 'Pressure under gravity, from the density profile (dots), against the Carnahan–Starling equation for the fluid and the Alder–Hoover–Young equation for the solid.',
+  },
+  'hs-structure-evolution': {
+    kind: 'image',
+    src: structureEvolution,
+    alt: 'Plot of particle counts over 100 frames: particles without crystal order fall steadily; HCP rises quickly and levels off after about 20 frames; FCC grows almost linearly and passes HCP near frame 90',
+    caption: 'Spheres by structure over the run; one frame is a million chains (15.62 chains per particle).',
   },
 };
 

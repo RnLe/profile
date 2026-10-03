@@ -35,6 +35,8 @@ export const site = {
   name: 'Rene-Marcel Lehner',
   /** The hero's first line, and the page's H1. */
   greeting: 'Hey, I’m Rene! Welcome to my profile.',
+  /** The greeting bubble is hidden for now; the page keeps a visually hidden H1 with the name. */
+  showGreeting: false,
   /** The fields the work sits in, spread over the hero's width. */
   fields: ['Computational Physics', 'Research Visualization', 'AI'],
   /**

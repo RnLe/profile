@@ -169,9 +169,10 @@ test.describe('touch', () => {
     await expect(railMark.locator('.kind-tip')).toBeHidden();
   });
 
-  // The whole introduction on the first screen: greeting, the portrait under
-  // it, the fields, the statement, and the two buttons. The portrait gives way
-  // on a shorter screen (664 px is a phone browser with its bars showing).
+  // The whole introduction on the first screen: the portrait (under the
+  // greeting, while that is shown), the fields, the statement, and the two
+  // buttons. The portrait gives way on a shorter screen (664 px is a phone
+  // browser with its bars showing).
   test('the phone hero holds the whole introduction on the first screen', async ({ page }) => {
     for (const height of [664, 844]) {
       await page.setViewportSize({ width: 390, height });
@@ -181,11 +182,13 @@ test.describe('touch', () => {
         if (!found) throw new Error(`${selector} has no box`);
         return found;
       };
-      const greeting = await box('.greeting');
       const lab = await box('.portrait-lab');
       const fields = await box('.hero-band .fields');
       const actions = await box('.hero-band .actions');
-      expect(lab.y).toBeGreaterThan(greeting.y + greeting.height);
+      if ((await page.locator('.greeting').count()) > 0) {
+        const greeting = await box('.greeting');
+        expect(lab.y).toBeGreaterThan(greeting.y + greeting.height);
+      }
       expect(fields.y).toBeGreaterThan(lab.y + lab.height);
       expect(lab.width, `portrait at ${height}px`).toBeGreaterThanOrEqual(160);
       expect(actions.y + actions.height, `buttons at ${height}px`).toBeLessThanOrEqual(height);

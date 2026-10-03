@@ -1,0 +1,64 @@
+---
+/**
+ * Overfitting, by design: VGG's memorize run (no augmentation, no label
+ * smoothing, no dropout). Accuracy on fixed training faces keeps rising while
+ * validation accuracy peaks early and falls, and validation loss turns up.
+ */
+import long from '../../data/fer/long.json';
+import Plot from './Plot.astro';
+
+type Run = { val_accuracy: number[]; train_clean_accuracy: number[]; val_loss: number[]; train_clean_loss: number[] };
+const r = (long.runs as Record<string, Run>)['vgg/memorize'];
+const ep = (v: number[]) => v.map((a, i) => [i + 1, a] as [number, number]);
+const peak = r.val_accuracy.indexOf(Math.max(...r.val_accuracy));
+const lossMin = r.val_loss.indexOf(Math.min(...r.val_loss));
+---
+
+<div class="pair">
+  <Plot
+    id="fer-overfit-acc"
+    title="Accuracy"
+    label={`VGG memorize run: training accuracy rises to ${(r.train_clean_accuracy.at(-1)! * 100).toFixed(0)}% while validation accuracy peaks at epoch ${peak + 1} and falls to ${(r.val_accuracy.at(-1)! * 100).toFixed(0)}%.`}
+    x={{ label: 'epoch', min: 1, max: 100 }}
+    y={{ percent: true, min: 0.55, max: 1 }}
+    series={[
+      { label: 'training faces', color: '#b7791f', dash: '5 3', points: ep(r.train_clean_accuracy) },
+      { label: 'validation', color: '#b7791f', width: 2, points: ep(r.val_accuracy) },
+    ]}
+    annotations={[
+      { kind: 'band', x: peak + 1, x2: 100, color: 'rgb(163 79 61 / 0.07)' },
+      { kind: 'point', x: peak + 1, y: r.val_accuracy[peak], dx: 26, dy: 34, text: `validation peak, epoch ${peak + 1}`, anchor: 'start' },
+      { kind: 'label', x: 70, y: 0.6, text: 'overfitting: the gap grows', color: '#a34f3d' },
+    ]}
+    height={250}
+  />
+  <Plot
+    id="fer-overfit-loss"
+    title="Loss"
+    label={`VGG memorize run: training loss falls while validation loss reaches its minimum at epoch ${lossMin + 1} and rises again.`}
+    x={{ label: 'epoch', min: 1, max: 100 }}
+    y={{ min: 0, max: 1.2 }}
+    series={[
+      { label: 'training faces', color: '#52606b', dash: '5 3', points: ep(r.train_clean_loss) },
+      { label: 'validation', color: '#52606b', width: 2, points: ep(r.val_loss) },
+    ]}
+    annotations={[
+      { kind: 'point', x: lossMin + 1, y: r.val_loss[lossMin], dx: 20, dy: -40, text: 'validation loss turns up', anchor: 'start' },
+    ]}
+    height={250}
+  />
+</div>
+
+<style>
+  .pair {
+    display: grid;
+    gap: var(--sp-6);
+  }
+
+  @container (min-width: 46rem) {
+    .pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: end;
+    }
+  }
+</style>

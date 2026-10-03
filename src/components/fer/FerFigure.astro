@@ -1,0 +1,61 @@
+---
+/** Picks the drawn figure of the facial emotion study by its figure id. */
+import FerArchGain from './FerArchGain.astro';
+import FerClasses from './FerClasses.astro';
+import FerCleaning from './FerCleaning.astro';
+import FerConfusion from './FerConfusion.astro';
+import FerCurves from './FerCurves.astro';
+import FerGrok from './FerGrok.astro';
+import FerImportance from './FerImportance.astro';
+import FerLong from './FerLong.astro';
+import FerNC1 from './FerNC1.astro';
+import FerOverfit from './FerOverfit.astro';
+import FerPipeline from './FerPipeline.astro';
+import FerRepair from './FerRepair.astro';
+import FerSamples from './FerSamples.astro';
+import FerScratch from './FerScratch.astro';
+import FerShape from './FerShape.astro';
+import FerSizeAcc from './FerSizeAcc.astro';
+import FerSlingshot from './FerSlingshot.astro';
+import FerSpectra from './FerSpectra.astro';
+import FerSpeed from './FerSpeed.astro';
+import FerSpikes from './FerSpikes.astro';
+import FerTradeoff from './FerTradeoff.astro';
+import FerTrials from './FerTrials.astro';
+
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+const known = [
+  'fer-pipeline', 'fer-classes', 'fer-cleaning', 'fer-samples', 'fer-arch-gain', 'fer-curves', 'fer-confusion', 'fer-size-acc',
+  'fer-trials', 'fer-importance', 'fer-shape', 'fer-long', 'fer-overfit', 'fer-grok', 'fer-nc1', 'fer-spikes', 'fer-slingshot',
+  'fer-tradeoff-resnet', 'fer-tradeoff-vgg', 'fer-tradeoff-densenet', 'fer-spectra', 'fer-speed', 'fer-scratch', 'fer-repair',
+];
+if (!known.includes(name)) throw new Error(`Unknown facial emotion figure '${name}'`);
+---
+
+{name === 'fer-pipeline' && <FerPipeline />}
+{name === 'fer-classes' && <FerClasses />}
+{name === 'fer-cleaning' && <FerCleaning />}
+{name === 'fer-samples' && <FerSamples />}
+{name === 'fer-arch-gain' && <FerArchGain />}
+{name === 'fer-curves' && <FerCurves />}
+{name === 'fer-confusion' && <FerConfusion />}
+{name === 'fer-size-acc' && <FerSizeAcc />}
+{name === 'fer-trials' && <FerTrials />}
+{name === 'fer-importance' && <FerImportance />}
+{name === 'fer-shape' && <FerShape />}
+{name === 'fer-long' && <FerLong />}
+{name === 'fer-overfit' && <FerOverfit />}
+{name === 'fer-grok' && <FerGrok />}
+{name === 'fer-nc1' && <FerNC1 />}
+{name === 'fer-spikes' && <FerSpikes />}
+{name === 'fer-slingshot' && <FerSlingshot />}
+{name === 'fer-tradeoff-resnet' && <FerTradeoff model="resnet" highlight="tucker2_4x_int8" height={330} width={600} />}
+{name === 'fer-tradeoff-vgg' && <FerTradeoff model="vgg" title="VGG" legend={false} height={260} />}
+{name === 'fer-tradeoff-densenet' && <FerTradeoff model="densenet" title="DenseNet" legend={false} height={260} />}
+{name === 'fer-spectra' && <FerSpectra />}
+{name === 'fer-speed' && <FerSpeed />}
+{name === 'fer-scratch' && <FerScratch />}
+{name === 'fer-repair' && <FerRepair />}

@@ -1,0 +1,36 @@
+---
+/**
+ * Stage 2: the shape joins the search for the three winners. Every trial:
+ * parameters (log scale) against validation macro-F1. Ring: the start (stage
+ * 1 best at the published shape); diamond: the best trial.
+ */
+import tuning from '../../data/fer/tuning.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Study = { trials: [number, number | null, number][]; start: number; best: number };
+const s2 = tuning.stage2 as unknown as Record<string, Study>;
+const trio = ['vgg', 'resnet', 'densenet'];
+const series = trio.flatMap((m) => {
+  const t = s2[m].trials.filter((x) => x[1] != null);
+  const best = t.reduce((a, b) => (b[2] > a[2] ? b : a));
+  return [
+    { label: MODEL_NAMES[m], color: MODEL_COLORS[m], kind: 'scatter' as const, size: 3.2, opacity: 0.75,
+      points: t.map((x) => [x[1]!, x[2]] as [number, number]),
+      tips: t.map((x) => `${MODEL_NAMES[m]}, trial ${x[0]}: ${(x[1]! / 1e6).toFixed(2)} M, ${(x[2] * 100).toFixed(1)}%`) },
+    { color: MODEL_COLORS[m], kind: 'scatter' as const, marker: 'ring' as const, size: 6, quiet: true, points: [[t[0][1]!, t[0][2]]] as [number, number][] },
+    { color: MODEL_COLORS[m], kind: 'scatter' as const, marker: 'diamond' as const, size: 5.5, quiet: true, points: [[best[1]!, best[2]]] as [number, number][] },
+  ];
+});
+---
+
+<Plot
+  id="fer-shape"
+  label="Stage 2 trials of VGG, ResNet-18 and DenseNet: parameters against validation macro-F1. Smaller networks lose accuracy; the best shapes are only slightly larger than the published ones and score about the same."
+  x={{ log: true, label: 'parameters (log scale)' }}
+  y={{ percent: true, label: 'val macro-F1 after 25 epochs (%)', min: 0.6, max: 0.8 }}
+  {series}
+  annotations={[{ kind: 'label', x: 2e5, y: 0.785, text: 'ring: published shape · diamond: best', anchor: 'start', color: 'var(--ink-muted)' }]}
+  height={320}
+  width={460}
+/>

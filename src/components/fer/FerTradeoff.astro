@@ -1,0 +1,67 @@
+---
+/**
+ * Accuracy against size for one model and every compression route:
+ * one threshold for all layers without fine-tuning (dashed), ranks chosen per
+ * layer and repaired (solid), int8 on top (crosses), and networks of the same
+ * size trained from scratch (squares). Validation accuracy throughout.
+ */
+import compress from '../../data/fer/compress.json';
+import Plot from './Plot.astro';
+import { METHOD_COLORS, METHOD_NAMES, MODEL_NAMES } from './plot';
+
+interface Props {
+  model: 'vgg' | 'resnet' | 'densenet';
+  height?: number;
+  /** Writes the size and accuracy of this int8 variant on the plot. */
+  highlight?: string;
+  legend?: boolean;
+  title?: string;
+  width?: number;
+}
+const { model, height = 320, highlight, legend = true, title, width = 560 } = Astro.props;
+type Row = { bytes: number; val_accuracy: number; params: number };
+type Rep = { method: string; budget: number; bytes: number; val: number };
+type Q = { bytes: number; val: number };
+const MB = (b: number) => b / 2 ** 20;
+const sweep = compress.sweep[model] as unknown as Record<string, Row[]> & { baseline: Row; int8: Row };
+const rep = Object.entries(compress.repair as Record<string, Rep>).filter(([k]) => k.startsWith(`${model}/`)).map(([, r]) => r);
+const quant = Object.entries(compress.quant as Record<string, Q>).filter(([k]) => k.startsWith(`${model}/`) && k.endsWith('_int8'));
+const scratch = Object.entries(compress.scratch as Record<string, { params: number; val: number }>).filter(([k]) => k.startsWith(`${model}/`)).map(([, r]) => r);
+const methods = ['low_rank', 'tucker2', 'spatial'];
+const base = sweep.baseline;
+const series = [
+  ...methods.map((k) => ({
+    color: METHOD_COLORS[k], dash: '4 3', width: 1.2, opacity: 0.75, quiet: true,
+    points: sweep[k].map((r) => [MB(r.bytes), r.val_accuracy] as [number, number]).sort((a, b) => a[0] - b[0]),
+  })),
+  ...methods.filter((k) => rep.some((r) => r.method === k)).map((k) => ({
+    label: METHOD_NAMES[k], color: METHOD_COLORS[k], width: 2, marker: 'dot' as const, size: 3.6,
+    points: rep.filter((r) => r.method === k).map((r) => [MB(r.bytes), r.val] as [number, number]).sort((a, b) => a[0] - b[0]),
+    tips: rep.filter((r) => r.method === k).sort((a, b) => a.bytes - b.bytes).map((r) => `${METHOD_NAMES[k]}, ${r.budget}× fewer parameters: ${MB(r.bytes).toFixed(1)} MB, ${(r.val * 100).toFixed(1)}%`),
+  })),
+  { label: '+ int8', color: '#52606b', kind: 'scatter' as const, marker: 'cross' as const, size: 3.4,
+    points: [[MB(sweep.int8.bytes), sweep.int8.val_accuracy] as [number, number], ...quant.map(([, q]) => [MB(q.bytes), q.val] as [number, number])],
+    tips: ['int8 alone', ...quant.map(([k, q]) => `${k.split('/')[1].replace('_int8', '').replace('_', ' ')} + int8: ${MB(q.bytes).toFixed(1)} MB, ${(q.val * 100).toFixed(1)}%`)] },
+  ...(scratch.length ? [{ label: METHOD_NAMES.scratch, color: METHOD_COLORS.scratch, kind: 'scatter' as const, marker: 'square' as const, size: 3.6,
+    points: scratch.map((r) => [MB(r.params * 4), r.val] as [number, number]) }] : []),
+  { label: 'uncompressed', color: '#182129', kind: 'scatter' as const, size: 5, points: [[MB(base.bytes), base.val_accuracy]] as [number, number][] },
+];
+const hl = highlight ? (compress.quant as Record<string, Q>)[`${model}/${highlight}`] : undefined;
+const ymin = Math.max(0.6, base.val_accuracy - 0.09);
+---
+
+<Plot
+  id={`fer-tradeoff-${model}`}
+  {title}
+  label={`${MODEL_NAMES[model]}: validation accuracy against size for each compression route${hl ? `; with ${highlight!.replace('_int8', '').replace('_', ' ')} and int8 it is ${(MB(base.bytes) / MB(hl.bytes)).toFixed(0)} times smaller at ${(hl.val * 100).toFixed(1)}%` : ''}.`}
+  x={{ log: true, label: 'size (MB, log scale)', ticks: [0.5, 1, 2, 5, 10, 20, 50], tickLabels: [0.5, 1, 2, 5, 10, 20, 50].map((t) => ({ at: t, label: String(t) })), min: model === 'densenet' ? 0.6 : 1.2, max: MB(base.bytes) * 1.25 }}
+  y={{ percent: true, min: ymin, max: base.val_accuracy + 0.012 }}
+  {series}
+  annotations={[
+    { kind: 'hline', y: base.val_accuracy },
+    ...(hl ? [{ kind: 'point' as const, x: MB(hl.bytes), y: hl.val, dx: 30, dy: -34, text: `${(MB(base.bytes) / MB(hl.bytes)).toFixed(0)}× smaller,\nsame accuracy`, anchor: 'start' as const }] : []),
+  ]}
+  {legend}
+  {height}
+  {width}
+/>

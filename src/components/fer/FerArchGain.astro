@@ -1,0 +1,61 @@
+---
+/**
+ * Test accuracy of the seven architectures with their default settings (ring)
+ * and after tuning (dot), one row each, sorted by the tuned result. The
+ * ImageNet-pretrained ResNet-18 is a reference, not tuned.
+ */
+import models from '../../data/fer/models.json';
+import Plot from './Plot.astro';
+import { MODEL_COLORS, MODEL_NAMES } from './plot';
+
+type Rec = { test: number };
+const base = models.baseline as Record<string, Rec>;
+const final = models.final as Record<string, Rec>;
+const order = Object.keys(final).sort((a, b) => final[a].test - final[b].test);
+const rows = order.map((m, i) => ({ m, y: i }));
+const pre = order.length;
+const series = [
+  ...rows.map(({ m, y }) => ({
+    color: MODEL_COLORS[m],
+    kind: 'segments' as const,
+    width: 3,
+    opacity: 0.35,
+    quiet: true,
+    points: [[base[m].test, y], [final[m].test, y]] as [number, number][],
+  })),
+  { label: 'default settings', color: '#52606b', kind: 'scatter' as const, marker: 'ring' as const, size: 4.2,
+    points: rows.map(({ m, y }) => [base[m].test, y] as [number, number]),
+    tips: rows.map(({ m }) => `${MODEL_NAMES[m]}, default: ${(base[m].test * 100).toFixed(1)}%`) },
+  { label: 'after tuning', color: '#182129', kind: 'scatter' as const, size: 4.4,
+    points: rows.map(({ m, y }) => [final[m].test, y] as [number, number]),
+    tips: rows.map(({ m }) => `${MODEL_NAMES[m]}, tuned: ${(final[m].test * 100).toFixed(1)}% (+${((final[m].test - base[m].test) * 100).toFixed(1)})`) },
+  { label: 'ImageNet-pretrained ResNet-18', color: MODEL_COLORS.resnet_pretrained, kind: 'scatter' as const, marker: 'diamond' as const, size: 4,
+    points: [[base.resnet_pretrained.test, pre]] as [number, number][] },
+];
+const bn = ['vgg', 'resnet', 'densenet'];
+const bnMax = Math.max(...bn.map((m) => (final[m].test - base[m].test) * 100));
+const rest = order.filter((m) => !bn.includes(m)).map((m) => (final[m].test - base[m].test) * 100);
+const label = `Test accuracy per architecture, default settings against tuned. ResNet-18, VGG and DenseNet gain at most ${bnMax.toFixed(1)} points from tuning; the others gain ${Math.min(...rest).toFixed(1)} to ${Math.max(...rest).toFixed(1)} points.`;
+const xmin = 0.7;
+const annotations = [
+  ...rows.map(({ m, y }) => ({
+    kind: 'label' as const, x: final[m].test, y, dx: 9, dy: 0, anchor: 'start' as const,
+    text: `+${((final[m].test - base[m].test) * 100).toFixed(1)}`, color: MODEL_COLORS[m],
+  })),
+  ...rows.map(({ m, y }) => ({ kind: 'label' as const, x: xmin, y: y + 0.42, dx: 2, anchor: 'start' as const, text: MODEL_NAMES[m], row: true })),
+  { kind: 'label' as const, x: xmin, y: pre + 0.42, dx: 2, anchor: 'start' as const, text: 'ResNet-18, ImageNet-pretrained (reference)', row: true },
+];
+---
+
+<Plot
+  id="fer-arch-gain"
+  {label}
+  x={{ percent: true, label: 'test accuracy (%)', min: xmin, max: 0.875 }}
+  y={{ ticks: [...rows.map(({ y }) => y), pre], hideLabels: true, min: -0.5, max: pre + 0.75 }}
+  {series}
+  {annotations}
+  left={12}
+  height={340}
+  width={540}
+  minScale={0.62}
+/>

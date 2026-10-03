@@ -1,0 +1,32 @@
+---
+/**
+ * Training faces per class, from FER2013 and from RAF-DB: RAF-DB adds most
+ * where FER2013 is thinnest (disgust, fear).
+ */
+import data from '../../data/fer/data.json';
+import Bars from './Bars.astro';
+
+const fer = data.counts.train_fer as Record<string, number>;
+const raf = data.counts.train_raf as Record<string, number>;
+const rows = data.classes.map((c) => ({
+  label: c,
+  values: [fer[c], raf[c]],
+  note: `${(fer[c] + raf[c]).toLocaleString('en-US')}${raf[c] > fer[c] ? `  (×${((fer[c] + raf[c]) / fer[c]).toFixed(1)})` : ''}`,
+  strong: raf[c] > fer[c],
+}));
+const grow = (c: string) => `${c} grows from ${fer[c]} to ${fer[c] + raf[c]} faces`;
+const label = `Training faces per emotion, stacked: FER2013 and RAF-DB. RAF-DB multiplies the rare classes: ${grow('disgust')}, ${grow('fear')}.`;
+---
+
+<Bars
+  {label}
+  {rows}
+  parts={[
+    { label: 'FER2013 (FER+ labels)', color: '#52606b' },
+    { label: 'RAF-DB', color: '#b7791f' },
+  ]}
+  x={{ label: 'training faces' }}
+  value={{ digits: 0 }}
+  labelWidth={70}
+  width={640}
+/>

@@ -144,7 +144,8 @@ export function resolvePublication(
   }
 
   // Section claims: the project's own, each allowed on the case study itself.
-  for (const claimId of data.sections.flatMap((section) => section.claimIds)) {
+  const allSections = [...data.sections, ...(data.tabs ?? []).flatMap((tab) => tab.sections)];
+  for (const claimId of allSections.flatMap((section) => section.claimIds)) {
     if (!data.claimIds.includes(claimId)) {
       fail(`section claim '${claimId}' is not among the project's claimIds`);
       continue;

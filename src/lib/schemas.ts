@@ -125,6 +125,36 @@ export type ProjectLink = z.infer<typeof projectLinkSchema>;
 export const projectKindEnum = z.enum(['robotics', 'learning', 'theory']);
 export type ProjectKind = z.infer<typeof projectKindEnum>;
 
+/**
+ * One step of a case study: a heading, a few short paragraphs (with the light
+ * emphasis of src/lib/marks.ts), and optionally its figures and the
+ * registered claims they show. A single figure alternates sides down the
+ * page; two run side by side under the text.
+ */
+export const sectionSchema = z.object({
+  heading: z.string().min(1),
+  paragraphs: z.array(z.string().min(1)).min(1),
+  figureIds: z.array(z.string()).max(2).default([]),
+  /** A shell command set under the paragraphs, such as an install line. */
+  code: z.string().min(1).optional(),
+  claimIds: z.array(z.string()).default([]),
+});
+
+/**
+ * A tab of a case study told in parts. Each opens with its core questions
+ * (highlighted) and a lead figure, then a few short paragraphs, steps like
+ * the project's sections, and its own references.
+ */
+export const tabSchema = z.object({
+  id: slug,
+  label: z.string().min(1).max(24),
+  questions: z.array(z.string().min(1)).min(1).max(3),
+  figureId: z.string().optional(),
+  paragraphs: z.array(z.string().min(1)).default([]),
+  sections: z.array(sectionSchema).default([]),
+  citations: z.array(citationSchema).default([]),
+});
+
 export const projectFrontmatterSchema = z.object({
   id: slug,
   slug,
@@ -186,25 +216,14 @@ export const projectFrontmatterSchema = z.object({
   cardClaimIds: z.array(z.string()).default([]),
   mediaIds: z.array(z.string()).default([]),
   figureIds: z.array(z.string()).default([]),
+  /** The case study told in steps after the prose (see sectionSchema). */
+  sections: z.array(sectionSchema).default([]),
   /**
-   * The case study told in steps after the prose: each a heading, a few
-   * short paragraphs (with the light emphasis of src/lib/marks.ts), and
-   * optionally its figures and the registered claims they show. A single
-   * figure alternates sides down the page; two run side by side under the
-   * text.
+   * The case study told in tabs instead, for a study with several parts. The
+   * first tab is the overview and also carries the Markdown body and the
+   * project's sections; the project's citations are its references.
    */
-  sections: z
-    .array(
-      z.object({
-        heading: z.string().min(1),
-        paragraphs: z.array(z.string().min(1)).min(1),
-        figureIds: z.array(z.string()).max(2).default([]),
-        /** A shell command set under the paragraphs, such as an install line. */
-        code: z.string().min(1).optional(),
-        claimIds: z.array(z.string()).default([]),
-      }),
-    )
-    .default([]),
+  tabs: z.array(tabSchema).default([]),
   links: z.array(projectLinkSchema).default([]),
   related: z.array(slug).default([]),
   /** Current-research card fields (in-progress projects only). */
