@@ -79,7 +79,7 @@ function layout(v: Variant) {
 const regionName = `${label.split('. ')[0]}, scrolls sideways`;
 ---
 
-<div class:list={['fer-bars', phone && 'has-phone']} style={`max-width:${Math.round(width * 1.4)}px`}>
+<div class:list={['fer-bars', phone && 'has-phone']} style={`--plot-max:${Math.round(width * 1.4)}px;--plot-k:${(width * 1.4 / 12.8).toFixed(2)}`}>
   {variants.map((v) => {
     const { groupH, top, height, X, plotBottom } = layout(v);
     const { width: w, labelWidth: lw, xs } = v;
@@ -151,11 +151,13 @@ const regionName = `${label.split('. ')[0]}, scrolls sideways`;
 </div>
 
 <style>
+  /* At most 1.4 times its drawing, growing with --case-grow as in Plot. */
   .fer-bars {
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
     min-width: 0;
+    max-width: calc(var(--plot-max) + var(--case-grow, 0px) * var(--plot-k));
     container: fer-bars / inline-size;
   }
 

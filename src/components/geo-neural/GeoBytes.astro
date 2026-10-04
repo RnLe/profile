@@ -1,0 +1,41 @@
+---
+/**
+ * Where the bytes of one learned product go (Essen-Ruhr, 25 cm), with the
+ * model inside the file and shared by a corpus, next to the conventional
+ * product and the same coder with its fixed cubic predictor.
+ */
+import Bars from '../fer/Bars.astro';
+import { CODER_COLORS, data, table } from './geo';
+
+const ex = data.breakdownExample;
+const c = ex.components;
+const row = table('development')[ex.region][String(ex.boundM)];
+const conventional = Math.min(row.sz3.bytes, row['sz3-best'].bytes, row.sperr.bytes);
+const k = (b: number) => b / 1000;
+const own = [k(c.stream), k(c.raw), k(c.coarse + c.container + c.params)];
+const rows = [
+  { label: 'SZ3, best setting', values: [0, 0, 0, 0, k(conventional)] },
+  { label: 'Fixed predictor', values: [0, 0, 0, 0, k(row['cubic-ctx'].bytes)] },
+  { label: 'Neural, model inside', values: [...own, k(ex.sharedModelBytes), 0], strong: true },
+  { label: 'Neural, model shared', values: [...own, 0, 0], strong: true },
+];
+const parts = [
+  { label: 'coded prediction errors', color: CODER_COLORS.learned },
+  { label: 'bits stored as is', color: '#d88c6f' },
+  { label: 'coarse grid and header', color: '#52606b' },
+  { label: 'model', color: '#e8b7a3' },
+  { label: 'whole file', color: '#8a939b' },
+];
+---
+
+<Bars
+  label={`What one neural file holds at 25 cm in Essen-Ruhr: ${(c.stream / 1000).toFixed(0)} kB of coded prediction errors, ${(c.raw / 1000).toFixed(1)} kB of bits stored as is, under 1 kB of coarse grid and header, and a ${(ex.sharedModelBytes / 1000).toFixed(1)} kB model when it is stored in the file.`}
+  {rows}
+  {parts}
+  x={{ label: 'file size (kB)', max: 200 }}
+  value={{ digits: 1, unit: ' kB' }}
+  labelWidth={160}
+  rowHeight={30}
+  width={490}
+  phone={{ labelWidth: 178, right: 66, x: { ticks: [0, 100, 200] } }}
+/>

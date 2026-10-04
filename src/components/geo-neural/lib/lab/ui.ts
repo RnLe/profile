@@ -1,7 +1,7 @@
 // Shared pieces of the lab presets: run controls, diagnostics, sliders.
 
 import { h, uid } from "../data/dom";
-import { formatSci, formatYears } from "../data/format";
+import { formatYears } from "../data/format";
 import type { Diagnostics, RunFrame, RunSpec } from "./protocol";
 
 export interface RunnerApi {
@@ -28,6 +28,8 @@ export interface Preset {
   timeYears(): number;
   setStatus(text: string): void;
   setRunning(running: boolean): void;
+  /** Draws the plots again at their hosts' current size. */
+  redraw?(): void;
 }
 
 export interface Strip {
@@ -56,20 +58,21 @@ export function controlStrip(api: RunnerApi): Strip {
   };
 }
 
-export function diagnosticsList(d: Diagnostics | null, stopped: string | null, area?: number): HTMLElement {
-  if (!d) return h("p", { class: "gn-note" }, stopped ? `Not running: ${stopped}` : "No state yet.");
-  const change = d.integralM3 - d.initialIntegralM3;
+/** A volume in whole cubic meters, three significant digits, with its sign. */
+function formatVolume(m3: number): string {
+  if (Math.abs(m3) < 0.5) return "0 m³";
+  const a = Math.abs(m3).toLocaleString("en-US", { maximumSignificantDigits: 3, maximumFractionDigits: 0 });
+  return `${m3 > 0 ? "+" : "−"}${a} m³`;
+}
+
+/** Time, the soil balance and the steepest slope of one run. */
+export function diagnosticsList(d: Diagnostics | null, stopped: string | null): HTMLElement {
+  if (!d) return h("p", { class: "gn-note" }, stopped ? `Not running: ${stopped}` : "Not started.");
   const rows: [string, string][] = [
     ["Time", formatYears(d.timeYears)],
-    ["Integral", `${formatSci(d.integralM3, 6)} m³`],
-    ["Change in integral", `${formatSci(change, 3)} m³`],
-    ["Boundary exchange", `${formatSci(d.boundaryExchangeM3, 3)} m³`],
-    ["Residual", `${formatSci(d.residualM3, 3)} m³`],
-    ["Residual, relative", formatSci(d.residualRelative, 2)],
-    ["Substeps, last call", `${d.substeps} (stable step ${Number.isFinite(d.stableDtYears) ? formatYears(d.stableDtYears) : "none"})`],
-    ["Max slope", d.maxSlope.toFixed(3)],
+    ["Soil gained or lost", formatVolume(d.residualM3)],
+    ["Steepest slope", d.maxSlope.toFixed(3)],
   ];
-  if (area) rows.splice(3, 0, ["Mean height change", `${formatSci(change / area, 3)} m`]);
   return h(
     "div",
     {},
@@ -118,13 +121,18 @@ export function plotWidth(host: HTMLElement, fallback = 420): number {
   return Math.max(260, Math.min(720, host.clientWidth || fallback));
 }
 
-/** Colour ramp legend for a canvas. */
-export function rampLegend(gradient: string, left: string, mid: string, right: string, caption: string): HTMLElement {
+/** The plot's height: its host's, which the stylesheet sets from the window height. */
+export function plotHeight(host: HTMLElement, fallback = 220): number {
+  return Math.max(120, Math.round(host.clientHeight) || fallback);
+}
+
+/** Color ramp legend for a canvas, with an optional short caption. */
+export function rampLegend(gradient: string, left: string, mid: string, right: string, caption = ""): HTMLElement {
   return h(
     "div",
     { class: "gn-ramp gn-ramp-small" },
     h("div", { class: "gn-ramp-bar", style: `background:${gradient}`, "aria-hidden": "true" }),
     h("div", { class: "gn-ramp-ends" }, h("span", {}, left), h("span", {}, mid), h("span", {}, right)),
-    h("p", { class: "gn-note" }, caption),
+    caption ? h("p", { class: "gn-note" }, caption) : null,
   );
 }

@@ -29,6 +29,7 @@ export type IconName =
   | 'archive'
   | 'copy'
   | 'check'
+  | 'construction'
   | 'python'
   | 'pypi'
   | 'pytorch'

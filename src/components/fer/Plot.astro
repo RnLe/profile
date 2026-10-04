@@ -150,7 +150,7 @@ const marker = (s: Series, px: number, py: number) => {
 };
 ---
 
-<div class:list={['fer-plot', phone && 'has-phone']} style={`max-width:${Math.round(width * 1.4)}px`}>
+<div class:list={['fer-plot', phone && 'has-phone']} style={`--plot-max:${Math.round(width * 1.4)}px;--plot-k:${(width * 1.4 / 12.8).toFixed(2)}`}>
   {title && <p class="fer-plot-title">{title}</p>}
   {variants.map((v) => {
     const { m, X, Y, xTicks, yTicks, inX, inY, clip } = layout(v);
@@ -252,11 +252,14 @@ const marker = (s: Series, px: number, py: number) => {
 </div>
 
 <style>
+  /* At most 1.4 times its drawing; on a page whose type grows with the
+     window (--case-grow, a wide case study) the cap grows with it. */
   .fer-plot {
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
     min-width: 0;
+    max-width: calc(var(--plot-max) + var(--case-grow, 0px) * var(--plot-k));
     container: fer-plot / inline-size;
   }
 

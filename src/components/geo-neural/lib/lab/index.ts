@@ -23,9 +23,9 @@ export interface LabHandle {
 type PresetId = "ridge" | "closure" | "material";
 
 const TABS: { id: PresetId; title: string }[] = [
-  { id: "ridge", title: "Smooth the ridge" },
-  { id: "closure", title: "Loss term or construction" },
-  { id: "material", title: "Assumed material contrast" },
+  { id: "ridge", title: "Smooth a ridge" },
+  { id: "closure", title: "Learned networks" },
+  { id: "material", title: "Soft and hard ground" },
 ];
 
 function supported(): boolean {
@@ -36,7 +36,7 @@ export function mountLab(el: HTMLElement, options: LabOptions): LabHandle {
   const root = h("section", { class: "gn-root gn-lab", "aria-label": "Landscape lab" });
   el.append(root);
   if (!supported()) {
-    root.append(h("p", { class: "gn-message" }, "The lab needs WebAssembly and Web Workers, which this browser does not provide. The rest of the page works without them."));
+    root.append(h("p", { class: "gn-message" }, "The lab needs WebAssembly and Web Workers."));
     return { dispose: () => root.remove() };
   }
 
@@ -73,15 +73,7 @@ export function mountLab(el: HTMLElement, options: LabOptions): LabHandle {
     select(next);
     tabButtons.get(next)?.focus();
   });
-  root.append(
-    h(
-      "p",
-      { class: "gn-lab-badge" },
-      "Recomputed live in your browser by the project's Rust kernel compiled to WebAssembly, in a background worker. Runs start only when you press Run.",
-    ),
-    tablist,
-    panel,
-  );
+  root.append(tablist, panel);
 
   // ---- worker ---------------------------------------------------------------
   function send(msg: ToWorker): void {
@@ -182,13 +174,13 @@ export function mountLab(el: HTMLElement, options: LabOptions): LabHandle {
       if (!specs) return;
       running = true;
       p.setRunning(true);
-      p.setStatus("Starting the kernel...");
+      p.setStatus("Starting…");
       try {
         await ensureWorker();
       } catch (err) {
         running = false;
         p.setRunning(false);
-        p.setStatus(`The wasm kernel could not start: ${err instanceof Error ? err.message : String(err)}`);
+        p.setStatus(`The simulation could not start: ${err instanceof Error ? err.message : String(err)}`);
         return;
       }
       if (disposed || !running || p !== preset) return;
@@ -275,11 +267,30 @@ export function mountLab(el: HTMLElement, options: LabOptions): LabHandle {
 
   select("ridge");
 
+  // The plots take their size from the column and the window height: draw
+  // them again when either changes.
+  let size = "";
+  let sizeRaf = 0;
+  const resize = new ResizeObserver(() => {
+    const next = `${panel.clientWidth}x${window.innerHeight}`;
+    if (next === size) return;
+    const first = !size;
+    size = next;
+    if (first || sizeRaf) return;
+    sizeRaf = requestAnimationFrame(() => {
+      sizeRaf = 0;
+      if (!disposed) preset?.redraw?.();
+    });
+  });
+  resize.observe(panel);
+
   return {
     dispose() {
       if (disposed) return;
       disposed = true;
       running = false;
+      resize.disconnect();
+      if (sizeRaf) cancelAnimationFrame(sizeRaf);
       listeners.clear();
       if (worker) {
         const w = worker;

@@ -1,0 +1,61 @@
+---
+/**
+ * H6, what a landscape's shape says about its rates and age. Scaling uplift,
+ * incision and diffusivity by c and time by 1/c: the expected change of the
+ * log-likelihood along that direction, for a terminal survey, two
+ * fractional epochs, and two surveys a fixed number of years apart, with
+ * time steps rescaled consistently. One panel per truth.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, TONE, data } from './geo';
+
+type Design = { deltaLogLikExpected: number[] };
+type Variant = { cGrid: number[]; designs: Record<string, Design> };
+const res = data.physics['inverse-ridge-profile'].results as unknown as {
+  truths: Record<string, { variants: Record<string, Variant> }>;
+  setup: { truthYears: Record<string, number> };
+};
+const YMIN = -60;
+const designs = [
+  { key: 'terminal', label: 'one survey today', color: TONE.muted, width: 4, opacity: 0.45 },
+  { key: 'fractional', label: 'two surveys, gap grows with age', color: CODER_COLORS['cubic-ctx'], width: 1.6, dash: '5 3' },
+  { key: 'fixed-lag-20k', label: 'two surveys 20,000 years apart', color: CODER_COLORS.best, width: 2 },
+  { key: 'fixed-lag-50k', label: 'two surveys 50,000 years apart', color: CODER_COLORS.learned, width: 2.2 },
+];
+const truths = ['transient', 'late', 'near-equilibrium'];
+const AGE: Record<string, string> = { transient: 'Young', late: 'Older', 'near-equilibrium': 'Near steady state' };
+const title = (t: string) => `${AGE[t]}, ${res.setup.truthYears[t] / 1e6} million years`;
+const panel = (t: string) => {
+  const v = res.truths[t].variants.rescaledDt;
+  return designs.map((d) => ({
+    label: d.label,
+    color: d.color,
+    width: d.width,
+    dash: d.dash,
+    opacity: d.opacity,
+    points: v.cGrid.map((c, i) => [c, Math.max(v.designs[d.key].deltaLogLikExpected[i], YMIN * 1.5)] as [number, number]),
+  }));
+};
+const axis = {
+  x: { label: 'speed-up, time cut to match', log: true, min: 0.5, max: 2, tickLabels: [0.5, 0.71, 1, 1.41, 2].map((c) => ({ at: c, label: String(c) })) },
+  y: { label: 'how well it fits', min: YMIN, max: 4, ticks: [-40, -20, 0], digits: 0 },
+};
+---
+
+<div class="geo-trio">
+  {truths.map((t, i) => (
+    <Plot
+      id={`geo-ident-${t}`}
+      title={title(t)}
+      label={`How well a sped-up or slowed-down history fits a ${AGE[t].toLowerCase()} landscape: flat for one survey and for two surveys whose gap grows with age${t === 'near-equilibrium' ? ', and also flat for surveys a fixed number of years apart near steady state' : '; peaked at the truth for two surveys a fixed number of years apart'}.`}
+      {...axis}
+      series={panel(t)}
+      annotations={[{ kind: 'vline', x: 1 }, ...(t === 'near-equilibrium' ? [{ kind: 'label' as const, x: 0.54, y: -32, anchor: 'start' as const, text: 'all four\nlines flat', color: 'var(--ink-muted)' }] : [])]}
+      legend={i === truths.length - 1}
+      width={300}
+      height={240}
+      minScale={0.85}
+      phone={{ width: 300 }}
+    />
+  ))}
+</div>

@@ -7,23 +7,23 @@ oneLine: >-
   Seven architectures on one clean face dataset: ==how much does each gain
   from tuning==, and how small can the best get?
 tagline: >-
-  Seven architectures, one cleaned dataset: tuning, long training, grokking,
-  and compression.
-listLabel: Independent Study
+  Computer vision: seven network types learn to read emotions from faces, then
+  get tuned, trained longer and compressed.
 activity: archived
 yearStart: 2026
 yearEnd: 2026
+yearLabel: 2024 and 2026
 kinds:
   - learning
 focus:
   learning: 'Computer vision · CNNs and vision transformers · Optuna tuning · grokking · low-rank compression · int8'
 summary: >-
-  A solo study on recognising seven emotions in faces. I merged two datasets
-  into one clean set and trained **seven architectures** with one pipeline and
-  the same tuning budget. The CNNs with batch norm lead and ==barely need
-  tuning==. Follow-ups on the three winners tested longer training, grokking,
-  and **compression**: ResNet-18 becomes 16 times smaller at its original
-  accuracy.
+  Can a network tell from a photo whether someone is happy, sad or surprised?
+  I cleaned two public face datasets into one and trained **seven common
+  network types** on it, each with the same tuning budget. Classic
+  convolutional networks came out on top and ==hardly needed tuning==. The
+  best ones then went further: longer training, and **compression** that
+  makes ResNet-18 sixteen times smaller without losing accuracy.
 placement: research-selected
 lifecycle: released
 evidenceLevel: empirical-study
@@ -33,9 +33,6 @@ statusNote: >-
   page are in the repository; the follow-up experiments ran with one seed each.
 publication: public
 sourceVisibility: public
-role: >-
-  Solo study: data pipeline, seven model implementations, training, tuning,
-  and the follow-up experiments.
 domain: Machine learning · computer vision · model compression
 dateRange: '2026'
 methods:
@@ -82,8 +79,7 @@ claimIds:
   - FER-COMP-001
   - FER-COMP-002
   - FER-COMP-003
-cardClaimIds:
-  - FER-COMP-001
+cardClaimIds: []
 mediaIds: []
 figureIds: []
 tabs:

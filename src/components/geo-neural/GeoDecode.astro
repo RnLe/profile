@@ -1,0 +1,73 @@
+---
+/**
+ * What the bytes cost at the decoder: time to decode one 1025 by 1025 field,
+ * per decoder (range over repeated runs). Unqualified timings on a shared
+ * machine, so only the order of magnitude is read from them.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, data } from './geo';
+
+const d = data.decoder;
+const rows = [
+  { label: 'SZ3', short: 'SZ3', range: [d.sz3S, d.sz3S], color: CODER_COLORS.sz3 },
+  { label: 'neural, in a browser', short: 'neural, browser', range: d.wasmBrowserS, color: CODER_COLORS.learned },
+  { label: 'neural, Python', short: 'neural, Python', range: d.pythonS, color: '#d88c6f' },
+];
+const series = [
+  ...rows.map((r, i) => ({
+    color: r.color,
+    kind: 'segments' as const,
+    width: 7,
+    opacity: 0.55,
+    quiet: true,
+    points: [[r.range[0], i], [r.range[1] * (r.range[1] === r.range[0] ? 1.0001 : 1), i]] as [number, number][],
+  })),
+  ...rows.map((r, i) => ({
+    color: r.color,
+    kind: 'scatter' as const,
+    size: 4,
+    quiet: true,
+    points: [[r.range[0], i]] as [number, number][],
+    tips: [`${r.label}: ${r.range[0]} to ${r.range[1]} s`],
+  })),
+];
+const slow = Math.round(d.wasmBrowserS[0] / d.sz3S);
+const text = (r: (typeof rows)[number]) => (r.range[0] === r.range[1] ? `${r.range[0]} s` : `${r.range[0]} to ${r.range[1]} s`);
+const annotations = rows.map((r, i) => ({
+  kind: 'label' as const,
+  x: r.range[1],
+  y: i,
+  dx: 10,
+  dy: -0.5,
+  anchor: 'start' as const,
+  text: text(r),
+  color: r.color,
+}));
+// On a phone the slow rows are labeled to the left of their range.
+const phoneAnnotations = rows.map((r, i) =>
+  r.range[1] > 0.1
+    ? { kind: 'label' as const, x: r.range[0], y: i, dx: -10, dy: -0.5, anchor: 'end' as const, text: text(r), color: r.color }
+    : annotations[i],
+);
+---
+
+<Plot
+  id="geo-decode"
+  label={`Time to decode one region of 1025 by 1025 heights: about ${d.sz3S} s for SZ3 and ${d.wasmBrowserS[0]} to ${d.wasmBrowserS[1]} s for the neural predictor in a browser, about ${slow} times slower.`}
+  x={{ label: 'seconds to decode one region', log: true, min: 0.005, max: 7, ticks: [0.01, 0.1, 1] }}
+  y={{ tickLabels: rows.map((r, i) => ({ at: i, label: r.label })), min: rows.length - 0.4, max: -0.6 }}
+  {series}
+  {annotations}
+  left={150}
+  width={520}
+  height={150}
+  legend={false}
+  minScale={0.59}
+  phone={{
+    left: 140,
+    height: 170,
+    x: { label: 'seconds per region' },
+    y: { tickLabels: rows.map((r, i) => ({ at: i, label: r.short })) },
+    annotations: phoneAnnotations,
+  }}
+/>

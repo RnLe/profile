@@ -30,6 +30,30 @@ test.describe('project page', () => {
     await page.waitForURL('**/projects/');
   });
 
+  test('text and figure stay side by side, alternating, with or without the rail beside them', async ({ page, viewport }) => {
+    test.skip((viewport?.width ?? 1440) < 1024, 'a phone stacks every step');
+    for (const width of [1024, 1366, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/projects/hard-spheres/');
+      const steps = await page.locator('.step--side').evaluateAll((els) =>
+        els.map((step) => {
+          const text = step.querySelector('.step-text')!.getBoundingClientRect();
+          const figure = step.querySelector('.step-figure')!.getBoundingClientRect();
+          return {
+            beside: figure.left >= text.right - 1 || figure.right <= text.left + 1,
+            left: figure.left < text.left,
+            width: figure.width,
+          };
+        }),
+      );
+      expect(steps.length).toBeGreaterThan(1);
+      expect(steps.every((step) => step.beside), `side by side at ${width} px`).toBe(true);
+      expect(steps.map((step) => step.left)).toEqual(steps.map((_, i) => i % 2 === 1));
+      // The page widens by the rail, so a figure keeps the width it had without one.
+      expect(Math.min(...steps.map((step) => step.width)), `figure width at ${width} px`).toBeGreaterThan(33 * 16);
+    }
+  });
+
   test('the master thesis case study has its builder and its two operator cards', async ({ page }) => {
     await page.goto('/projects/envelope-approximation/');
     await expect(page.locator('h1')).toHaveText('Envelope Approximation for Photonic Moiré Crystals');
@@ -80,15 +104,15 @@ test.describe('a case study told in parts', () => {
     await page.goto('/projects/facial-emotion-recognition/#architectures-size');
     await expect(part(page, 'architectures')).toBeVisible();
 
-    // Beside the article the rail stays in view; on a phone it scrolls away
-    // with the page instead of covering it.
+    // Beside the article (from 84rem) the rail stays in view; narrower, it
+    // scrolls away with the page instead of covering it.
     const position = await page.locator('nav.case-rail').evaluate((el) => getComputedStyle(el).position);
-    expect(position).toBe((viewport?.width ?? 1440) >= 960 ? 'sticky' : 'static');
+    expect(position).toBe((viewport?.width ?? 1440) >= 84 * 16 ? 'sticky' : 'static');
   });
 });
 
-test.describe('landing overlay', () => {
-  test.skip(({ viewport }) => (viewport?.width ?? 1440) < 768, 'phones get the full page instead');
+// The overlay is parked (OVERLAY in src/pages/index.astro); these come back with it.
+test.describe.skip('landing overlay', () => {
 
   test('a case study in parts keeps its rail in the overlay and leaves the URL alone', async ({ page }) => {
     await page.goto('/');
@@ -164,10 +188,8 @@ test.describe('landing overlay', () => {
   });
 });
 
-test.describe('phones', () => {
-  test.skip(({ viewport }) => (viewport?.width ?? 1440) >= 768, 'mobile only');
-
-  test('an entry navigates to the full page instead of opening the modal', async ({ page }) => {
+test.describe('landing entries', () => {
+  test('an entry navigates to the full page', async ({ page }) => {
     await page.goto('/');
     await entry(page, 'recover-in-real-time').click();
     await page.waitForURL('**/projects/recover-in-real-time/');

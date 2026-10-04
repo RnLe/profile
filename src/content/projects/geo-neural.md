@@ -4,53 +4,49 @@ slug: geo-neural
 title: GeoNeural
 shortTitle: GeoNeural
 oneLine: >-
-  How small can a terrain model get before it ==stops behaving like terrain==?
-  Bytes, height error and drainage on real elevation data from the Ruhr valley.
+  Can a small neural network store terrain in ==fewer bytes than the best
+  standard codecs==, and still tell water where to flow?
 tagline: >-
-  When compressed terrain stops behaving like terrain.
-listLabel: Independent Study
+  Compressing landscapes with neural terrain coders, and using geophysics to help reduce their errors.
 activity: active
 yearStart: 2026
 kinds:
   - learning
   - theory
 focus:
-  learning: 'Neural fields · rate-distortion · quantisation-aware training · geospatial data · PyTorch'
-  theory: 'Conservative discretisation · landscape evolution · drainage routing · Rust and WebAssembly'
+  learning: 'Neural compression · elevation models · entropy coding · confirmatory testing · PyTorch'
+  theory: 'Landscape evolution · flow routing · inverse problems · Rust and WebAssembly'
 summary: >-
-  A study of how to store a real terrain model, judged by three things at once:
-  the bytes a decoder needs, the height error, and the **drainage network** a
-  routing algorithm finds on the decoded surface. Conventional codecs win
-  against neural fields once every byte is charged and the conventional side is
-  swept densely. A few sparse corrections around streams ==preserve drainage
-  far more cheaply== than more precision everywhere. And a learned update of
-  the terrain that predicts **one flux per cell face** keeps the material
-  balance exactly, where a conservation penalty does not.
+  Elevation models from airborne laser scanning and satellites are huge: the
+  1 m model of one German state holds about 34 billion heights. A neural
+  terrain coder, a small network inside an error-bounded compressor, stored
+  them in **17 to 26% fewer bytes** than the best standard codecs at errors
+  of 5 to 50 cm, on seven regions it had never seen. Its errors still ==reroute some
+  streams==. A second part brings in geophysics, from geological maps to
+  learned landscape evolution, to help reduce those errors.
 placement: research-selected
 lifecycle: active-research
 evidenceLevel: empirical-study
-statusDate: '2026-10-03'
+statusDate: '2026-10-04'
 statusNote: >-
-  The core study is done and reproducible from the repository: every number on
-  this page was regenerated from the prepared reference, and a sample rebuild
-  runs in about a minute. Five other regions are prepared but were all examined
-  during development, so there is no untouched confirmation region yet.
+  Actively worked on. The compression test is complete; the geology,
+  simulation and reconstruction studies are in progress, and their first
+  results are marked as such.
 publication: public
 sourceVisibility: public
-role: >-
-  Solo project: data acquisition and checks, codecs and accounting, neural
-  models and search, drainage diagnostics, the physics experiments, the Rust
-  kernel and the browser lab.
-domain: Geospatial machine learning · scientific computing
+domain: Geospatial machine learning · Earth observation data · scientific computing
 dateRange: '2026 – present'
+wide: true
 methods:
-  - PyTorch
-  - Neural fields (SIREN, Fourier features, latent grids)
-  - Optuna (TPE)
-  - Quantisation-aware training
-  - q32-delta-zstd, SZ3, zfp, LERC
-  - D8 routing, priority flood
-  - Finite volumes
+  - Digital elevation models
+  - Airborne laser scanning (DGM1)
+  - Error-bounded compression
+  - Neural predictors (PyTorch)
+  - Entropy coding (rANS)
+  - Flow routing (D8)
+  - Landscape evolution
+  - Inverse problems
+  - Super-resolution
   - Rust
   - WebAssembly
   - Three.js
@@ -58,262 +54,386 @@ applicationThemes:
   - geospatial-ml
   - scientific-computing
 citations:
-  - label: 'Sitzmann et al. (2020): Implicit neural representations with periodic activation functions (SIREN)'
-    href: 'https://arxiv.org/abs/2006.09661'
-  - label: 'Dupont et al. (2022): COIN++: neural compression across modalities'
-    href: 'https://arxiv.org/abs/2201.12904'
-  - label: 'Lindell et al. (2022): BACON: band-limited coordinate networks for multiscale scene representation'
-    href: 'https://arxiv.org/abs/2112.04645'
-  - label: 'Müller et al. (2022): Instant neural graphics primitives with a multiresolution hash encoding'
-    href: 'https://arxiv.org/abs/2201.05989'
   - label: 'Liang et al. (2023): SZ3: a modular framework for composing prediction-based error-bounded lossy compressors'
     href: 'https://doi.org/10.1109/TBDATA.2022.3201176'
   - label: 'Lindstrom (2014): Fixed-rate compressed floating-point arrays (zfp)'
     href: 'https://doi.org/10.1109/TVCG.2014.2346458'
-  - label: "O'Callaghan & Mark (1984): The extraction of drainage networks from digital elevation data (D8)"
-    href: 'https://doi.org/10.1016/S0734-189X(84)80011-0'
-  - label: 'Barnes, Lehman & Mulla (2014): Priority-flood: an optimal depression-filling and watershed-labeling algorithm'
-    href: 'https://doi.org/10.1016/j.cageo.2013.04.024'
-  - label: 'Roering, Kirchner & Dietrich (1999): Evidence for nonlinear, diffusive sediment transport on hillslopes'
-    href: 'https://doi.org/10.1029/1998WR900090'
-  - label: 'Bar-Sinai et al. (2019): Learning data-driven discretizations for partial differential equations'
-    href: 'https://doi.org/10.1073/pnas.1814058116'
+  - label: 'Li, Lindstrom & Clyne (2023): Lossy scientific data compression with SPERR'
+    note: IPDPS 2023
+  - label: 'Duda (2013): Asymmetric numeral systems: entropy coding combining speed of Huffman coding with compression rate of arithmetic coding'
+    href: 'https://arxiv.org/abs/1311.2540'
+  - label: 'Ballé, Laparra & Simoncelli (2017): End-to-end optimized image compression'
+    href: 'https://arxiv.org/abs/1611.01704'
+  - label: 'Dupont et al. (2022): COIN++: neural compression across modalities'
+    href: 'https://arxiv.org/abs/2201.12904'
 noveltyNote: >-
-  The codecs, network families and routing algorithms are established. The
-  contribution is the comparison: every byte charged on both sides, a dense
-  conventional sweep, joint dominance with one comparator, drainage as a second
-  quality axis, and a conservative learned closure tested against a tuned
-  penalty over several seeds.
+  The codecs, the entropy coder, flow routing and the landscape model are
+  established tools. What is new is the test: every byte a decoder needs is
+  counted, the bar is the best of five standard codecs, keeping the streams
+  counts as much as saving bytes, and the rules were written down before the
+  new regions were picked.
 claimIds:
   - GEO-ROLE-001
   - GEO-DATA-001
-  - GEO-CODEC-001
-  - GEO-DRAIN-001
-  - GEO-CORR-001
-  - GEO-NEURAL-001
-  - GEO-SIREN-001
-  - GEO-HYBRID-001
-  - GEO-FLUX-001
-  - GEO-PENALTY-001
-  - GEO-TEACH-001
+  - GEO-H1-001
+  - GEO-H1-002
+  - GEO-CODER-001
+  - GEO-DEC-001
+  - GEO-H3-001
   - GEO-GEOL-001
-  - GEO-AUDIT-001
+  - GEO-FIELD-001
+  - GEO-CLOS-001
+  - GEO-IDENT-001
+  - GEO-RECON-001
   - GEO-LIMIT-001
-cardClaimIds:
-  - GEO-CORR-001
+cardClaimIds: []
 mediaIds: []
-figureIds:
-  - geo-hero
+figureIds: []
 tabs:
   - id: overview
     label: Overview
     questions:
-      - How few bytes can a ==real terrain model== use and still be the same landscape?
-      - Does a ==learned update== of the terrain keep the balance of material it is meant to model?
+      - Can a small neural network store terrain in ==fewer bytes== than the best standard codecs?
+      - And does the smaller file still ==send water the same way==?
     figureId: geo-explorer
-    paragraphs:
-      - >-
-        The test field is the 10 m terrain model of southern Essen and the Ruhr
-        valley: 1,050,625 heights over 10.24 by 10.24 km, from the official
-        state survey. Every representation is scored on the bytes its decoder
-        needs, on its height error, and on the streams a routing algorithm
-        finds on the decoded surface, because a small height error on a flat
-        valley floor can send the water somewhere else.
     sections:
-      - heading: What the study found
-        claimIds: [GEO-DRAIN-001, GEO-CORR-001, GEO-NEURAL-001, GEO-FLUX-001]
+      - heading: The neural predictor made smaller files on seven new regions
+        figureIds: [geo-h1-ratio]
         paragraphs:
           - >-
-            **Height error is not drainage.** With a 1 m error bound, which
-            sounds accurate for a 10 m model, the derived streams overlap the
-            reference by only 22%, and two in three reference stream cells are
-            lost or moved. **Sparse corrections fix that cheaply:** exact heights
-            on a narrow band around the streams triple the overlap for 59% more
-            bytes, where uniform precision needs more than twice the bytes to
-            match it.
-          - >-
-            **Neural fields do not beat conventional codecs here.** Against a
-            dense conventional sweep, no network is better by more than 11% in
-            mean error at the same size, those that gain are metres worse at
-            their worst point, and every network whose streams were measured
-            keeps fewer of them than a conventional codec of the same size.
-          - >-
-            **Conservation should be built in, not asked for.** A network that
-            predicts one flux per cell face conserves material to rounding
-            error and is the most accurate of the learned updates. A penalty in
-            the loss trades accuracy for balance and never reaches it.
-      - heading: How it is built
+            On seven regions the coder had never seen, it was **17 to 26%
+            smaller** on average for errors from 5 to 50 cm, and 14 to 27%
+            per region. At 1 m the gain shrinks to 6%, and not every region
+            is smaller.
+      - heading: The smaller files kept fewer streams in some regions
+        question: Is a smaller file automatically a better file?
         paragraphs:
           - >-
-            A Python package downloads and checks the data, builds the
-            reference and its page pyramid, runs twelve codecs, the neural
-            models, the drainage comparison and the physics experiments, and
-            writes one report per run. The browser view and the lab on this
-            page run the project's own code: the terrain in Three.js, the
-            physics in a Rust kernel compiled to WebAssembly.
-  - id: representation
-    label: Representation
+            No. Trace where water would flow on the decoded map: in some
+            regions the neural file kept fewer of the original streams than
+            the best standard codec, and at 50 cm and 1 m in all seven. By
+            the rule written down before the test, the answer to the main
+            question is ==no==. The [Drainage](#drainage) part explains why.
+      - heading: Six questions, and where they stand
+        figureIds: [geo-hypotheses]
+        paragraphs:
+          - >-
+            Four questions are about storing terrain, two about the physics
+            that shapes it. Each had a yes-or-no rule set in advance, and a
+            no counts as an answer. A side study asks whether a network can
+            sharpen coarse maps.
+    continued: >-
+      **This project is actively worked on.** The compression test is
+      complete. Next: a coder that also keeps the streams, then the full
+      geology, physics and reconstruction studies.
+  - id: compression
+    label: Compression
     questions:
-      - Which encoding keeps the most terrain per byte, ==once every byte is charged==?
-    figureId: geo-error
+      - How can a file get smaller, if every height must stay ==within a fixed error==?
+    figureId: geo-levels
     paragraphs:
       - >-
-        Twelve conventional codecs, nine neural families and their quantised
-        versions, all scored on the same reference with the same rule: a
-        decoder is charged for everything it needs, including the coarse grid
-        a hybrid network corrects.
+        The coder works like SZ3, a standard tool for scientific data, in the
+        three steps above. Unlike photo compression, it promises a largest
+        error for every single height. ==The better the guess, the smaller
+        the file.==
+      - >-
+        The neural predictor is a network of just 3.7 kB. It sharpens each
+        guess and says how sure it is, which lets the coder pack the
+        prediction errors tighter. It travels inside every file, so no byte is left
+        uncounted.
     sections:
-      - heading: Conventional codecs
-        claimIds: [GEO-CODEC-001]
+      - heading: Every region got smaller
+        figureIds: [geo-h1-regions]
         paragraphs:
           - >-
-            Over all five pyramid levels, SZ3 is the smallest at every error
-            bound and q32-delta-zstd, simple integer codes with zstd, is second
-            and easy to decode in a browser. At the 1 m bound the page index is
-            over a third of the package, so at low rates the index becomes a
-            large part of the cost.
-      - heading: Neural fields against a dense sweep
-        claimIds: [GEO-NEURAL-001, GEO-SIREN-001]
+            At a largest error of 25 cm, the neural predictor beat SZ3 and
+            SPERR, the two strongest standard codecs, in every region: the
+            six development regions, each coded by a model that never saw
+            it, and the seven new ones.
+      - heading: About half the gain is the coder, half the network
+        question: Is the saving really the neural network, or the coder around it?
         paragraphs:
           - >-
-            The conventional side is swept densely: grids from 10 to 640 m,
-            each at 19 error bounds. A network counts as beaten if one
-            conventional candidate is at least as good on bytes, mean error and
-            maximum error together. Nine of 103 learned candidates are not
-            beaten, all by small trade-offs: the largest gain is 11% in mean
-            error, at the price of metres more maximum error.
-          - >-
-            A stand-alone SIREN of 135 kB reaches 0.61 m mean error. A 20 m grid
-            with bilinear interpolation reaches 0.36 m in 111 kB.
-      - heading: A hybrid is mostly its coarse grid
-        claimIds: [GEO-HYBRID-001]
+            Both. With the fixed predictor, a fixed formula in place of the
+            network, the same coder is already **7 to 13% smaller** than the
+            best standard codec. The network takes off ==another 11 to 15%==.
+      - heading: A network for every map does not pay off
+        question: Why not train a network for each map, so that it fits perfectly?
+        figureIds: [geo-field]
         paragraphs:
           - >-
-            The smallest hybrid that is not beaten stores that same 20 m grid
-            plus 27 kB of 4-bit network weights, and the network improves the
-            grid by 2 mm. The same bytes spent on the grid itself buy 4 cm.
+            That is how a neural field works: one network learns one map by
+            heart. With every byte counted, it costs far more than it saves:
+            on one region at 50 cm, it took 29 kB to store and saved 4.4 kB.
+            One small network, trained once and shared, is the version that
+            pays.
+      - heading: Almost every byte is a coded prediction error
+        figureIds: [geo-bytes]
+        paragraphs:
+          - >-
+            A file is mostly coded prediction errors. The network is about 2%
+            of a 25 cm file. At coarse errors of 1 m and more, the files get
+            so small that the network becomes a large share, and the gain
+            fades.
+      - heading: Compared against the best of five standard codecs
+        figureIds: [geo-conventional]
+        paragraphs:
+          - >-
+            The first version of this project measured neural models against
+            q32, a simple baseline, and did not count every byte. SZ3 needs
+            only a quarter to two thirds of q32's bytes for the same largest
+            error, so those early comparisons were too easy. This version
+            takes the smallest file of five standard codecs, with SZ3 also
+            tuned over 14 settings.
+      - heading: Smaller files take longer to open
+        question: What does the smaller file cost?
+        figureIds: [geo-decode]
+        paragraphs:
+          - >-
+            The neural decoder runs its small network once for every height.
+            In a browser it opens a 10 by 10 km region in about 0.7 s, where
+            SZ3 needs about 0.01 s. ==The bytes are paid for with time.==
+      - heading: Try it in your browser
+        figureIds: [geo-codec]
+        paragraphs:
+          - >-
+            Compare the three files on two regions: their size, where their
+            errors fall, and which streams they keep. The neural file is
+            decoded right here by a Rust decoder compiled to WebAssembly,
+            and checked bit for bit.
   - id: drainage
     label: Drainage
     questions:
-      - Does a small height error ==move the streams==?
-      - Can a few stored heights buy them back?
-    figureId: geo-streams
+      - At the same error, does the smaller file ==keep the streams==?
     paragraphs:
       - >-
-        The same routing runs on the reference and on every decoded surface:
-        depressions filled, water sent downhill to the steepest of eight
-        neighbours, streams where at least 0.05 km² drains through a cell. The
-        score is the overlap of the two stream networks. It compares surfaces;
-        it does not model real water.
+        Water flows downhill, so a terrain map decides where streams form,
+        which land drains into which river, and where a flood would spread.
+        Flood maps, erosion and soil models, and hydrological forecasts all
+        start from these flow paths. On flat ground, ==a few centimeters can
+        send water the other way==.
+      - >-
+        To test this, the same routing runs on the original map and on every
+        decoded one: small pits are filled, water flows to whichever of the
+        eight neighbors is steepest downhill, and a stream starts where water
+        from at least 5 hectares collects. Then the two stream maps are
+        compared, allowing a shift of one cell: missing streams and new,
+        false ones both lower the share of streams found again.
     sections:
-      - heading: Flat ground decides
-        claimIds: [GEO-DRAIN-001]
+      - heading: The streams check failed at every error
+        figureIds: [geo-drainage]
         paragraphs:
           - >-
-            Uniform error bounds lose the streams fast: the stream networks
-            overlap by 85% at 1 cm, 53% at 10 cm and 22% at 1 m, where the 268
-            catchments break into 2,798.
-            On slopes under 0.5%, a 5 cm bound already changes two in five flow
-            directions.
-      - heading: Corrections around the streams
-        claimIds: [GEO-CORR-001]
+            At the same largest error, the best standard codec kept a few
+            more streams, in some regions at every error and in all seven at
+            50 cm and 1 m. The rule allowed the neural file to find at most
+            1 percentage point fewer streams; in the worst region it found 2
+            to 8 points fewer, depending on the error. So the answer is
+            ==no==.
+      - heading: The largest error is not the typical error
+        question: Why would a smaller file lose streams, if every height stays within the limit?
         paragraphs:
           - >-
-            The encoder knows where the streams are. It keeps the 1 m bound
-            everywhere and stores exact heights on a band reaching one cell
-            either side of the streams: 142 kB more, and the overlap rises from
-            22% to 68%.
-            The best uniform bound that fits in the same total size reaches 31%,
-            and matching 68% uniformly takes more than twice the bytes. The band is
-            chosen at one stream threshold, so it is also scored at three
-            others; the gain holds at all of them.
+            The limit only caps the largest error; most heights are much
+            closer. At coarse errors this coder spreads its errors more
+            evenly over the allowed room, so its typical error (the
+            root-mean-square error) is larger: at 50 cm it is **20 to 32%
+            higher** than the best standard codec's.
+          - >-
+            Streams follow the typical error, not the largest one. The first
+            version of the project already found that at a fixed largest
+            error, the codec with the lowest typical error keeps the most
+            streams. The same coder with the fixed predictor keeps about as
+            many streams as with the network, so the cause is the coder, not
+            the network.
+      - heading: Extra precision near streams did not help
+        question: Could the coder spend more precision where water runs?
+        figureIds: [geo-h3]
+        paragraphs:
+          - >-
+            The decoder can find likely streams on the coarse levels it
+            already has, so no extra map is needed. On the development
+            regions, no rule (tighter near streams or on gentle slopes)
+            raised the share of streams found again by the required 5 points
+            at the same file size. The answer is no.
+    continued: >-
+      **This part is actively worked on.** Next: a coder that keeps the typical
+      error low at the same limit, tested on the development regions and
+      then on a fresh set of new regions, since the seven are used up.
+    citations:
+      - label: "O'Callaghan & Mark (1984): The extraction of drainage networks from digital elevation data (D8)"
+        href: 'https://doi.org/10.1016/S0734-189X(84)80011-0'
+      - label: 'Barnes, Lehman & Mulla (2014): Priority-flood: an optimal depression-filling and watershed-labeling algorithm'
+        href: 'https://doi.org/10.1016/j.cageo.2013.04.024'
+  - id: priors
+    label: Geology
+    questions:
+      - Rock shapes the land. Does a ==geological map== help store the terrain?
+    figureId: geo-geology
+    paragraphs:
+      - >-
+        Hard rock tends to form steep ridges, soft rock wide valleys. So the
+        geological map of North Rhine-Westphalia (scale 1:100,000) went into
+        the network as an extra input, one rock unit per 40 m cell. As
+        controls, the network also got a blank map and the real map shifted
+        by 2.56 km. If these help as much, the gain is not geology.
+      - >-
+        In a first test on two regions, the real map saved **up to 1.5%** of
+        the coded terrain, more than either control, though in one of eight
+        runs it saved nothing. That hints at real information, but storing
+        the map (1.8 to 3.9 kB) costs more than it saves.
+    sections:
+      - heading: Training on simulated landscapes has started
+        question: Can simulated landscapes teach the network what terrain looks like?
+        paragraphs:
+          - >-
+            A second idea: train the network first on landscapes made by the
+            physics simulation, and compare it with look-alike terrain made
+            without physics. The 48 simulated and 48 look-alike maps are
+            ready, and training has started.
+    continued: >-
+      **This part is actively worked on.** The full geology study (six
+      regions, four controls) and the test of training on simulated
+      landscapes are running and have no result yet. Next: finish both.
   - id: physics
     label: Physics
     questions:
-      - Can a learned update of the terrain ==keep its material balance==?
-    figureId: geo-lab
+      - Can a neural network take over part of a landscape simulation and ==stay accurate== for thousands of years?
+      - Can a landscape's shape alone tell ==how fast it formed==, and for how long?
+    figureId: geo-closure-arms
     paragraphs:
       - >-
-        Hillslopes creep downhill faster where they are steep. The teacher here
-        is such a nonlinear law, which no linear diffusion matches. Three
-        learned updates of about the same size, with the same training, try to
-        reproduce it.
+        Landscapes form slowly: tectonics lifts the land, rivers cut into
+        it, and soil creeps down the slopes. Simulations step this forward
+        in time. A plain creep law misses how creep speeds up on steep
+        slopes; a network could learn that from data. Here a small network
+        replaces the soil-creep step, learned first from a known simulation,
+        and has to stay accurate over 64 steps of 200 years on surfaces it
+        has never seen.
     sections:
-      - heading: Built in against asked for
-        figureIds: [geo-closure]
-        claimIds: [GEO-FLUX-001, GEO-PENALTY-001]
+      - heading: Built-in physics keeps the network on track
+        question: What keeps a learned step from drifting over thousands of years?
         paragraphs:
           - >-
-            The flux network predicts one value per face between two cells and
-            applies it with opposite signs to both, so whatever leaves one cell
-            enters the next and the total can only change at the boundary. Over
-            five seeds it is the most accurate learned update and conserves to
-            rounding error. A diffusivity network without that structure loses
-            balance; with a conservation penalty it gets closer to balance only
-            by getting less accurate, and at its median it stays about four
-            orders of magnitude further from it than the flux network.
-      - heading: The landscape model is checked too
-        claimIds: [GEO-TEACH-001]
+            Six network designs were trained the same way. The best one
+            cannot break two basic rules: flat ground stays flat, and no
+            soil appears or vanishes. Averaged over the run, its height
+            error is **1.34 m**, close to the 1.11 m that even a perfect copy
+            of the simulation's 200-year step would have. A plain
+            straight-line creep law is off by 3.91 m. Without its floor, a
+            lower limit on the creep rate, the network's error grows to
+            3.45 m. Three of the six designs break one of the two rules and
+            were left out.
+      - heading: Checked whether one survey can tell rate from age
+        question: If every process ran twice as fast for half the time, would the landscape look different?
+        figureIds: [geo-ident]
         paragraphs:
           - >-
-            The landscape-evolution model behind the emulator experiments
-            (uplift, river incision, hillslope creep) passes its own audit:
-            time step and grid refinement converge, the balance closes, and the
-            slope-area law comes out with the right exponent. A closed domain
-            lifted as a whole turns into a rising flat plain, so the boundary
-            is part of the model.
-  - id: evidence
-    label: Evidence
+            No, not in this model. Speed up every process and shorten the
+            time to match, and the final landscape is exactly the same.
+            Inferring causes from a result is an inverse problem, and here
+            one survey can never settle it. In simulations, ==two surveys a
+            fixed number of years apart can==, as long as the landscape is
+            still changing (not yet in steady state).
+      - heading: A fixed time-step cap made up information
+        figureIds: [geo-ident-cap]
+        paragraphs:
+          - >-
+            A shortcut, a fixed cap on the simulation's time step,
+            made fast and slow landscapes look different, as if the surface
+            held real information about its age. It is an artifact of the
+            numerics, and it disappears when the steps are scaled correctly.
+      - heading: Honest error bars need the right noise model
+        question: How sure can a speed estimate be?
+        figureIds: [geo-coverage]
+        paragraphs:
+          - >-
+            Survey errors are correlated in space: neighboring points tend to
+            be off in the same direction. In a first test, error bars from a
+            model that knows this caught the true speed in 95 to 97% of
+            cases, as 95% error bars should. Treating every point as
+            independent caught it in only 37 to 50%.
+      - heading: Run the simulation yourself
+        figureIds: [geo-lab]
+        paragraphs:
+          - >-
+            The simulation core, written in Rust and compiled to
+            WebAssembly, runs here in your browser. Compare the selected
+            network with the simulation, and with an early design that lets
+            flat ground drift.
+    continued: >-
+      **This part is actively worked on.** Next: repeat the error-bar test on
+      about 100 simulated landscapes, compare it with networks that read the
+      speed straight from the map, test what happens when the simulation
+      does not match reality.
+    citations:
+      - label: 'Roering, Kirchner & Dietrich (1999): Evidence for nonlinear, diffusive sediment transport on hillslopes'
+        href: 'https://doi.org/10.1029/1998WR900090'
+      - label: 'Whipple & Tucker (1999): Dynamics of the stream-power river incision model'
+        href: 'https://doi.org/10.1029/1999JB900120'
+      - label: 'Bar-Sinai et al. (2019): Learning data-driven discretizations for partial differential equations'
+        href: 'https://doi.org/10.1073/pnas.1814058116'
+  - id: reconstruction
+    label: Reconstruction
     questions:
-      - What was measured, what was not, and ==what did not hold up==?
+      - Can a network turn a coarse 40 m map into a sharp 10 m map, ==better than standard methods==?
+    figureId: geo-recon
     paragraphs:
       - >-
-        Every number on this page was regenerated by the package from the
-        prepared reference. The earlier runs of the same code are matched
-        exactly by the codec payloads, the drainage results and the neural
-        codecs. The learned closures and the geology gains vary between runs
-        (the single-seed flux error moved from 0.0031 to 0.0047 m/yr), so they
-        are reported over several seeds.
+        Many elevation models, especially those from satellites, are coarse.
+        Here a U-Net, a common image network, learned to turn 40 m averages
+        into 10 m heights. It was trained on four regions and tested on two
+        others, and every result is corrected so that it averages back to
+        the coarse input.
+      - >-
+        In a first test its mean error was **16 to 19% lower** than that of
+        the best method without a network. Given single points instead of
+        averages, it did worse than plain (bicubic) interpolation: much of
+        what it learned was how the coarse map had been made.
+    continued: >-
+      **This part is actively worked on.** Next: the full study with gaps, sparse
+      points and 1 m data, run once on the seven new regions.
+  - id: evidence
+    label: How it was tested
+    questions:
+      - How do you make sure a result is not ==tuned to its own test==?
+    figureId: geo-cohort
+    paragraphs:
+      - >-
+        By writing the rules down first. Before the final test, a protocol
+        fixed the codecs, the error limits, the measures and the pass marks.
+        Then a fixed rule picked seven new regions across the state, from
+        flat to rough terrain, and the models were frozen. The final test
+        ran once, and its result is reported as it came out.
+      - >-
+        Each result is an average over regions, with a range that shows how
+        much it varies from region to region. One codec setting, the tuned
+        SZ3, was added after the rules were set; it can only make the neural
+        result harder to reach.
     sections:
-      - heading: Data
-        claimIds: [GEO-DATA-001]
+      - heading: The rule, condition by condition
+        figureIds: [geo-h1-rule]
         paragraphs:
           - >-
-            Terrain from the state survey's 10 m service (DGM1, Geobasis NRW,
-            DL-DE-Zero-2.0), geology from the 1:100,000 map of the Geological
-            Survey of NRW (DL-DE-BY-2.0). The grid sits where it should: 403
-            official height benchmarks fit within a fraction of a cell, and
-            mapped rivers run downhill on it.
-      - heading: Geology helps only a weak model
-        claimIds: [GEO-GEOL-001]
-        paragraphs:
-          - >-
-            The 1:100,000 map of surface rock types was given to the networks as
-            an extra input in four setups, against a misaligned copy of the same
-            map. It helped consistently in one: a network predicting withheld
-            terrain from scratch improved by 7 to 9% on every seed, at an error
-            still above 4 m. Where a network only corrects a conventional coarse
-            grid, the map changed nothing. It costs 28.5 kB either way.
-      - heading: What did not hold up
-        claimIds: [GEO-AUDIT-001]
-        paragraphs:
-          - >-
-            An earlier summary said no network survives once bytes, mean and
-            maximum error are counted together. It compared each network
-            against two different conventional points. With one comparator and
-            a dense sweep a few networks are formally undominated, by margins
-            too small to matter. Earlier gains that came from an uncharged
-            base, a capped comparison grid or a missing correction step were
-            withdrawn.
+            File size passed at every error from 5 to 50 cm and failed at
+            1 m. The streams condition failed at every error. One failed
+            condition is enough for a no.
       - heading: Limits
-        claimIds: [GEO-LIMIT-001]
         paragraphs:
           - >-
-            One region in depth; the other five were looked at during
-            development, so there is no untouched test region. The drainage
-            score compares surfaces and is not a flood model. The closure
-            experiment is synthetic. Timings come from a shared workstation and
-            are reported as ratios only.
+            Thirteen regions from one German state, all at 10 m; some new
+            regions are neighbors, so they are not fully independent. The
+            stream test compares maps; it does not simulate water. The
+            physics runs on simulated landscapes, and at its default step the
+            simulation's own error is larger than the rules allow for
+            estimating rates. Timings come from a shared workstation.
+      - heading: Data
+        paragraphs:
+          - >-
+            Terrain from the DGM1 of Geobasis NRW (DL-DE-Zero-2.0). Geology
+            from the GK100 of the Geological Survey of North Rhine-Westphalia
+            (DL-DE-BY-2.0).
 links:
   - label: Repository
     href: 'https://github.com/RnLe/geo-neural'
@@ -321,15 +441,14 @@ links:
 related: []
 ---
 
-On a real 10 m terrain model, no neural representation beats the best
-conventional codec of the same size by more than 11% in mean height error, and
-none keeps more of the drainage network. Neural fields promise to store such
-grids in a few kilobytes of network weights and are usually judged by their mean
-height error. This study asks what a downstream computation still gets out of
-the decoded surface, and charges every representation for every byte its decoder
-needs.
+A digital elevation model is a map of heights: one number for every point on
+a grid. Built from airborne laser scans and satellite data, these maps show
+where rivers run, where floods spread and how landscapes change. They are also
+<mark>very large</mark>: the 1&nbsp;m terrain model of North Rhine-Westphalia alone
+holds about 34 billion heights.
 
-The question carries over to physics. A learned model of how terrain changes
-has to keep track of where material goes. Building that constraint into the
-network's structure is compared with asking for it in the loss, on a known
-nonlinear hillslope law, over several seeds and penalty weights.
+GeoNeural asks whether a small neural network can store such maps in fewer
+bytes, with **every height still within a fixed error**, say 25&nbsp;cm. It
+competes against standard codecs, the programs that pack scientific data into
+files and unpack them again. The map above shows one of the thirteen regions,
+Essen-Ruhr: southern Essen and the Ruhr valley.

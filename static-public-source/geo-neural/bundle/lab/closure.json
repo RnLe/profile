@@ -4,6 +4,7 @@
  "activations": {
   "gelu": "0.5 x (1 + erf(x / sqrt 2)), exact erf",
   "softplus": "log(1 + exp(x)), and x itself above 20",
+  "sigmoid": "1 / (1 + exp(-x))",
   "identity": "x"
  },
  "normalisation": "none: inputs enter the network in metres and rise over run, as hybrid.py feeds them",
@@ -23,7 +24,7 @@
   "maxHeightM": 144.1744842529297,
   "note": "range of the training surfaces; states outside it are extrapolation and the kernel refuses to step them"
  },
- "stability": "explicit Euler; kfield and penalty: dt <= spacing^2 / (4 max K); flux: the teacher bound spacing^2 (1 - 0.99^2) / (4 D)",
+ "stability": "explicit Euler; kfield and penalty: dt <= spacing^2 / (4 max K); flux: the teacher bound spacing^2 (1 - 0.99^2) / (4 D); conductance: dt <= spacing^2 / (4 aMax) for every state",
  "training": {
   "steps": 1500,
   "batch": 8,
@@ -46,6 +47,21 @@
     "parameters": 28353,
     "finalLoss": 0.014925003983080387,
     "seconds": 5.4
+   },
+   "conductance": {
+    "seed": 5,
+    "parameters": 28353,
+    "finalLoss": 0.002610782627016306,
+    "seconds": 8.7,
+    "rollout": {
+     "set": "in-range",
+     "rmseM": {
+      "8": 1.9664821156736283,
+      "32": 1.1148872116652417,
+      "64": 0.9410773221493783
+     },
+     "meanRmseM": 1.340815549829416
+    }
    }
   }
  },
@@ -202,6 +218,65 @@
      "activation": "softplus"
     }
    ]
+  },
+  "conductance": {
+   "apply": "conductance",
+   "conservative": true,
+   "floor": 0.05,
+   "aMax": 3.0,
+   "inputs": [
+    "face gradient magnitude |h[c+1] - h[c]| / spacingM"
+   ],
+   "inputGrid": "east faces, side rows by side-1 columns; south faces run the same network on the transposed field",
+   "tendency": "a = floor + (aMax - floor) * sigmoid(output) per face; G = a (h[c+1] - h[c]) / spacingM; the west (north) cell gains G / spacingM and the east (south) cell loses it",
+   "stability": "dt <= spacingM^2 / (4 aMax) for every state",
+   "file": "conductance.bin",
+   "floats": 28353,
+   "bytes": 113412,
+   "sha256": "2db89b259d23d74ebf00c83e06378fabc41a8688d298528599a654b546122cbe",
+   "layers": [
+    {
+     "in": 1,
+     "out": 32,
+     "weightOffset": 0,
+     "biasOffset": 288,
+     "activation": "gelu"
+    },
+    {
+     "in": 32,
+     "out": 32,
+     "weightOffset": 320,
+     "biasOffset": 9536,
+     "activation": "gelu"
+    },
+    {
+     "in": 32,
+     "out": 32,
+     "weightOffset": 9568,
+     "biasOffset": 18784,
+     "activation": "gelu"
+    },
+    {
+     "in": 32,
+     "out": 32,
+     "weightOffset": 18816,
+     "biasOffset": 28032,
+     "activation": "gelu"
+    },
+    {
+     "in": 32,
+     "out": 1,
+     "weightOffset": 28064,
+     "biasOffset": 28352,
+     "activation": "sigmoid"
+    }
+   ],
+   "validated": {
+    "maxSlope": 2.2893480682373046,
+    "minHeightM": -159.60556030273438,
+    "maxHeightM": 151.2713165283203,
+    "note": "range of this arm's training surfaces"
+   }
   }
  }
 }

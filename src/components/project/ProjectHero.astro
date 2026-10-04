@@ -31,10 +31,13 @@ const heroFigure = heroFigureId ? getFigure(heroFigureId) : undefined;
 // wide layout; a photo or a single plot keeps the side column.
 const wide = heroFigure?.kind === 'image' && heroFigure.src.width > 1.7 * heroFigure.src.height;
 const methodsId = `${data.slug}-methods`;
+// A wide case study without a lead figure sets its methods in the figure's
+// column, so the hero stays short and the overview's map shows early.
+const methodsBeside = !heroFigureId && data.wide;
 ---
 
 <header class="project-hero">
-  <div class:list={['wrap', 'hero-grid', wide && 'hero-grid--wide']}>
+  <div class:list={['wrap', 'hero-grid', wide && 'hero-grid--wide', methodsBeside && 'hero-grid--methods']}>
     <div class="headline">
       <h1>{data.title}</h1>
       <p class="lead marked"><Marked text={data.oneLine} /></p>
@@ -55,7 +58,7 @@ const methodsId = `${data.slug}-methods`;
         <p class="with">With {data.collaborators.join(', ')}</p>
       )}
 
-      {data.methods.length > 0 && (
+      {data.methods.length > 0 && !methodsBeside && (
         <section class="methods" aria-labelledby={methodsId}>
           <h2 id={methodsId}>Methods</h2>
           <ul class="tags">
@@ -69,6 +72,15 @@ const methodsId = `${data.slug}-methods`;
       <div class="hero-figure">
         <FigureRenderer figureId={heroFigureId} />
       </div>
+    )}
+
+    {data.methods.length > 0 && methodsBeside && (
+      <section class="methods" aria-labelledby={methodsId}>
+        <h2 id={methodsId}>Methods</h2>
+        <ul class="tags">
+          {data.methods.map((method) => <li>{method}</li>)}
+        </ul>
+      </section>
     )}
   </div>
 </header>
@@ -92,8 +104,20 @@ const methodsId = `${data.slug}-methods`;
   }
 
   @container (min-width: 46rem) {
-    .hero-grid:not(.hero-grid--wide) {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    .hero-grid:not(.hero-grid--wide, .hero-grid--methods) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, var(--hero-figure, 26rem));
+    }
+  }
+
+  /* Methods in the figure's place: two even columns, the tags level with
+     the title's lead; stacked, the grid's gap spaces them. */
+  .hero-grid--methods > .methods {
+    margin-block-start: 0;
+  }
+
+  @container (min-width: 56rem) {
+    .hero-grid--methods {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
   }
 
@@ -174,9 +198,20 @@ const methodsId = `${data.slug}-methods`;
     max-width: 100%;
   }
 
+  /* A wide case study keeps its hero short on its own page, so the start of
+     the case study shows under it: less padding, and the methods across the
+     whole text column. Its figure column (--hero-figure) follows the window. */
+  :global(.project-article[data-wide]:not(dialog *)) .project-hero {
+    padding-block: var(--sp-8) var(--sp-6);
+  }
+
+  :global(.project-article[data-wide]:not(dialog *)) .tags {
+    max-width: none;
+  }
+
   .hero-figure {
     min-width: 0;
-    max-width: 30rem;
+    max-width: max(30rem, var(--hero-figure, 0px));
   }
 
   .hero-grid--wide .hero-figure {

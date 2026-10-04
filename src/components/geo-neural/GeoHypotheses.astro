@@ -1,0 +1,138 @@
+---
+/**
+ * The six questions and where each stands, one row each, with a link to the
+ * part that shows the evidence. The build fails when a row points at a part
+ * the case study no longer has.
+ */
+import { panelId } from '../../lib/case-nav';
+import { getProjectEntry } from '../../lib/content';
+
+type Tone = 'pass' | 'fail' | 'warn' | 'muted';
+const rows: { id: string; part: string; question: string; chips: [string, Tone][] }[] = [
+  { id: 'Q1', part: 'compression', question: 'Can a neural predictor make terrain files smaller and keep the streams?', chips: [['smaller: up to 50 cm', 'pass'], ['streams: no', 'fail']] },
+  { id: 'Q2', part: 'priors', question: 'Does a geological map help?', chips: [['a little, does not pay', 'warn'], ['first test', 'muted']] },
+  { id: 'Q3', part: 'drainage', question: 'Does spending precision near streams keep them?', chips: [['no', 'fail'], ['development regions', 'muted']] },
+  { id: 'Q4', part: 'priors', question: 'Does training on simulated landscapes help?', chips: [['in progress', 'muted']] },
+  { id: 'Q5', part: 'physics', question: 'Can a neural network replace part of a landscape simulation and stay accurate?', chips: [['yes', 'pass'], ['simulation', 'muted']] },
+  { id: 'Q6', part: 'physics', question: "Can a landscape's shape tell how fast it formed, and for how long?", chips: [['only with two surveys', 'warn'], ['in progress', 'muted']] },
+];
+const parts = new Set((await getProjectEntry('geo-neural')).data.tabs.map((t) => t.id));
+for (const r of rows) if (!parts.has(r.part)) throw new Error(`geo-hypotheses: ${r.id} points at a missing part '${r.part}'`);
+---
+
+<ol class="geo-hyp">
+  {rows.map((r) => (
+    <li>
+      <a href={`#${panelId('geo-neural', r.part)}`} class="row">
+        <span class="id">{r.id}</span>
+        <span class="question">{r.question}</span>
+        <span class="chips">
+          {r.chips.map(([label, tone]) => <span class={`chip chip--${tone}`}>{label}</span>)}
+        </span>
+      </a>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .geo-hyp {
+    display: grid;
+    gap: 0;
+    max-width: 56rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block: 1px solid var(--line);
+  }
+
+  .geo-hyp li + li {
+    border-block-start: 1px solid var(--line);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+    gap: var(--sp-1) var(--sp-4);
+    align-items: center;
+    padding: var(--sp-3) var(--sp-2);
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--r-sm);
+  }
+
+  @media (hover: hover) {
+    .row:hover {
+      background: var(--surface-alt);
+    }
+
+    .row:hover .question {
+      color: var(--accent-strong);
+    }
+  }
+
+  .id {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 650;
+    color: var(--ink-faint);
+  }
+
+  .question {
+    min-width: 0;
+    font-weight: 600;
+    color: var(--ink-heading);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--sp-1);
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    padding: 0.2em 0.65em;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+
+  .chip--pass {
+    color: var(--status-validated);
+    background: var(--status-validated-bg);
+    border-color: color-mix(in srgb, var(--status-validated) 25%, transparent);
+  }
+
+  .chip--fail {
+    color: #9a3f2c;
+    background: color-mix(in srgb, #b4503a 12%, var(--surface));
+    border-color: color-mix(in srgb, #b4503a 30%, transparent);
+  }
+
+  .chip--warn {
+    color: var(--status-active);
+    background: var(--status-active-bg);
+    border-color: color-mix(in srgb, var(--status-active) 25%, transparent);
+  }
+
+  .chip--muted {
+    color: var(--status-neutral);
+    background: var(--status-neutral-bg);
+    border-color: var(--line);
+  }
+
+  @container (max-width: 34rem) {
+    .row {
+      grid-template-columns: 2.2rem minmax(0, 1fr);
+    }
+
+    .chips {
+      grid-column: 2;
+      justify-content: flex-start;
+    }
+  }
+</style>

@@ -45,7 +45,6 @@ import robotArm from '../assets/recover-in-real-time/arm.webp';
 import assemblyKit from '../assets/recover-in-real-time/assembly-kit.webp';
 import followerLabels from '../assets/recover-in-real-time/follower-labels.webp';
 import servoBuses from '../assets/recover-in-real-time/servo-buses.webp';
-import geoHero from '../assets/geo-neural/hero.webp';
 
 export type FigureDef =
   | {
@@ -89,7 +88,7 @@ export type FigureDef =
     }
   | {
       kind: 'island';
-      island: 'moire-builder' | 'geo-explorer' | 'geo-lab';
+      island: 'moire-builder' | 'geo-explorer' | 'geo-lab' | 'geo-codec';
       title?: string;
       caption?: string;
       /** Visible label required for method previews. */
@@ -100,51 +99,113 @@ export type FigureDef =
 
 const fer = (component: `fer-${string}`, caption: string, wide = true): FigureDef => ({ kind: 'component', component, caption, wide });
 
-const geo = (component: `geo-${string}`, caption: string): FigureDef => ({ kind: 'component', component, caption, wide: true });
+const geo = (component: `geo-${string}`, caption: string, wide = true): FigureDef => ({ kind: 'component', component, caption, wide });
 
 export const figures: Record<string, FigureDef> = {
   /* ---------------------------------------------------------- GeoNeural --- */
-  'geo-hero': {
-    kind: 'image',
-    src: geoHero,
-    alt: 'Hillshaded 10 m terrain of southern Essen: valleys draining north and south, the Ruhr bend and Lake Baldeney in the south',
-    caption: 'The reference: 1,050,625 heights at 10 m from the state survey, over 10.24 by 10.24 km.',
-    widths: [480, 720, 960],
-  },
   'geo-explorer': {
     kind: 'island',
     island: 'geo-explorer',
-    title: 'Terrain explorer',
-    caption:
-      'The 10 m reference of southern Essen and seven decoded candidates, shown on a 20 m display grid. Pick a candidate, then compare it with the reference through the signed error, the mapped geology or the derived streams. The fields were decoded offline; the view is rendered live.',
-    fallbackText:
-      'An interactive 3D view of the terrain and its candidates needs JavaScript and WebGL 2. The plots below show the same results.',
+    title: 'Terrain map',
+    caption: 'Drawn 5 times taller than it is.',
+    fallbackText: 'The 3D terrain map needs JavaScript and WebGL 2.',
     wide: true,
   },
   'geo-lab': {
     kind: 'island',
     island: 'geo-lab',
     title: 'Landscape lab',
-    caption:
-      'Hillslope experiments recomputed in the browser by the project kernel, written in Rust and compiled to WebAssembly. Runs start only when you press Run.',
+    caption: 'Simulation: three hillslope experiments, one with the selected network. Press Run to start one.',
     fallbackText: 'The lab needs JavaScript, WebAssembly and Web Workers.',
     wide: true,
   },
-  'geo-streams': geo(
-    'geo-streams',
-    'Bytes against the drainage a routing algorithm still finds. Each marker is one serialised candidate; stream overlap compares D8 streams on the decoded surface with those of the reference, a routing diagnostic rather than discharge.',
+  'geo-codec': {
+    kind: 'island',
+    island: 'geo-codec',
+    title: 'Compression microscope',
+    caption: 'Development regions at 25 cm, where all three files keep about as many streams; the loss shows on the new regions.',
+    fallbackText: 'The microscope needs JavaScript, WebAssembly and Web Workers.',
+    wide: true,
+  },
+  'geo-hypotheses': geo('geo-hypotheses', 'The six questions and where each one stands. Each row opens its part.'),
+  'geo-h1-ratio': geo(
+    'geo-h1-ratio',
+    'Below 1 means a smaller file than the best standard codec. Thin lines are single regions, the bold line their average.',
   ),
-  'geo-error': geo(
-    'geo-error',
-    'Bytes against mean height error over all 1,050,625 reference nodes. The line is the best conventional candidate at each size or smaller.',
+  'geo-levels': geo(
+    'geo-levels',
+    'How the coder works, level by level.',
   ),
-  'geo-closure': geo(
-    'geo-closure',
-    'Learned hillslope updates over five seeds against a nonlinear teacher, on 24 unseen surfaces: the error of the predicted rate of height change against the relative conservation residual. The dashed line joins the median of each penalty weight, from 0.0001 to 10. Residuals below 1e-9 are drawn at 1e-9.',
+  'geo-h1-regions': geo(
+    'geo-h1-regions',
+    'At 25 cm the neural predictor (filled dot) makes the smallest file in every region. The number is its saving over the best standard codec.',
+  ),
+  'geo-bytes': geo(
+    'geo-bytes',
+    'Development region Essen-Ruhr at 25 cm: almost every byte is a coded prediction error. The model itself is a thin slice.',
+    false,
+  ),
+  'geo-conventional': geo(
+    'geo-conventional',
+    'First test: SZ3 and SPERR need far fewer bytes than q32, the simple baseline of the first version.',
+    false,
+  ),
+  'geo-decode': geo(
+    'geo-decode',
+    'The neural file decodes in under a second in a browser, much slower than SZ3. Rough timings from a shared machine.',
+    false,
+  ),
+  'geo-drainage': geo(
+    'geo-drainage',
+    'New regions: streams fade as the error grows. From 50 cm, the neural predictor keeps fewer than the best standard codec (the smallest file) in every region; SPERR keeps more, usually in a larger file.',
+  ),
+  'geo-h1-rule': geo(
+    'geo-h1-rule',
+    'The rule fixed before the final run. New regions: size passes from 5 to 50 cm, the streams check fails everywhere.',
+  ),
+  'geo-h3': geo(
+    'geo-h3',
+    'Development regions: a tighter limit near streams or on gentle slopes did not keep more streams at the same file size.',
+    false,
+  ),
+  'geo-geology': geo(
+    'geo-geology',
+    'First test, each case trained twice: a geological map makes the file a little smaller, but storing the map costs more than it saves.',
+  ),
+  'geo-field': geo(
+    'geo-field',
+    'First test: a network fitted to one terrain saves 4.4 kB and costs 29 kB to store.',
+    false,
+  ),
+  'geo-closure-arms': geo(
+    'geo-closure-arms',
+    'Simulation: six network designs, lower is more accurate. Hollow ones break a basic physics rule and are excluded.',
+  ),
+  'geo-ident': geo(
+    'geo-ident',
+    'Simulation: one survey cannot tell a fast young landscape from a slow old one. Two surveys years apart can.',
+  ),
+  'geo-ident-cap': geo(
+    'geo-ident-cap',
+    'Simulation: a fixed cap on the time step makes up information that is not there. With correct steps it is exactly zero.',
+    false,
+  ),
+  'geo-coverage': geo(
+    'geo-coverage',
+    'First test: the error bars on the speed are honest only when the noise is treated as correlated.',
+    false,
+  ),
+  'geo-recon': geo(
+    'geo-recon',
+    'First test: from 40 m averages to 10 m, the neural network beats simple methods. Given point samples, it loses.',
+  ),
+  'geo-cohort': geo(
+    'geo-cohort',
+    'The 7 new regions were picked by a fixed rule before any model saw them. Crosses are candidates with missing data.',
   ),
 
   /* ------------------------------------------ Facial emotion recognition --- */
-  'fer-pipeline': fer('fer-pipeline', 'The five parts of the study. Each card opens its tab.'),
+  'fer-pipeline': fer('fer-pipeline', 'The five parts of the study. Each card opens its part.'),
   'fer-classes': fer('fer-classes', 'Training faces per emotion. RAF-DB adds the most where FER2013 is thinnest.'),
   'fer-cleaning': fer('fer-cleaning', 'Faces removed in cleaning, by reason, from both datasets.', false),
   'fer-samples': fer('fer-samples', 'Random training faces from FER2013, 48 × 48 pixels. RAF-DB images are not shown: they may not be redistributed.', false),

@@ -1,0 +1,46 @@
+---
+/**
+ * Calibration of the likelihood for two surveys a fixed number of years
+ * apart: how often the nominal 95% interval for c covers the truth over
+ * repeated noise draws, with the correct correlated likelihood and with the
+ * independent sum of squares of the earlier code.
+ */
+import Plot from '../fer/Plot.astro';
+import { TONE, data } from './geo';
+
+const cov = data.prototype.physics.B.coverage as Record<string, Record<string, { correct: number; iid: number }>>;
+const AGE: Record<string, string> = { transient: 'young', late: 'older' };
+const rows = Object.entries(cov).flatMap(([stage, designs]) =>
+  Object.entries(designs).map(([design, v]) => ({ label: `${AGE[stage] ?? stage}, ${design.replace('iii_fixedDelta', '').replace('k', ',000-year gap')}`, ...v })),
+);
+const series = [
+  {
+    color: 'var(--line-strong)',
+    kind: 'segments' as const,
+    width: 2,
+    quiet: true,
+    points: rows.flatMap((r, i) => [[r.iid, i], [r.correct, i]] as [number, number][]),
+  },
+  { label: 'noise treated as independent', color: TONE.fail, kind: 'scatter' as const, marker: 'ring' as const, size: 4.2, points: rows.map((r, i) => [r.iid, i] as [number, number]), tips: rows.map((r) => `${r.label}, independent: ${(r.iid * 100).toFixed(0)}%`) },
+  { label: 'noise treated as correlated', color: TONE.pass, kind: 'scatter' as const, size: 4.4, points: rows.map((r, i) => [r.correct, i] as [number, number]), tips: rows.map((r) => `${r.label}, correct: ${(r.correct * 100).toFixed(0)}%`) },
+];
+const lo = Math.min(...rows.map((r) => r.iid));
+const hi = Math.max(...rows.map((r) => r.iid));
+---
+
+<Plot
+  id="geo-coverage"
+  label={`How often a 95% error bar for the speed holds the truth: ${Math.round(Math.min(...rows.map((r) => r.correct)) * 100)} to ${Math.round(Math.max(...rows.map((r) => r.correct)) * 100)}% when the noise is treated as correlated, ${Math.round(lo * 100)} to ${Math.round(hi * 100)}% when it is treated as independent.`}
+  x={{ label: 'how often the 95% error bar holds the truth', percent: true, unit: '%', min: 0, max: 1, ticks: [0, 0.25, 0.5, 0.75, 0.95], digits: 0 }}
+  y={{ tickLabels: rows.map((r, i) => ({ at: i, label: r.label })), min: rows.length - 0.5, max: -1.2 }}
+  {series}
+  annotations={[
+    { kind: 'band', x: 0.9, x2: 0.98, color: 'color-mix(in srgb, #2e8a5f 14%, transparent)' },
+    { kind: 'label', x: 0.94, y: -0.85, anchor: 'end', text: 'target 90 to 98%', color: TONE.pass },
+  ]}
+  left={160}
+  width={520}
+  height={210}
+  minScale={0.64}
+  phone={{ left: 186, height: 230, x: { label: 'error bar holds the truth' } }}
+/>

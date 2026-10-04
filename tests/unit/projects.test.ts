@@ -43,6 +43,7 @@ const frontmatter = (overrides: Partial<ProjectFrontmatter> = {}): ProjectFrontm
   figureIds: [],
   sections: [],
   tabs: [],
+  wide: false,
   links: [],
   related: [],
   ...overrides,

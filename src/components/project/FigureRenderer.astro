@@ -18,8 +18,10 @@ import FerFigure from '../fer/FerFigure.astro';
 import GeoFigure from '../geo-neural/GeoFigure.astro';
 import GeoExplorer from '../islands/GeoExplorer';
 import GeoLab from '../islands/GeoLab';
+import GeoCodec from '../islands/GeoCodec';
 import '../geo-neural/geo-neural.css';
 import { blazeScale } from '../../data/blaze-scale';
+import { glue } from '../../lib/typography';
 
 interface Props {
   figureId: string;
@@ -62,7 +64,7 @@ const figure = getFigure(figureId);
     {(figure.title || figure.caption) && (
       <figcaption>
         {figure.title && <strong>{figure.title}.</strong>}
-        {figure.caption}
+        {figure.caption && glue(figure.caption)}
       </figcaption>
     )}
   </figure>
@@ -86,7 +88,7 @@ const figure = getFigure(figureId);
     {(figure.title || figure.caption) && (
       <figcaption>
         {figure.title && <strong>{figure.title}.</strong>}
-        {figure.caption}
+        {figure.caption && glue(figure.caption)}
       </figcaption>
     )}
   </figure>
@@ -103,7 +105,7 @@ const figure = getFigure(figureId);
     {figure.component === 'blaze-scale' && (
       <BlazeScale client:visible={{ rootMargin: '200px' }} metrics={blazeScale} />
     )}
-    {figure.caption && <figcaption>{figure.caption}</figcaption>}
+    {figure.caption && <figcaption>{glue(figure.caption)}</figcaption>}
   </figure>
 )}
 
@@ -113,13 +115,14 @@ const figure = getFigure(figureId);
     {figure.island === 'moire-builder' && <MoireBuilder client:visible />}
     {figure.island === 'geo-explorer' && <GeoExplorer client:visible />}
     {figure.island === 'geo-lab' && <GeoLab client:visible />}
+    {figure.island === 'geo-codec' && <GeoCodec client:visible />}
     <noscript>
       <p class="noscript-note">{figure.fallbackText}</p>
     </noscript>
     {(figure.title || figure.caption) && (
       <figcaption>
         {figure.title && <strong>{figure.title}.</strong>}
-        {figure.caption}
+        {figure.caption && glue(figure.caption)}
       </figcaption>
     )}
   </figure>

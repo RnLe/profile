@@ -7,9 +7,10 @@
  * rail is a table of contents for the stacked parts; lib/tabs does the rest.
  *
  * Beside the article it floats and sticks while the page scrolls. When the
- * article is too narrow for a column of its own, the parts become a compact
- * list at the top of the case study that scrolls away with it, and a single
- * page's rail is left out (the pager at the end of each part takes over).
+ * article is too narrow to spare it a column (ProjectArticle sets where), the
+ * parts become a compact list at the top of the case study that scrolls away
+ * with it, and a single page's rail is left out (the pager at the end of each
+ * part takes over).
  */
 import type { RailLink, RailPart } from '../../lib/case-nav';
 
@@ -200,7 +201,8 @@ const { title, parts, links = [] } = Astro.props;
   }
 
   /* ---------------------------------------- beside the article: a sidebar --- */
-  @container (min-width: 60rem) {
+  /* Where the article has room for it (ProjectArticle names the layout). */
+  @container case-beside (min-width: 0) {
     .case-rail {
       position: sticky;
       inset-block-start: calc(var(--header-h) + var(--sp-5));
@@ -237,7 +239,7 @@ const { title, parts, links = [] } = Astro.props;
       min-height: 2.25rem;
     }
 
-    :global(.has-js) .rail-part[aria-current='true'] + .rail-steps,
+    .rail-part[aria-current='true'] + .rail-steps,
     .rail-steps--page {
       display: flex;
       flex-direction: column;
@@ -255,7 +257,7 @@ const { title, parts, links = [] } = Astro.props;
   }
 
   /* In the overlay the panel scrolls, not the page: stick to its top. */
-  @container (min-width: 60rem) {
+  @container case-beside (min-width: 0) {
     :global(dialog) .case-rail {
       inset-block-start: var(--sp-4);
     }

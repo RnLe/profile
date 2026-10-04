@@ -1,17 +1,51 @@
 ---
 /** Picks a drawn GeoNeural figure by its figure id. */
-import GeoClosure from './GeoClosure.astro';
-import GeoError from './GeoError.astro';
-import GeoStreams from './GeoStreams.astro';
+import GeoBytes from './GeoBytes.astro';
+import GeoClosureArms from './GeoClosureArms.astro';
+import GeoCohort from './GeoCohort.astro';
+import GeoConventional from './GeoConventional.astro';
+import GeoCoverage from './GeoCoverage.astro';
+import GeoDecode from './GeoDecode.astro';
+import GeoDrainage from './GeoDrainage.astro';
+import GeoField from './GeoField.astro';
+import GeoGeology from './GeoGeology.astro';
+import GeoH3 from './GeoH3.astro';
+import GeoHypotheses from './GeoHypotheses.astro';
+import GeoIdent from './GeoIdent.astro';
+import GeoIdentCap from './GeoIdentCap.astro';
+import GeoLevels from './GeoLevels.astro';
+import GeoRatio from './GeoRatio.astro';
+import GeoRecon from './GeoRecon.astro';
+import GeoRegions from './GeoRegions.astro';
+import GeoRule from './GeoRule.astro';
 
 interface Props {
   name: string;
 }
 const { name } = Astro.props;
-const known = ['geo-streams', 'geo-error', 'geo-closure'];
+const known = [
+  'geo-h1-ratio', 'geo-levels', 'geo-h1-regions', 'geo-bytes', 'geo-conventional', 'geo-decode', 'geo-drainage',
+  'geo-h1-rule', 'geo-h3', 'geo-geology', 'geo-field', 'geo-closure-arms', 'geo-ident', 'geo-ident-cap',
+  'geo-coverage', 'geo-recon', 'geo-cohort', 'geo-hypotheses',
+];
 if (!known.includes(name)) throw new Error(`Unknown GeoNeural figure '${name}'`);
 ---
 
-{name === 'geo-streams' && <GeoStreams />}
-{name === 'geo-error' && <GeoError />}
-{name === 'geo-closure' && <GeoClosure />}
+{name === 'geo-h1-ratio' && <GeoRatio />}
+{name === 'geo-levels' && <GeoLevels />}
+{name === 'geo-h1-regions' && <GeoRegions />}
+{name === 'geo-bytes' && <GeoBytes />}
+{name === 'geo-conventional' && <GeoConventional />}
+{name === 'geo-decode' && <GeoDecode />}
+{name === 'geo-drainage' && <GeoDrainage />}
+{name === 'geo-h1-rule' && <GeoRule />}
+{name === 'geo-h3' && <GeoH3 />}
+{name === 'geo-geology' && <GeoGeology />}
+{name === 'geo-field' && <GeoField />}
+{name === 'geo-closure-arms' && <GeoClosureArms />}
+{name === 'geo-ident' && <GeoIdent />}
+{name === 'geo-ident-cap' && <GeoIdentCap />}
+{name === 'geo-coverage' && <GeoCoverage />}
+{name === 'geo-recon' && <GeoRecon />}
+{name === 'geo-cohort' && <GeoCohort />}
+{name === 'geo-hypotheses' && <GeoHypotheses />}

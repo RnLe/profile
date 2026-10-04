@@ -1,0 +1,126 @@
+---
+/**
+ * H1 at a glance: complete bytes of the learned coder over the best
+ * conventional product at the same maximum error, per region (thin) and as
+ * the geometric mean over regions (bold), with the bootstrap interval at the
+ * decision bounds as a faint bar. Confirmation tiles on the left, development
+ * regions on the right; the fixed cubic predictor with context for comparison.
+ */
+import Plot from '../fer/Plot.astro';
+import {
+  ALL_BOUNDS, CODER_COLORS, CONF_REGIONS, DECISION_BOUNDS, DEV_REGIONS,
+  bestConventional, data, fmtBound, geoMean, table,
+} from './geo';
+
+type Cohort = 'confirmation' | 'development';
+const YMAX = 1.45;
+const XMAX = 2.4;
+const BOUNDS = ALL_BOUNDS.filter((b) => b !== '0.0005');
+const ticks = ['0.01', '0.05', '0.25', '1.0', '2.0'].map((b) => ({ at: Number(b), label: fmtBound(b) }));
+const phoneTicks = ticks.filter((t) => t.at !== 2);
+
+function panel(cohort: Cohort) {
+  const regions = cohort === 'confirmation' ? CONF_REGIONS : DEV_REGIONS;
+  const verdict = (cohort === 'confirmation' ? data.h1.verdictConfirmation : data.h1.verdictDevelopment).perBound as Record<
+    string,
+    { learnedStandaloneVsBestConventional: { bootstrap95: number[]; geometricMeanRatio: number } }
+  >;
+  const ratio = (region: string, bound: string, coder: string) =>
+    table(cohort)[region][bound][coder].bytes / bestConventional(cohort, region, bound).result.bytes;
+  const color = CODER_COLORS.learned;
+  const perRegion = regions.map((region, i) => ({
+    label: i === 0 ? 'each region' : undefined,
+    quiet: i > 0,
+    color,
+    width: 1,
+    opacity: 0.38,
+    points: BOUNDS.map((b) => [Number(b), ratio(region, b, 'learned')] as [number, number]),
+  }));
+  const gm = (coder: string) => BOUNDS.map((b) => [Number(b), geoMean(regions.map((r) => ratio(r, b, coder)))] as [number, number]);
+  const learned = gm('learned');
+  const series = [
+    ...perRegion,
+    {
+      color,
+      kind: 'segments' as const,
+      width: 6,
+      opacity: 0.28,
+      quiet: true,
+      points: DECISION_BOUNDS.flatMap((b) => {
+        const [lo, hi] = verdict[b].learnedStandaloneVsBestConventional.bootstrap95;
+        return [[Number(b), lo], [Number(b), hi]] as [number, number][];
+      }),
+    },
+    {
+      label: 'fixed predictor, average',
+      color: CODER_COLORS['cubic-ctx'],
+      width: 1.5,
+      dash: '5 3',
+      points: gm('cubic-ctx'),
+    },
+    {
+      label: 'neural predictor, average',
+      color,
+      width: 2.4,
+      marker: 'dot' as const,
+      size: 3,
+      points: learned,
+      tips: learned.map(([b, r]) => `${fmtBound(b)}: ${r.toFixed(3)} of the best standard codec's file size`),
+    },
+  ];
+  const best = learned.reduce((a, p) => (p[1] < a[1] ? p : a));
+  const worstRegion = regions
+    .map((r) => ({ r, v: ratio(r, '2.0', 'learned') }))
+    .reduce((a, x) => (x.v > a.v ? x : a));
+  // The reference line and the one tile that leaves the top are named in the
+  // right margin, where no line can cross the text.
+  const annotations = [
+    { kind: 'hline' as const, y: 1 },
+    { kind: 'label' as const, x: XMAX, y: 1, dx: 6, anchor: 'start' as const, text: 'same size', color: 'var(--ink-muted)' },
+    {
+      kind: 'point' as const, x: best[0], y: best[1], dx: -6, dy: 30, anchor: 'middle' as const, color,
+      text: `${Math.round((1 - best[1]) * 100)}% smaller`,
+    },
+  ];
+  const top = (lead: string) =>
+    worstRegion.v > YMAX
+      ? [{ kind: 'label' as const, x: XMAX, y: YMAX, dx: 6, anchor: 'start' as const, text: `${lead}${worstRegion.v.toFixed(1)}× ↑`, color: 'var(--ink-muted)' }]
+      : [];
+  // A phone has no room for the 2 m tick beside 1 m; the note names the bound.
+  return { series, annotations: [...annotations, ...top('')], phone: [...annotations, ...top('2 m: ')] };
+}
+
+const conf = panel('confirmation');
+const dev = panel('development');
+const axis = { x: { label: 'largest error', log: true, min: 0.008, max: XMAX, tickLabels: ticks }, y: { label: 'file size vs best standard codec', min: 0.62, max: YMAX, ticks: [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4], digits: 1, unit: '×' } };
+---
+
+<div class="geo-pair">
+  <Plot
+    id="geo-h1-ratio-conf"
+    title={`${CONF_REGIONS.length} new regions`}
+    label="File size of the neural predictor relative to the best standard codec in the seven new regions. From 5 cm to 50 cm every region is 14 to 27% smaller; at 2 m every file is larger, because the model is stored inside."
+    {...axis}
+    series={conf.series}
+    annotations={conf.annotations}
+    legend={false}
+    width={440}
+    height={300}
+    right={80}
+    minScale={0.8}
+    phone={{ right: 98, x: { tickLabels: phoneTicks }, annotations: conf.phone }}
+  />
+  <Plot
+    id="geo-h1-ratio-dev"
+    title={`${DEV_REGIONS.length} development regions`}
+    label="The same comparison in the six development regions, each coded by a model that never saw it: the same shape, with savings a little smaller than in the new regions up to 25 cm and larger at 50 cm and 1 m."
+    {...axis}
+    series={dev.series}
+    annotations={dev.annotations}
+    width={440}
+    height={300}
+    right={80}
+    minScale={0.8}
+    phone={{ right: 98, x: { tickLabels: phoneTicks }, annotations: dev.phone }}
+  />
+</div>

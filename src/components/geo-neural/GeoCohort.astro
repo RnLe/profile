@@ -1,0 +1,258 @@
+---
+/**
+ * How the confirmation tiles were chosen, before any codec saw them: a fixed
+ * 11 km lattice over North Rhine-Westphalia, ranked by a salted hash, a 15 km
+ * buffer around every earlier region, one coarse probe per candidate in rank
+ * order, and quotas per relief stratum. Every probed candidate is drawn.
+ * Coordinates are tile origins in EPSG:25832.
+ */
+import cohort from '../../data/geo-neural/cohort.json';
+import { TONE, regionName } from './geo';
+
+const X0 = 278;
+const X1 = 552;
+const Y0 = 5552;
+const Y1 = 5842;
+const S = 1.9; // pixels per km
+// The northing labels sit in a left gutter and the easting labels under the
+// frame, so no tile, marker or grid line runs into them.
+const pad = { l: 74, t: 8, r: 8, b: 32 };
+const width = Math.round((X1 - X0) * S + pad.l + pad.r);
+const height = Math.round((Y1 - Y0) * S + pad.t + pad.b);
+const px = (x: number) => pad.l + (x - X0) * S;
+const py = (y: number) => pad.t + (Y1 - y) * S;
+const T = cohort.tileKm;
+const B = cohort.bufferKm;
+const grid = { x: [300, 350, 400, 450, 500, 550], y: [5600, 5650, 5700, 5750, 5800] };
+const probed = cohort.probed;
+const selected = probed.filter((p) => p.outcome === 'selected');
+const full = probed.filter((p) => p.outcome === 'stratum full');
+const missing = probed.filter((p) => p.outcome === 'missing values');
+const labelSide: Record<string, [number, number, 'start' | 'middle' | 'end']> = {
+  'nrw-313-5659': [T / 2, T / 2 + 3, 'middle'],
+  'nrw-368-5747': [T / 2, T / 2 + 3, 'middle'],
+  'nrw-324-5648': [T / 2, -T / 2 - 5, 'middle'],
+  'nrw-412-5769': [T / 2, -T / 2 - 5, 'middle'],
+};
+---
+
+<div class="geo-cohort" style={`max-width:${Math.round(width * 1.2)}px`}>
+  <svg viewBox={`0 0 ${width} ${height}`} role="img"
+    aria-label={`How the new regions were picked: ${probed.length} candidates checked in a fixed order, ${missing.length} skipped for missing data, ${full.length} skipped because there were already enough of their relief type, ${selected.length} picked (2 flat, 3 moderate, 2 rough), all at least ${B} km from the six development regions.`}>
+    <defs>
+      <pattern id="geo-dev-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="4" height="4" class="hatch-bg" />
+        <line x1="0" y1="0" x2="0" y2="4" class="hatch" />
+      </pattern>
+    </defs>
+    <rect class="frame" x={pad.l} y={pad.t} width={width - pad.l - pad.r} height={height - pad.t - pad.b} rx="6" />
+    <g class="grid">
+      {grid.x.map((x) => <line x1={px(x)} x2={px(x)} y1={pad.t} y2={height - pad.b} />)}
+      {grid.y.map((y) => <line x1={pad.l} x2={width - pad.r} y1={py(y)} y2={py(y)} />)}
+    </g>
+    <g class="ticks">
+      {grid.x.slice(0, -1).map((x) => <text x={px(x)} y={height - pad.b + 6} text-anchor="middle" dominant-baseline="hanging">{x} E</text>)}
+      {grid.y.map((y) => <text x={pad.l - 6} y={py(y)} text-anchor="end" dominant-baseline="middle">{y} N</text>)}
+    </g>
+    {cohort.development.map((d) => ({ ...d, w: T })).map((d) => (
+      <rect class="buffer" x={px(d.x - B)} y={py(d.y + d.w + B)} width={(d.w + 2 * B) * S} height={(d.w + 2 * B) * S} rx={B * S} />
+    ))}
+    {missing.map((p) => {
+      const cx = px(p.x + T / 2);
+      const cy = py(p.y + T / 2);
+      return (
+        <path class="missing" d={`M${cx - 3},${cy - 3}l6,6M${cx + 3},${cy - 3}l-6,6`}>
+          <title>{`Rank ${p.rankOrder}, skipped (missing data)`}</title>
+        </path>
+      );
+    })}
+    {full.map((p) => (
+      <rect class="full" x={px(p.x)} y={py(p.y + T)} width={T * S} height={T * S} rx="2">
+        <title>{`Rank ${p.rankOrder}, ${p.stratum} (height spread ${p.stdM} m), skipped: enough of this relief type`}</title>
+      </rect>
+    ))}
+    {cohort.development.map((d) => (
+      <g class="dev">
+        <rect x={px(d.x)} y={py(d.y + T)} width={T * S} height={T * S} rx="2">
+          <title>{`${regionName(d.region)}: development region`}</title>
+        </rect>
+        <text x={px(d.x + T / 2)} y={py(d.y) + 3} text-anchor="middle" dominant-baseline="hanging">{regionName(d.region)}</text>
+      </g>
+    ))}
+    {selected.map((p) => {
+      const [dx, dy, anchor] = labelSide[p.name] ?? [T + 1.5, 0, 'start'];
+      return (
+        <g class="sel" style={`--c:${TONE[p.stratum as 'flat' | 'moderate' | 'rough']}`}>
+          <rect x={px(p.x)} y={py(p.y + T)} width={T * S} height={T * S} rx="2">
+            <title>{`${regionName(p.name)}: rank ${p.rankOrder}, ${p.stratum} (height spread ${p.stdM} m), picked`}</title>
+          </rect>
+          <text x={px(p.x) + dx * S} y={py(p.y + T / 2 + dy)} text-anchor={anchor} dominant-baseline="middle">{regionName(p.name)}</text>
+        </g>
+      );
+    })}
+  </svg>
+  <ul class="legend">
+    <li><span class="sw" style={`background:${TONE.flat}`} />new region, flat (height spread under {cohort.strataStdM.flat} m)</li>
+    <li><span class="sw" style={`background:${TONE.moderate}`} />moderate</li>
+    <li><span class="sw" style={`background:${TONE.rough}`} />rough (over {cohort.strataStdM.rough} m)</li>
+    <li><span class="sw dev-sw" />development region, {B} km gap kept</li>
+    <li><span class="sw full-sw" />skipped, enough of this relief type</li>
+    <li><span class="x">×</span>skipped, missing data (state border)</li>
+    <li>grid every 50 km</li>
+  </ul>
+</div>
+
+<style>
+  .geo-cohort {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    min-width: 0;
+    container: geo-cohort / inline-size;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .frame {
+    fill: var(--surface);
+    stroke: var(--line);
+  }
+
+  .grid line {
+    stroke: var(--line);
+    stroke-width: 0.7;
+  }
+
+  .ticks text {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-faint);
+  }
+
+  .buffer {
+    fill: color-mix(in srgb, var(--ink-muted) 6%, transparent);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  .missing {
+    stroke: var(--ink-faint);
+    stroke-width: 1.3;
+    opacity: 0.7;
+  }
+
+  .full {
+    fill: var(--surface);
+    stroke: var(--ink-muted);
+    stroke-width: 1.2;
+    stroke-dasharray: 2 2;
+  }
+
+  .dev rect {
+    fill: url(#geo-dev-hatch);
+    stroke: var(--ink-heading);
+    stroke-width: 1.4;
+  }
+
+  .hatch-bg {
+    fill: var(--surface);
+  }
+
+  .hatch {
+    stroke: var(--ink-heading);
+    stroke-width: 1.6;
+  }
+
+  .dev text,
+  .sel text {
+    font-size: 10.5px;
+    font-weight: 600;
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+
+  .dev text {
+    fill: var(--ink-heading);
+  }
+
+  .sel rect {
+    fill: var(--c);
+  }
+
+  .sel text {
+    font-family: var(--font-mono);
+    fill: var(--c);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+  }
+
+  .sw {
+    display: inline-block;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-radius: 2px;
+  }
+
+  .dev-sw {
+    background: repeating-linear-gradient(45deg, var(--ink-heading) 0 1.5px, var(--surface) 1.5px 3.5px);
+    border: 1px solid var(--ink-heading);
+    outline: 1px dashed var(--line-strong);
+    outline-offset: 2px;
+  }
+
+  .full-sw {
+    border: 1.2px dashed var(--ink-muted);
+  }
+
+  .x {
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+
+  @media (max-width: 40rem) {
+    .dev text,
+    .sel text {
+      font-size: 14px;
+    }
+
+    .ticks text {
+      font-size: 13px;
+    }
+  }
+
+  /* On a phone the map is about half its drawing's size: the development
+     regions keep their names, at least 11 px on screen; the new regions are
+     told apart by their shade, and the grid has no coordinates. */
+  @container geo-cohort (max-width: 26rem) {
+    .dev text {
+      font-size: 22px;
+    }
+
+    .sel text,
+    .ticks text {
+      display: none;
+    }
+  }
+</style>

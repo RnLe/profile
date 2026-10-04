@@ -1,0 +1,84 @@
+---
+/**
+ * The numerical artifact: with a fixed cap on the time step, a slower
+ * (rescaled) landscape is integrated with relatively finer steps, so designs
+ * that are exactly unidentifiable seem to carry information. Range of the
+ * expected log-likelihood over c in [0.5, 2], with consistent and capped
+ * time steps.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, TONE, data } from './geo';
+
+const res = data.physics['inverse-ridge-profile'].results as unknown as {
+  flatWithinRounding: Record<string, Record<string, { terminal: number; fractional: number }>>;
+};
+const truths = ['transient', 'late', 'near-equilibrium'];
+const AGE: Record<string, string> = { transient: 'young', late: 'older', 'near-equilibrium': 'near steady state' };
+const f = res.flatWithinRounding;
+const series = [
+  {
+    color: 'var(--line-strong)',
+    kind: 'segments' as const,
+    width: 2,
+    quiet: true,
+    points: truths.flatMap((t, i) => [[f[t].fixedDtCap.terminal, i], [f[t].fixedDtCap.fractional, i]] as [number, number][]),
+  },
+  {
+    label: 'one survey today',
+    color: TONE.muted,
+    kind: 'scatter' as const,
+    size: 4.4,
+    points: truths.map((t, i) => [f[t].fixedDtCap.terminal, i] as [number, number]),
+    tips: truths.map((t) => `${AGE[t]}, one survey, capped step: ${f[t].fixedDtCap.terminal.toFixed(0)} log-units`),
+  },
+  {
+    label: 'two surveys, gap grows with age',
+    color: CODER_COLORS['cubic-ctx'],
+    kind: 'scatter' as const,
+    marker: 'diamond' as const,
+    size: 4,
+    points: truths.map((t, i) => [f[t].fixedDtCap.fractional, i] as [number, number]),
+    tips: truths.map((t) => `${AGE[t]}, two surveys, capped step: ${f[t].fixedDtCap.fractional.toFixed(0)} log-units`),
+  },
+];
+const values = truths.flatMap((t) => [f[t].fixedDtCap.terminal, f[t].fixedDtCap.fractional]);
+const zero = truths.every((t) => ['refinedDt', 'rescaledDt'].every((v) => Math.abs(f[t][v].terminal) + Math.abs(f[t][v].fractional) === 0));
+// The caption states the exact zero; it must not outlive the data.
+if (!zero) throw new Error('geo-ident-cap: consistent time steps no longer give exactly zero');
+const range = (t: string) => [Math.min(f[t].fixedDtCap.terminal, f[t].fixedDtCap.fractional), Math.max(f[t].fixedDtCap.terminal, f[t].fixedDtCap.fractional)];
+const rangeText = (t: string) => range(t).map((v) => Math.round(v).toLocaleString('en-US')).join(' to ');
+const annotations = truths.map((t, i) => ({
+  kind: 'label' as const,
+  x: range(t)[1],
+  y: i,
+  dx: 12,
+  dy: -0.5,
+  anchor: 'start' as const,
+  text: rangeText(t),
+  color: 'var(--ink-muted)',
+}));
+// On a phone the range is written above its segment.
+const phoneAnnotations = truths.map((t, i) => ({
+  kind: 'label' as const,
+  x: Math.sqrt(range(t)[0] * range(t)[1]),
+  y: i,
+  dy: -14,
+  anchor: 'middle' as const,
+  text: rangeText(t),
+  color: 'var(--ink-muted)',
+}));
+---
+
+<Plot
+  id="geo-ident-cap"
+  label={`Made-up information from a fixed cap on the time step: the log-likelihood varies by ${Math.round(Math.min(...values))} to ${Math.round(Math.max(...values))} units along a direction that is exactly flat. With correctly scaled steps the range is exactly 0 in every case.`}
+  x={{ label: 'made-up information (log-likelihood units)', log: true, min: 50, max: 30000, ticks: [100, 1000, 10000] }}
+  y={{ tickLabels: truths.map((t, i) => ({ at: i, label: AGE[t] })), min: truths.length - 0.5, max: -0.6 }}
+  {series}
+  {annotations}
+  left={140}
+  width={520}
+  height={180}
+  minScale={0.64}
+  phone={{ left: 152, height: 220, x: { label: 'made-up information' }, annotations: phoneAnnotations }}
+/>

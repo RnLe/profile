@@ -2,8 +2,9 @@
 /**
  * A case study told in parts, for a study with several. Each part opens with
  * its number and name, then its core questions set large (Question), its
- * lead figure, a few short paragraphs, its steps, its references, and a way
- * on to the neighbouring parts. The first part is the overview: it also
+ * lead figure, a few short paragraphs, its steps, a note of the work still to
+ * come (Continued) where there is some, its references, and a way on to the
+ * neighbouring parts. The first part is the overview: it also
  * carries the Markdown body, the project's own sections and citations, and
  * the novelty scope. The rail (CaseRail) lists the parts beside the article.
  *
@@ -15,6 +16,7 @@
 import CaseRail from './CaseRail.astro';
 import FigureRenderer from './FigureRenderer.astro';
 import ProjectSteps from './ProjectSteps.astro';
+import Continued from '../ui/Continued.astro';
 import Marked from '../ui/Marked.astro';
 import Question from '../ui/Question.astro';
 import { panelId, partNumber, stepIds, type RailPart } from '../../lib/case-nav';
@@ -93,6 +95,12 @@ const partTitle = (tab: (typeof tabs)[number]) => (tab.num ? `${tab.num} ${tab.l
 
               <ProjectSteps steps={tab.steps} claims={project.claims} idPrefix={tab.prefix} />
 
+              {tab.continued && (
+                <div class="panel-continued">
+                  <Continued text={tab.continued} />
+                </div>
+              )}
+
               {tab.citations.length > 0 && (
                 <div class="refs">
                   <h3>References</h3>
@@ -152,7 +160,9 @@ const partTitle = (tab: (typeof tabs)[number]) => (tab.num ? `${tab.num} ${tab.l
     margin-block-start: 0;
   }
 
-  :global(.has-js) .panel[hidden],
+  /* Only the script hides a part, so [hidden] needs no .has-js. Before it
+     runs, the first part stands in for the open one. */
+  .panel[hidden],
   :global(.has-js) [data-tabs]:not(.tabs--ready) .panel:not(:first-of-type) {
     display: none;
   }
@@ -207,6 +217,10 @@ const partTitle = (tab: (typeof tabs)[number]) => (tab.num ? `${tab.num} ${tab.l
 
   .panel :global(.steps) {
     margin-block-start: var(--sp-6);
+  }
+
+  .panel-continued {
+    margin-block-start: var(--sp-10);
   }
 
   .refs {

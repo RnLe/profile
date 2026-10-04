@@ -3351,9 +3351,8 @@
       "spacingM": 50.0
     },
     "weights": {
-      "flux": "lab/flux.bin",
-      "kfield": "lab/kfield.bin",
-      "penalty": "lab/penalty.bin"
+      "conductance": "lab/conductance.bin",
+      "flux": "lab/flux.bin"
     }
   },
   "createdUtc": "2026-10-03T21:05:23.698673+00:00",

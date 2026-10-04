@@ -42,7 +42,7 @@ export class Scenario {
     /**
      * - `side`, `spacing_m`: a `side * side` grid of cells, metres.
      * - `initial`: `side * side` heights in metres, row-major, row 0 north.
-     * - `model`: `"linear"`, `"nonlinear"`, `"flux"`, `"kfield"` or `"penalty"`.
+     * - `model`: `"linear"`, `"nonlinear"`, `"flux"`, `"kfield"`, `"penalty"` or `"conductance"`.
      * - `boundary`: `"closed"`, `"fixed"` or `"periodic"` (learned models: closed or fixed).
      * - `params_json`: `diffusivity` (m^2/yr, default 0.05) for linear and
      *   nonlinear; `criticalSlope` (default 0.6) for nonlinear; `uplift`

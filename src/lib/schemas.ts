@@ -138,6 +138,10 @@ export const sectionSchema = z.object({
   /** A shell command set under the paragraphs, such as an install line. */
   code: z.string().min(1).optional(),
   claimIds: z.array(z.string()).default([]),
+  /** A leading question set as a quote block above the step. */
+  question: z.string().min(1).optional(),
+  /** Work still to come, set as a colored band under the step. */
+  continued: z.string().min(1).optional(),
 });
 
 /**
@@ -152,6 +156,8 @@ export const tabSchema = z.object({
   figureId: z.string().optional(),
   paragraphs: z.array(z.string().min(1)).default([]),
   sections: z.array(sectionSchema).default([]),
+  /** Work still to come in this part, set as a colored band at its end. */
+  continued: z.string().min(1).optional(),
   citations: z.array(citationSchema).default([]),
 });
 
@@ -178,6 +184,8 @@ export const projectFrontmatterSchema = z.object({
   yearStart: z.number().int().min(2000).max(2100),
   /** Last calendar year; omitted while the work continues. */
   yearEnd: z.number().int().min(2000).max(2100).optional(),
+  /** The years as shown, when the range does not say it (for example '2024 and 2026'). */
+  yearLabel: z.string().min(1).max(24).optional(),
   /** Academic, software, hardware: any combination, shown as icons on the index. */
   kinds: z.array(projectKindEnum).default([]),
   /**
@@ -224,6 +232,8 @@ export const projectFrontmatterSchema = z.object({
    * project's sections; the project's citations are its references.
    */
   tabs: z.array(tabSchema).default([]),
+  /** Let the case study use nearly the full window width (for one with a rail). */
+  wide: z.boolean().default(false),
   links: z.array(projectLinkSchema).default([]),
   related: z.array(slug).default([]),
   /** Current-research card fields (in-progress projects only). */

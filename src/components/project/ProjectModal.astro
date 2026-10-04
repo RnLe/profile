@@ -85,7 +85,8 @@ import { withBase } from '../../lib/routes';
     backdrop-filter: blur(2px);
   }
 
-  /* 80% of the viewport, capped so the measure stays readable on wide screens. */
+  /* 80% of the viewport, capped so the measure stays readable on wide screens.
+     A wide case study (its article carries data-wide) keeps the 80% further. */
   .modal-panel {
     inline-size: min(80vw, 80rem);
     block-size: min(80dvh, 100%);
@@ -98,6 +99,14 @@ import { withBase } from '../../lib/routes';
       0 1px 2px rgb(16 21 33 / 0.06),
       0 24px 60px -12px rgb(16 21 33 / 0.28);
     overflow: hidden;
+  }
+
+  .project-modal[data-wide] .modal-panel {
+    inline-size: min(80vw, 120rem);
+  }
+
+  .project-modal[data-wide] .bar-inner {
+    max-width: none;
   }
 
   /* -------------------------------------------------------------- the bar --- */
@@ -445,6 +454,7 @@ import { withBase } from '../../lib/routes';
       if (!source) throw new Error('no article');
       // Imported, never adopted: the cached document stays intact for the next open.
       const article = document.importNode(source, true) as HTMLElement;
+      dialog.toggleAttribute('data-wide', article.hasAttribute('data-wide'));
       content.replaceChildren(article);
       status.hidden = true;
       body.scrollTop = 0;
@@ -488,6 +498,7 @@ import { withBase } from '../../lib/routes';
       unmount(content);
       status.hidden = true;
       delete dialog.dataset.state;
+      delete dialog.dataset.wide;
       body.setAttribute('aria-busy', 'false');
       body.setAttribute('aria-label', 'Case study');
       dialog.setAttribute('aria-label', 'Project case study');

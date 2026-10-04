@@ -30,21 +30,19 @@ files:
   - path: geo-neural/bundle/geology.classes.bin
     sha256: 40f48ec8aa05aa62d9c93aa5941ac3ce89526ea2ff12b66bf2e62307993ea2b3
   - path: geo-neural/bundle/lab/closure.json
-    sha256: 80b66dbb497cb0ea9efbc5e8c94d882e05c9cbfdc5b3c93badcb0f22597583cf
+    sha256: 6a95156208aac1cf11b2b02cf28db4122f7b1787514904da4460062c02bccd84
+  - path: geo-neural/bundle/lab/conductance.bin
+    sha256: 2db89b259d23d74ebf00c83e06378fabc41a8688d298528599a654b546122cbe
   - path: geo-neural/bundle/lab/flux.bin
     sha256: bc206e947b233de2bc542c973548737784b6546c032524bc8207503f3a1a06fb
   - path: geo-neural/bundle/lab/geology.u8.bin
     sha256: 96db32b8ba81353807e945acd37401184f1552e7b54a8f9552f0e43c7130583d
-  - path: geo-neural/bundle/lab/kfield.bin
-    sha256: 73f612cc694e192026a5017cdef24e7e4f2b3ad0e81626c89825b7ad2dcb108b
-  - path: geo-neural/bundle/lab/penalty.bin
-    sha256: 91d98da1ba8ac34915912969123255dbb2e1921bc9aeacecaf298894c8f4807e
   - path: geo-neural/bundle/lab/surfaces.f32.bin
     sha256: 9e0eb99928f4290d2d6d1e66db2617fb3dc4628ae585e3bcf67e1f0118f26824
   - path: geo-neural/bundle/lab/terrain.f32.bin
     sha256: ccd7dfffd5dd7e8f5196b2f66fa592bf6d244500b40b3bf3142ce8bb15b0adf1
   - path: geo-neural/bundle/manifest.json
-    sha256: df04276e4343aa72a78bd654efb68ed6183d119d6e843b24310245f5bee35bf8
+    sha256: 1cd753669b59b6dfa58655e7a32ed07b35dfacf7a0718c4fb30b28d89fb10dbd
   - path: geo-neural/bundle/q32dz-full-at-0.1.height.bin
     sha256: 5fc7866f1b8d402d17e7c583122f217e01ce06a668c2d917335212f9ef188b49
   - path: geo-neural/bundle/q32dz-full-at-0.1.streams.bin
@@ -61,3 +59,53 @@ files:
     sha256: a5cbb311b60900fc0dc364deb93bd078059d919cbbf08a0b36e77a6cfbc5ba64
   - path: geo-neural/bundle/reference.streams.bin
     sha256: 9c76e3938523e28c051cee02cc10fc8ac33df9fa0e2a7cdae920d89614703d25
+  - path: geo-neural/codec/essen-ruhr/0.25/cubic-ctx.error.bin
+    sha256: 9a5119c73cbc185dce66e9f8c4149b34172e1072f17b19bf9f947cfedde30cdb
+  - path: geo-neural/codec/essen-ruhr/0.25/cubic-ctx.gnc
+    sha256: 03bb819c27eb1bf040464e0ed048764a2ba0b40b4b3a26cf4293db33061e1055
+  - path: geo-neural/codec/essen-ruhr/0.25/cubic-ctx.streams.bin
+    sha256: c44cabeb0686a126c2967eb2a58fb4438fe8cc76ca144d34fa966732f5e95dd9
+  - path: geo-neural/codec/essen-ruhr/0.25/learned.error.bin
+    sha256: 4e8fdf4379c4b20077b581ee8111f106fc2a674430164ffb6268364fc5b96486
+  - path: geo-neural/codec/essen-ruhr/0.25/learned.gnc
+    sha256: 5961f85f95b13021e2389f7de9231cc1c86809da86e8476fd601760f81f7f218
+  - path: geo-neural/codec/essen-ruhr/0.25/learned.streams.bin
+    sha256: 374be71b5f7625f7abd41a264349b87baeb847943c196b19bea3d1fffb2f86e5
+  - path: geo-neural/codec/essen-ruhr/0.25/sz3.error.bin
+    sha256: 242959ff6589ade464e76024713fd1267be83aaa66feecda190d1f80fe93f1ba
+  - path: geo-neural/codec/essen-ruhr/0.25/sz3.gnc
+    sha256: 79ce800746a82e2fc205965835ec39001dc8c82a8f7bcae6d8511148488bf1f6
+  - path: geo-neural/codec/essen-ruhr/0.25/sz3.streams.bin
+    sha256: 11264091e0949e1519d9b3a1c5de829b9e2f1e840f011fca1d5ad8b35c454719
+  - path: geo-neural/codec/essen-ruhr/reference.height.bin
+    sha256: 8cce78448905f9870e8aa9e6a428ebb222834ad47e0f88c3ddeb7b4cf7d376e8
+  - path: geo-neural/codec/essen-ruhr/reference.streams.bin
+    sha256: 9c76e3938523e28c051cee02cc10fc8ac33df9fa0e2a7cdae920d89614703d25
+  - path: geo-neural/codec/manifest.json
+    sha256: 35ef8e36fbba80158ee9d71f77c5a08e8b7be8be812e084f26145b739591bd70
+  - path: geo-neural/codec/models/loro-essen-ruhr-s0.gnm
+    sha256: aed0116671de3ce37da41b928847b7e62d8fc34fb6bee5ffdf5be1d83245147b
+  - path: geo-neural/codec/models/loro-muensterland-plain-s0.gnm
+    sha256: 3607dcb452e0e9316acbf649840b54daef64269b54e01355fb8fc747266e7090
+  - path: geo-neural/codec/muensterland-plain/0.25/cubic-ctx.error.bin
+    sha256: eeabc82b68d175e4a0cd633dfd024b39730ee732b0d769c6ab04b622d5e0e311
+  - path: geo-neural/codec/muensterland-plain/0.25/cubic-ctx.gnc
+    sha256: 79387796984f3b34c610a81ba3ca72dd43f6b12596290b73d857152437441b7c
+  - path: geo-neural/codec/muensterland-plain/0.25/cubic-ctx.streams.bin
+    sha256: d7e95eb013d4acd8f24a82452f9e5f1f9ff4736e9595cb0db7608bdb81fce1f8
+  - path: geo-neural/codec/muensterland-plain/0.25/learned.error.bin
+    sha256: a03fb1e764e3cae253d30da80e4186a0bc06f294e83f172d650ef5000142f7ff
+  - path: geo-neural/codec/muensterland-plain/0.25/learned.gnc
+    sha256: bf8ef6b73e2c4adb69be818b65dbdfa863f760a24fddd27602147ae9477fea77
+  - path: geo-neural/codec/muensterland-plain/0.25/learned.streams.bin
+    sha256: 1d174c484190333a26657699ba09299bfd103c630712ffccba79b4728d88a640
+  - path: geo-neural/codec/muensterland-plain/0.25/sz3.error.bin
+    sha256: 260eea989ce955d23014a0ae49b0d358e6a79687361ea52e5e576ccabc34628a
+  - path: geo-neural/codec/muensterland-plain/0.25/sz3.gnc
+    sha256: 960de94a67f4e5f4f1d8c902f6b10eeab8464383169de5b9236f33ec705fc4c2
+  - path: geo-neural/codec/muensterland-plain/0.25/sz3.streams.bin
+    sha256: 520634b1950258dc88ef162b33111c27774e2f44c9a16e4a025017a01cb60e78
+  - path: geo-neural/codec/muensterland-plain/reference.height.bin
+    sha256: de925ed9b4397c143867ad9c6b2e6c021d7722e3b374534cb21fbba152b4be37
+  - path: geo-neural/codec/muensterland-plain/reference.streams.bin
+    sha256: 2df572e21ff208a48911f84437f233895d380f289e188b25fdcb344c794ae4e3

@@ -18,7 +18,7 @@ import robotArm from '../assets/recover-in-real-time/arm.webp';
 import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
 import sedimentationThumb from '../assets/hard-spheres/sedimentation-thumb.webp';
 import ferThumb from '../assets/fer/thumb.webp';
-import geoThumb from '../assets/geo-neural/thumb.webp';
+import geoTerrainLoop from '../assets/geo-neural/terrain-loop.avif';
 
 export interface ThumbImage {
   kind: 'image';
@@ -100,12 +100,22 @@ export const projectThumbs: Record<string, Thumb> = {
     kind: 'image',
     src: ferThumb,
     alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
+    // Shown whole; the blurred copy fills the sides of the frame.
+    fit: 'contain',
+    backdrop: 'blur',
   },
-  // The 10 m terrain of southern Essen, hillshaded: the Ruhr bend and Lake Baldeney.
+  // The terrain map of the case study at 5x height, turning once in 18 s
+  // while the layers change every 3 s. Transparent around the terrain, with
+  // room for the turning square, so it is shown whole on the card's own
+  // color in any frame. An AVIF, not a webp: the whole terrain moves in every
+  // frame, and only a codec that predicts across frames keeps it sharp at
+  // about 2 MB.
   'geo-neural': {
     kind: 'image',
-    src: geoThumb,
-    alt: 'Hillshaded terrain of southern Essen at 10 m: wooded valleys running down to the wide bend of the Ruhr and Lake Baldeney',
+    src: geoTerrainLoop,
+    alt: 'The Essen-Ruhr terrain in 3D, heights stretched five times, turning slowly while the map changes from height to streams to geology',
+    animated: true,
+    fit: 'contain',
   },
 };
 
@@ -114,6 +124,13 @@ export const projectThumbs: Record<string, Thumb> = {
  * height of the text beside it. Falls back to the list image.
  */
 export const projectCardThumbs: Record<string, ThumbImage> = {
+  'facial-emotion-recognition': {
+    kind: 'image',
+    src: ferThumb,
+    alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
+    fit: 'contain',
+    backdrop: 'blur',
+  },
   // Labeled inside the frame: shown whole and centred in the taller column
   // rather than cropped into it.
   'residual-worlds': {
@@ -142,6 +159,16 @@ export const projectCardThumbs: Record<string, ThumbImage> = {
     animated: true,
     fit: 'contain',
     caption: 'Same maze, same forced mistake: extra demonstrations run out of steps (left); corrections reach the goal (right).',
+  },
+  // The same turning terrain, whole in the taller column. The blurred copy
+  // fills the bands above and below and shows through around the terrain.
+  'geo-neural': {
+    kind: 'image',
+    src: geoTerrainLoop,
+    alt: 'The Essen-Ruhr terrain in 3D, heights stretched five times, turning slowly while the map changes from height to streams to geology',
+    animated: true,
+    fit: 'contain',
+    backdrop: 'blur',
   },
 };
 

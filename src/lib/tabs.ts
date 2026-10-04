@@ -9,8 +9,11 @@
  * marks the open part and, as the reader scrolls, the step in view.
  *
  * Delegated from the document (clicks in the capture phase, ahead of the
- * client router), so it also serves an article injected into the overlay,
- * and set up again on every astro:page-load.
+ * client router), so it also serves an article injected into the overlay.
+ * Set up again after every client-side navigation: on astro:after-swap, so
+ * the new page paints with its part open, and on astro:page-load, which the
+ * overlay also fires once it has injected an article. Each root is set up
+ * once (tabs--ready).
  */
 type CaseWindow = Window & { __caseNavBound?: boolean };
 const w = window as CaseWindow;
@@ -155,6 +158,7 @@ if (!w.__caseNavBound) {
     const hash = decodeURIComponent(location.hash.slice(1));
     for (const root of roots()) if (!inOverlay(root)) go(root, hash, true, false);
   });
+  document.addEventListener('astro:after-swap', init);
   document.addEventListener('astro:page-load', init);
 }
 

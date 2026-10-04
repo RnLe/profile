@@ -1,0 +1,69 @@
+---
+/**
+ * Geology prototype (H2 was not run in full): bytes saved by a GK100 class
+ * map as an extra predictor input, against the same model without context,
+ * for the real map and two controls. The arrow charges the stored map. Two
+ * seeds per case.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, data, fmtBound, regionName } from './geo';
+
+type Row = { region: string; boundM: number; seed: number; context: string; bytes: number; contextBytes: number; total: number };
+const rows = data.prototype.geology as Row[];
+const groups = [...new Set(rows.map((r) => `${r.region}|${r.boundM}`))].sort();
+const get = (g: string, seed: number, context: string) => {
+  const [region, b] = g.split('|');
+  return rows.find((r) => r.region === region && r.boundM === Number(b) && r.seed === seed && r.context === context)!;
+};
+const seeds = [...new Set(rows.map((r) => r.seed))];
+const saved = (g: string, seed: number, context: string, charged = false) => {
+  const none = get(g, seed, 'none').bytes;
+  const r = get(g, seed, context);
+  return (none - (charged ? r.total : r.bytes)) / none;
+};
+const name = (g: string) => {
+  const [region, b] = g.split('|');
+  return `${regionName(region)}, ${fmtBound(b)}`;
+};
+const at = (gi: number, si: number) => gi * 1.4 + (si - (seeds.length - 1) / 2) * 0.32;
+const pts = (context: string, charged = false) => groups.flatMap((g, gi) => seeds.map((s, si) => [saved(g, s, context, charged), at(gi, si)] as [number, number]));
+const tips = (context: string, charged = false) =>
+  groups.flatMap((g) => seeds.map((s) => `${name(g)}, seed ${s}, ${context}${charged ? ' with the map stored' : ''}: ${(saved(g, s, context, charged) * 100).toFixed(2)}% saved`));
+const series = [
+  {
+    color: CODER_COLORS.learned,
+    kind: 'segments' as const,
+    width: 1.4,
+    opacity: 0.6,
+    quiet: true,
+    points: groups.flatMap((g, gi) => seeds.flatMap((s, si) => [[saved(g, s, 'real'), at(gi, si)], [saved(g, s, 'real', true), at(gi, si)]] as [number, number][])),
+  },
+  { label: 'map shifted (control)', color: '#8a939b', kind: 'scatter' as const, marker: 'cross' as const, size: 3.2, points: pts('shifted'), tips: tips('shifted') },
+  { label: 'blank map (control)', color: '#52606b', kind: 'scatter' as const, marker: 'square' as const, size: 3, points: pts('constant'), tips: tips('constant') },
+  { label: 'real map, plus storing it', color: CODER_COLORS.learned, kind: 'scatter' as const, marker: 'ring' as const, size: 3.6, points: pts('real', true), tips: tips('real', true) },
+  { label: 'real map', color: CODER_COLORS.learned, kind: 'scatter' as const, size: 4, points: pts('real'), tips: tips('real') },
+];
+const real = groups.flatMap((g) => seeds.map((s) => saved(g, s, 'real')));
+const net = groups.flatMap((g) => seeds.map((s) => saved(g, s, 'real', true)));
+const mapBytes = [...new Set(rows.filter((r) => r.context === 'real').map((r) => r.contextBytes))];
+const nothing = real.filter((v) => v <= 0).length;
+const label = `Bytes saved when the neural predictor also sees a geological map. The real map saves up to ${(Math.max(...real) * 100).toFixed(1)}% of the coded bytes${nothing ? ` (in ${nothing} of ${real.length} runs nothing)` : ''}, more than the controls, but storing it (${mapBytes.map((b) => `${(b / 1000).toFixed(1)} kB`).join(' or ')}) costs more: with the map stored every case is ${(-Math.max(...net) * 100).toFixed(1)} to ${(-Math.min(...net) * 100).toFixed(1)}% larger.`;
+---
+
+<Plot
+  id="geo-geology"
+  {label}
+  x={{ label: 'bytes saved vs no map', percent: true, unit: '%', min: -0.09, max: 0.025, ticks: [-0.08, -0.06, -0.04, -0.02, 0, 0.02], digits: 0 }}
+  y={{ tickLabels: groups.map((g, gi) => ({ at: gi * 1.4, label: name(g) })), min: (groups.length - 1) * 1.4 + 0.6, max: -1.1 }}
+  {series}
+  annotations={[
+    { kind: 'vline', x: 0 },
+    { kind: 'label', x: 0.002, y: -0.85, anchor: 'start', text: 'smaller →', color: 'var(--ink-muted)' },
+    { kind: 'label', x: -0.002, y: -0.85, anchor: 'end', text: '← larger', color: 'var(--ink-muted)' },
+  ]}
+  left={150}
+  width={580}
+  height={290}
+  minScale={0.61}
+  phone={{ left: 152, right: 40, height: 320, x: { ticks: [-0.08, -0.04, 0] } }}
+/>

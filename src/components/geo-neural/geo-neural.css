@@ -1,8 +1,12 @@
 /* GeoNeural browser modules in this site's palette. Copied from the project's
-   web/src/styles.css (see lib/SOURCE.md) without its dark theme and page-level rules;
+   web/src/styles.css (see lib/SOURCE.md), codec views included, without its
+   dark theme and page-level rules;
    the module variables are mapped onto the site tokens below. */
 
+/* The modules size their text in em from the root, so they follow the case
+   study's type (it grows on a wide page, shrinks in the overlay). */
 .geo-island .gn-root {
+  font-size: max(0.8125rem, 0.9 * var(--step-0));
   --gn-bg: var(--paper);
   --gn-surface: var(--surface);
   --gn-surface-2: var(--surface-alt);
@@ -13,11 +17,48 @@
   --gn-accent: var(--accent);
   --gn-focus: var(--accent-strong);
   --gn-font: inherit;
+  /* The height an interactive block may take: 90% of the window and still
+     clear of the sticky site header (3.5rem). */
+  --gn-fit: min(90svh, 100svh - 4.5rem);
+}
+
+/* In the overlay the panel body is the screen: 80% of the window less the
+   panel's bar, or the whole window less the bar where the panel fills it. */
+dialog[data-project-modal] .geo-island .gn-root {
+  --gn-fit: calc(80dvh - 3.5rem);
+}
+
+@media (max-width: 47.99rem), (max-height: 30rem) {
+  dialog[data-project-modal] .geo-island .gn-root {
+    --gn-fit: calc(100dvh - 3.5rem);
+  }
 }
 
 .geo-island .geo-status {
   color: var(--ink-muted);
   font-size: var(--step--1, 0.9rem);
+}
+
+/* The live decoder uses the drawn charts' colors: the learned residual
+   stream in rust, SZ3 in blue, the fixed cubic coder in purple (geo.ts). The
+   terrain explorer keeps its own family colors (--gn-fam-*). */
+.geo-island .gn-codec,
+.geo-island .gn-codec-bytes-view {
+  --gn-seg-1: #b4503a;
+  --gn-seg-2: #d88c6f;
+  --gn-seg-3: #52606b;
+  --gn-seg-4: #7d8790;
+  --gn-seg-5: #e8b7a3;
+  --gn-seg-6: #2e8a5f;
+  --gn-seg-7: #a9b1b8;
+  --gn-seg-8: #6f8fb8;
+  --gn-codec-sz3: #6f8fb8;
+  --gn-codec-ctx: #6a46a8;
+  --gn-codec-learned: #b4503a;
+}
+
+.gn-nowrap {
+  white-space: nowrap;
 }
 
 .gn-root {
@@ -75,20 +116,20 @@
 
 .gn-note {
   color: var(--gn-text-2);
-  font-size: 0.82rem;
+  font-size: 0.911em;
   margin: 6px 0 0;
   max-width: 80ch;
 }
 
 .gn-caption {
   color: var(--gn-text-2);
-  font-size: 0.85rem;
+  font-size: 0.944em;
   margin: 10px 0 0;
   max-width: 80ch;
 }
 
 .gn-subhead {
-  font-size: 0.95rem;
+  font-size: 1.056em;
   margin: 18px 0 6px;
 }
 
@@ -107,8 +148,12 @@
   min-width: 0;
 }
 
+.gn-field[hidden] {
+  display: none;
+}
+
 .gn-field > label, .gn-label {
-  font-size: 0.78rem;
+  font-size: 0.867em;
   font-weight: 600;
   color: var(--gn-text-2);
 }
@@ -172,7 +217,8 @@
   cursor: default;
 }
 
-.gn-button[aria-pressed="true"] {
+.gn-button[aria-pressed="true"],
+.gn-button[aria-pressed="true"]:hover:not(:disabled) {
   background: var(--gn-text);
   color: var(--gn-surface);
   border-color: var(--gn-text);
@@ -185,7 +231,7 @@
 
 .gn-badge {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.833em;
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid var(--gn-border);
@@ -220,7 +266,7 @@
 }
 
 .gn-facts-compact {
-  font-size: 0.8rem;
+  font-size: 0.889em;
 }
 
 .gn-legend-title {
@@ -341,7 +387,7 @@
 .gn-ramp-ticks {
   position: relative;
   height: 18px;
-  font-size: 0.75rem;
+  font-size: 0.833em;
   color: var(--gn-text-2);
   font-variant-numeric: tabular-nums;
 }
@@ -360,7 +406,7 @@
 .gn-ramp-ends {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.833em;
   color: var(--gn-text-2);
   font-variant-numeric: tabular-nums;
 }
@@ -393,7 +439,7 @@
 
 .gn-table {
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.889em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -441,7 +487,7 @@
 .gn-viewer-badge, .gn-viewer-exag {
   position: absolute;
   left: 8px;
-  font-size: 0.75rem;
+  font-size: 0.833em;
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--gn-surface);
@@ -493,7 +539,7 @@
   left: 10px;
   bottom: 8px;
   pointer-events: none;
-  font-size: 0.72rem;
+  font-size: 0.8em;
   color: var(--gn-text);
 }
 
@@ -516,7 +562,7 @@
   position: absolute;
   right: 8px;
   bottom: 8px;
-  font-size: 0.8rem;
+  font-size: 0.889em;
   padding: 3px 8px;
   border-radius: var(--gn-radius);
   background: var(--gn-surface);
@@ -742,7 +788,7 @@
   top: 0;
   max-width: 260px;
   padding: 6px 8px;
-  font-size: 0.78rem;
+  font-size: 0.867em;
   background: var(--gn-surface);
   color: var(--gn-text);
   border: 1px solid var(--gn-border);
@@ -754,12 +800,6 @@
 
 .gn-tooltip[hidden] {
   display: none;
-}
-
-.gn-lab-badge {
-  font-size: 0.8rem;
-  color: var(--gn-text-2);
-  margin: 0 0 10px;
 }
 
 .gn-tabs {
@@ -789,12 +829,12 @@
 }
 
 .gn-tabpanel {
-  padding: 14px 0 0;
+  padding: 12px 0 0;
 }
 
 .gn-lab-intro {
   max-width: 80ch;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 
 .gn-lab-strip {
@@ -803,6 +843,13 @@
   gap: 8px 16px;
   align-items: center;
   margin: 4px 0 12px;
+}
+
+/* Run, Pause and Reset sit on the settings' row; the status wraps inside,
+   so a longer status line does not move them. */
+.gn-controls > .gn-lab-strip {
+  flex: 1 1 18em;
+  margin: 0;
 }
 
 .gn-lab-status {
@@ -841,7 +888,7 @@
 
 .gn-lab-canvas {
   display: block;
-  width: 100%;
+  width: min(100%, var(--gn-lab-side, 100%));
   height: auto;
   aspect-ratio: 1;
   image-rendering: pixelated;
@@ -849,8 +896,80 @@
   background: var(--gn-stage);
 }
 
+.gn-lab-card .gn-ramp {
+  max-width: min(420px, var(--gn-lab-side, 420px));
+}
+
+/* The plots are drawn to their host's size. */
 .gn-lab-plot {
-  min-height: 120px;
+  height: 220px;
+}
+
+/* The surfaces stay square and leave room in the block, after the tabs, the
+   settings and the cards' titles, legends and readouts, for everything to
+   fit on one screen. */
+.gn-lab-ridge {
+  --gn-lab-side: max(9rem, calc(var(--gn-fit) - 21em));
+}
+
+.gn-lab-material {
+  --gn-lab-side: max(9rem, calc(var(--gn-fit) - 23em));
+}
+
+.gn-lab-closure {
+  --gn-lab-side: max(9rem, calc(var(--gn-fit) - 25em));
+}
+
+.gn-lab-closure .gn-lab-plot {
+  height: clamp(140px, calc((var(--gn-fit) - 19em) / 2), 220px);
+}
+
+/* The learned networks: the three surfaces, then the two charts; on a wide
+   column they share one row, the charts stacked beside the surfaces. */
+.gn-lab-split {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gn-lab-split .gn-lab-grid {
+  margin-bottom: 0;
+}
+
+.gn-lab-surfaces {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.gn-lab-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+/* The three surface cards share their rows, so a title on two lines does
+   not move one surface below the others. */
+.gn-lab-surfaces .gn-lab-card {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  align-content: start;
+}
+
+@container (min-width: 50rem) {
+  .gn-lab-split {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .gn-lab-surfaces .gn-lab-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .gn-lab-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .gn-plot-svg {
@@ -864,20 +983,8 @@
 
 .gn-lab-stopped {
   color: var(--gn-danger);
-  font-size: 0.8rem;
+  font-size: 0.889em;
   margin: 4px 0 0;
-}
-
-.gn-lab-assume {
-  padding: 10px 12px;
-  border: 1px dashed var(--gn-muted);
-  border-radius: var(--gn-radius);
-  background: var(--gn-surface);
-  margin-bottom: 12px;
-}
-
-.gn-lab-assume .gn-button {
-  margin-top: 8px;
 }
 
 .gn-s1 {
@@ -929,6 +1036,276 @@
   vertical-align: middle;
 }
 
+/* ---- codec views ------------------------------------------------------- */
+
+.gn-codec,
+.gn-codec-bytes-view {
+  --gn-seg-1: #2a78d6;
+  --gn-seg-2: #eb6834;
+  --gn-seg-3: #1baf7a;
+  --gn-seg-4: #eda100;
+  --gn-seg-5: #e87ba4;
+  --gn-seg-6: #008300;
+  --gn-seg-7: #4a3aa7;
+  --gn-seg-8: #e34948;
+  --gn-codec-sz3: var(--gn-fam-conventional);
+  --gn-codec-ctx: var(--gn-fam-hybrid);
+  --gn-codec-learned: var(--gn-fam-neural);
+  --gn-ok: #0a7a35;
+}
+.gn-seg-1 {
+  background: var(--gn-seg-1);
+}
+.gn-seg-2 {
+  background: var(--gn-seg-2);
+}
+.gn-seg-3 {
+  background: var(--gn-seg-3);
+}
+.gn-seg-4 {
+  background: var(--gn-seg-4);
+}
+.gn-seg-5 {
+  background: var(--gn-seg-5);
+}
+.gn-seg-6 {
+  background: var(--gn-seg-6);
+}
+.gn-seg-7 {
+  background: var(--gn-seg-7);
+}
+.gn-seg-8 {
+  background: var(--gn-seg-8);
+}
+/* The three cards share their rows, so sizes, bars and maps line up; each
+   card shows its two maps side by side, so the whole view fits on a screen. */
+.gn-codec-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.gn-codec-card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  align-content: start;
+  border: 1px solid var(--gn-border);
+  border-radius: var(--gn-radius);
+  background: var(--gn-surface);
+  padding: 10px 12px;
+  min-width: 0;
+}
+.gn-codec-card[hidden] {
+  display: none;
+}
+.gn-codec-head,
+.gn-codec-sizebar {
+  grid-column: 1 / -1;
+}
+.gn-codec-head > p {
+  margin: 0;
+}
+.gn-codec-kicker {
+  font-size: max(0.6875rem, 0.778em);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gn-muted);
+}
+.gn-codec-title {
+  font-size: 1.111em;
+  margin: 0;
+}
+.gn-codec-head .gn-codec-size {
+  margin-top: 6px;
+}
+.gn-codec-big {
+  font-size: 1.667em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.gn-codec-line-text {
+  color: var(--gn-text-2);
+}
+.gn-codec-limit {
+  padding: 6px 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.gn-codec-sizebar {
+  align-self: end;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--gn-surface-2);
+  overflow: hidden;
+}
+.gn-codec-sizebar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+.gn-codec-sz3 .gn-codec-sizebar > span {
+  background: var(--gn-codec-sz3);
+}
+.gn-codec-cubic-ctx .gn-codec-sizebar > span {
+  background: var(--gn-codec-ctx);
+}
+.gn-codec-learned .gn-codec-sizebar > span {
+  background: var(--gn-codec-learned);
+}
+.gn-codec-mapfig {
+  margin: 0;
+  min-width: 0;
+}
+.gn-codec-mapfig figcaption {
+  margin-top: 4px;
+  font-size: 0.833em;
+  color: var(--gn-text-2);
+}
+.gn-codec-map {
+  /* Square, and on a wide but short window no taller than the block allows
+     after its controls, card heads and live line (about 26em). */
+  width: min(100%, max(8rem, calc(var(--gn-fit) - 26em)));
+  aspect-ratio: 1 / 1;
+  display: block;
+  border-radius: 3px;
+  background: var(--gn-stage);
+}
+.gn-codec-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 32px;
+  margin-top: 10px;
+}
+.gn-codec-legend .gn-legend-inline {
+  margin-top: 0;
+}
+.gn-codec-keynote {
+  color: var(--gn-text-2);
+}
+.gn-codec-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--gn-border);
+  border-radius: var(--gn-radius);
+  background: var(--gn-surface);
+}
+.gn-codec-live > p {
+  margin: 0;
+}
+.gn-codec-status {
+  color: var(--gn-text-2);
+}
+.gn-codec-ok {
+  font-weight: 600;
+}
+.gn-codec-ok::before {
+  content: "\2713  ";
+  color: var(--gn-ok);
+}
+.gn-codec-bad {
+  font-weight: 600;
+  color: var(--gn-danger);
+}
+
+/* On a narrow column the cards stack. */
+@container (max-width: 40rem) {
+  .gn-codec-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gn-codec-card {
+    grid-row: auto;
+    grid-template-rows: none;
+  }
+}
+
+/* ---- terrain map --------------------------------------------------------- */
+
+.gn-segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+}
+.gn-segmented .gn-button {
+  border-radius: 0;
+}
+.gn-segmented .gn-button + .gn-button {
+  margin-left: -1px;
+}
+.gn-segmented .gn-button:first-child {
+  border-radius: var(--gn-radius) 0 0 var(--gn-radius);
+}
+.gn-segmented .gn-button:last-child {
+  border-radius: 0 var(--gn-radius) var(--gn-radius) 0;
+}
+.gn-segmented .gn-button:focus-visible {
+  position: relative;
+}
+/* The controls above the map and the legend (up to two rows) and the credit
+   below it take about 6.75em and 3rem; the map takes the rest of the block's
+   height (at least 300 px), never more than 16:9. */
+.gn-map .gn-viewer-stage {
+  aspect-ratio: 16 / 9;
+  max-height: calc(var(--gn-fit) - 6.75em - 3rem);
+}
+.gn-map-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 24px;
+  margin-top: 8px;
+}
+.gn-map-foot .gn-note {
+  margin: 0;
+}
+.gn-map-legend,
+.gn-codec-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.gn-map-legend .gn-legend-inline {
+  margin-top: 0;
+}
+.gn-map-key {
+  font-weight: 600;
+}
+.gn-map-ramp {
+  display: inline-block;
+  width: 9em;
+  height: 10px;
+  border: 1px solid var(--gn-border);
+  border-radius: 2px;
+}
+.gn-map-end {
+  color: var(--gn-text-2);
+  font-variant-numeric: tabular-nums;
+}
+.gn-map-credit {
+  max-width: none;
+  margin: 4px 0 0;
+  font-size: max(0.6875rem, 0.778em);
+  color: var(--gn-muted);
+}
+
+/* A phone keeps the layer and the exaggeration on one row above the map. */
+@container (max-width: 26rem) {
+  .gn-map .gn-controls {
+    gap: 8px 10px;
+  }
+  .gn-map .gn-button {
+    padding: 4px 8px;
+  }
+}
+
 @media (max-width: 47.99rem) {
   .gn-viewer-panels {
     grid-template-columns: minmax(0, 1fr);
@@ -948,5 +1325,38 @@
     transition: none !important;
     animation: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* The drawn figures (Geo*.astro): two or three plots side by side when each
+   still shows its text at 11.5 px or more, stacked otherwise. A pair of
+   440-wide plots sits side by side while each is under 26rem (the phone
+   drawing, 46 to 53.5rem) or from 62rem (the wide drawing at 1.1 scale and
+   up); in between each one would be a shrunken wide drawing. A trio of
+   300-wide plots goes three across from 51rem. */
+.geo-pair,
+.geo-trio {
+  display: grid;
+  gap: var(--sp-6);
+}
+
+@container (min-width: 46rem) and (max-width: 53.49rem) {
+  .geo-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@container (min-width: 62rem) {
+  .geo-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@container (min-width: 51rem) {
+  .geo-trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
   }
 }

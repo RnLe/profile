@@ -11,6 +11,11 @@
  * primary references. A section pairs a few paragraphs with one figure; the
  * figures alternate sides down the page, and one too wide for a side runs
  * under its text instead.
+ *
+ * A study that sets `wide` (one with a rail) uses nearly the whole window
+ * rather than the content rail, and on its own page its type, measure and
+ * spacing grow gently with the window, so a wide screen keeps the
+ * proportions of a laptop one.
  */
 import CaseRail from './CaseRail.astro';
 import ProjectHero from './ProjectHero.astro';
@@ -48,6 +53,7 @@ const railed = data.sections.length >= 3;
 <article
   class="project-article"
   data-project-article
+  data-wide={data.wide ? '' : undefined}
   data-project-slug={data.slug}
   data-project-title={data.title}
 >
@@ -112,6 +118,50 @@ const railed = data.sections.length >= 3;
     container-type: inline-size;
   }
 
+  /* A wide study: every rail inside runs to the window's gutters (in the
+     overlay, to the panel's). */
+  .project-article[data-wide] {
+    --w-content: 160rem;
+    --w-stage: 160rem;
+  }
+
+  /* On its own page it also grows with the window from 1024 px on: the
+     site's type steps (tokens-core.css) plus a share of --case-grow each,
+     in proportion to their size, and the measure, the spacing, the rail
+     and the hero figure with them. Lines keep about the same length. */
+  .project-article[data-wide]:not(dialog *) {
+    --case-grow: max(0px, 0.24vw - 2.46px);
+    --step--2: calc(clamp(0.6875rem, 0.67rem + 0.08vw, 0.75rem) + 0.72 * var(--case-grow));
+    --step--1: calc(clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem) + 0.86 * var(--case-grow));
+    --step-0: calc(clamp(0.9375rem, 0.9rem + 0.16vw, 1.0625rem) + var(--case-grow));
+    --step-1: calc(clamp(1.0625rem, 1.01rem + 0.22vw, 1.1875rem) + 1.15 * var(--case-grow));
+    --step-2: calc(clamp(1.25rem, 1.15rem + 0.42vw, 1.5rem) + 1.42 * var(--case-grow));
+    --step-3: calc(clamp(1.5rem, 1.33rem + 0.72vw, 1.9375rem) + 1.79 * var(--case-grow));
+    --step-4: calc(clamp(1.875rem, 1.6rem + 1.15vw, 2.5rem) + 2.33 * var(--case-grow));
+    --w-prose: calc(38rem + 38 * var(--case-grow));
+    --sp-4: calc(1rem + var(--case-grow));
+    --sp-5: calc(1.25rem + 1.25 * var(--case-grow));
+    --sp-6: calc(1.5rem + 1.5 * var(--case-grow));
+    --sp-8: calc(2rem + 2 * var(--case-grow));
+    --sp-10: calc(2.5rem + 2.5 * var(--case-grow));
+    --sp-12: calc(3rem + 3 * var(--case-grow));
+    --sp-16: calc(4rem + 4 * var(--case-grow));
+    --sp-20: calc(5rem + 5 * var(--case-grow));
+    --sp-24: calc(6rem + 6 * var(--case-grow));
+    --rail-w: calc(12.5rem + 12.5 * var(--case-grow));
+    /* The hero figure also stays short enough for the start of the
+       overview to show under it on a laptop screen. */
+    --hero-figure: clamp(14rem, min(26vw, 100dvh - 41rem), 42rem);
+    font-size: var(--step-0);
+  }
+
+  /* Its charts stop growing before the column ends: they sit in the middle
+     of their column rather than leaving the right side empty. */
+  .project-article[data-wide] :global(:is(.fer-plot, .fer-bars, .geo-rule, .geo-cohort)) {
+    width: 100%;
+    margin-inline: auto;
+  }
+
   .figure-stack {
     display: flex;
     flex-direction: column;
@@ -158,10 +208,40 @@ const railed = data.sections.length >= 3;
     container-type: inline-size;
   }
 
-  @container (min-width: 60rem) {
+  /* The rail moves beside the article where the column next to it keeps
+     about the width the article has without one: from 84rem on a page (made
+     wider for it, --w-case), from 70rem in the overlay, and from 60rem for a
+     wide study, whose column grows with the window. Narrower, it sits on top.
+     The layout is then named case-beside, which the rail's styles follow. */
+  .project-article :global(.case-layout) {
+    container-type: inline-size;
+  }
+
+  @container (min-width: 84rem) {
     .project-article :global(.case-layout) {
+      container-name: case-beside;
       display: grid;
-      grid-template-columns: 12.5rem minmax(0, 1fr);
+      grid-template-columns: var(--rail-w, 12.5rem) minmax(0, 1fr);
+      gap: var(--sp-10);
+      align-items: start;
+    }
+  }
+
+  @container (min-width: 70rem) {
+    :global(dialog) .project-article :global(.case-layout) {
+      container-name: case-beside;
+      display: grid;
+      grid-template-columns: var(--rail-w, 12.5rem) minmax(0, 1fr);
+      gap: var(--sp-10);
+      align-items: start;
+    }
+  }
+
+  @container (min-width: 60rem) {
+    .project-article[data-wide] :global(.case-layout) {
+      container-name: case-beside;
+      display: grid;
+      grid-template-columns: var(--rail-w, 12.5rem) minmax(0, 1fr);
       gap: var(--sp-10);
       align-items: start;
     }

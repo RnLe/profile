@@ -3,15 +3,19 @@
  * A case study's steps: each a heading, a few short paragraphs, maybe a shell
  * command to copy, the registered claims it shows, and its figures. A single
  * figure sits beside the text, alternating sides down the page; a wide one,
- * or a pair, runs under its text and breaks the run.
+ * or a pair, runs under its text and breaks the run. A step may open with a
+ * question (a small Question) and close with work still to come (Continued),
+ * both across the full column.
  *
  * Each heading carries an id (lib/case-nav) that the rail links to. The
  * claims are evidence, not decoration: a quiet footnote-like list under the
  * text, each line word for word from the registry with its scope.
  */
 import FigureRenderer from './FigureRenderer.astro';
+import Continued from '../ui/Continued.astro';
 import Icon from '../ui/Icon.astro';
 import Marked from '../ui/Marked.astro';
+import Question from '../ui/Question.astro';
 import { getFigure } from '../../lib/figures';
 import { stepIds } from '../../lib/case-nav';
 import type { ResolvedProject } from '../../lib/publication';
@@ -62,6 +66,11 @@ const sections = steps.map((section) => {
                 section.flip && 'step--flip',
               ]}
             >
+              {section.question && (
+                <div class="step-question">
+                  <Question size="small" text={section.question} />
+                </div>
+              )}
               <div class="step-text marked">
                 <h2 id={section.id}>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
@@ -115,6 +124,11 @@ const sections = steps.map((section) => {
                   ))}
                 </div>
               )}
+              {section.continued && (
+                <div class="step-continued">
+                  <Continued text={section.continued} />
+                </div>
+              )}
             </section>
           ))}
         </div>
@@ -134,8 +148,9 @@ const sections = steps.map((section) => {
     align-items: center;
   }
 
-  /* Text and figure side by side; every other one the figure on the left. */
-  @container (min-width: 50rem) {
+  /* Text and figure side by side; every other one the figure on the left.
+     From a 47.5rem column: a 50rem window less its gutters. */
+  @container (min-width: 47.5rem) {
     .step--side {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     }
@@ -147,6 +162,40 @@ const sections = steps.map((section) => {
     .step--flip .step-text {
       order: 2;
     }
+  }
+
+  /* A wide study's side figures are charts (GeoNeural): beside a 5 : 7 split
+     they keep 11.5 px text only from a 64rem column. Narrower, from 44rem,
+     the figure column stays under 26rem, where every chart switches to its
+     phone drawing with larger text: half the row, at most 25.9rem. */
+  @container (min-width: 44rem) and (max-width: 63.99rem) {
+    :global(.project-article[data-wide]) .step--side {
+      grid-template-columns: minmax(0, 1fr) min(calc((100% - var(--sp-10)) / 2), 25.9rem);
+    }
+
+    :global(.project-article[data-wide]) .step--flip {
+      grid-template-columns: min(calc((100% - var(--sp-10)) / 2), 25.9rem) minmax(0, 1fr);
+    }
+
+    :global(.project-article[data-wide]) .step--flip .step-text {
+      order: 2;
+    }
+  }
+
+  /* A step's question and its note of work to come span the row, before and
+     after the text and figure whichever side the figure is on. */
+  .step-question,
+  .step-continued {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .step-question {
+    order: -1;
+  }
+
+  .step-continued {
+    order: 3;
   }
 
   .step-text {

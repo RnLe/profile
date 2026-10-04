@@ -1,0 +1,90 @@
+---
+/**
+ * H3, bound allocation: the tolerant stream F1 of a tightened bound minus
+ * that of the uniform bound at equal bytes, for each rule and coder. Each
+ * dot is one development region at one bound; the diamond is the mean. The
+ * frozen rule asks for +0.05. Near streams the bound is scaled by the factor;
+ * on gentle slopes it is scaled down, floored at the factor. Drawn in points
+ * (x100), with each rule named above its pair of rows.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, CODER_NAMES, data, fmtBound, mean, regionName } from './geo';
+
+type Row = { arm: string; coder: string; region: string; boundM: number; deltaF1: number; rmse: number; rmseUniform: number };
+const all = data.h3.atEqualBytes as Row[];
+const rules = [
+  ['streams-0.5', 'half the limit near streams'],
+  ['streams-0.25', 'a quarter of the limit near streams'],
+  ['slope-0.5', 'down to half on gentle slopes'],
+  ['slope-0.25', 'down to a quarter on gentle slopes'],
+] as const;
+const coders = ['cubic-ctx', 'learned'] as const;
+const short = { 'cubic-ctx': 'fixed', learned: 'neural' };
+const bounds = [...new Set(all.map((r) => r.boundM))].sort((a, b) => a - b);
+const rows = rules.flatMap(([arm, name], i) => coders.map((coder, k) => ({ arm, coder, name: `${name}, ${short[coder]}`, y: i * 2.6 + k })));
+const pick = (arm: string, coder: string) => all.filter((r) => r.arm === arm && r.coder === coder);
+/** The change in points: the share of streams found again, times 100. */
+const pts = (r: Row) => 100 * r.deltaF1;
+const jitter = (b: number) => ((bounds.indexOf(b) / (bounds.length - 1)) - 0.5) * 0.5;
+const series = [
+  ...coders.map((coder) => ({
+    label: `${CODER_NAMES[coder]}, one region and error`,
+    color: CODER_COLORS[coder],
+    kind: 'scatter' as const,
+    size: 2.3,
+    opacity: 0.55,
+    points: rows.filter((r) => r.coder === coder).flatMap((r) => pick(r.arm, coder).map((x) => [pts(x), r.y + jitter(x.boundM)] as [number, number])),
+    tips: rows.filter((r) => r.coder === coder).flatMap((r) => pick(r.arm, coder).map((x) => `${r.name}, ${regionName(x.region)}, ${fmtBound(x.boundM)}: ${pts(x) >= 0 ? '+' : ''}${pts(x).toFixed(1)} points`)),
+  })),
+  {
+    label: 'average',
+    color: 'var(--ink)',
+    kind: 'scatter' as const,
+    marker: 'diamond' as const,
+    size: 4,
+    points: rows.map((r) => [mean(pick(r.arm, r.coder).map(pts)), r.y] as [number, number]),
+  },
+];
+const means = rows.map((r) => mean(pick(r.arm, r.coder).map(pts)));
+const worse = all.filter((r) => r.rmse > r.rmseUniform).length;
+const XMIN = -8.5;
+const XMAX = 9;
+const refs = [
+  { kind: 'band' as const, x: 5, x2: XMAX, color: 'color-mix(in srgb, #2e8a5f 10%, transparent)' },
+  { kind: 'vline' as const, x: 0 },
+  { kind: 'vline' as const, x: 5, color: '#2e8a5f' },
+  { kind: 'label' as const, x: 4.8, y: -1.1, anchor: 'end' as const, text: 'needed: +5 points →', color: '#2e8a5f' },
+];
+// The means sit in a right gutter, clear of the dots.
+const meanLabels = rows.map((r, i) => ({ kind: 'label' as const, x: XMAX, y: r.y, dx: 8, dy: -0.5, anchor: 'start' as const, text: `${means[i] >= 0 ? '+' : '−'}${Math.abs(means[i]).toFixed(1)}`, color: CODER_COLORS[r.coder] }));
+// The rule names head each pair of rows, which are named by predictor.
+const LEFT = 64;
+const PHONE_LEFT = 72;
+const withRules = (left: number) => [
+  ...refs,
+  ...meanLabels,
+  ...rules.map(([, name], i) => ({ kind: 'label' as const, x: XMIN, y: i * 2.6 - 0.62, dx: 4 - left, dy: -0.5, anchor: 'start' as const, text: name, row: true })),
+];
+const label = `Change in streams found again at the same file size, in points, for four ways of tightening the error limit and two predictors. The averages lie between ${Math.min(...means).toFixed(1)} and +${Math.max(...means).toFixed(1)} points, far from the needed +5, and the height error is worse in ${worse} of ${all.length} comparisons.`;
+---
+
+<Plot
+  id="geo-h3"
+  {label}
+  x={{ label: 'change in streams found, same file size (points)', min: XMIN, max: XMAX, ticks: [-8, -4, 0, 4, 8], digits: 0 }}
+  y={{ tickLabels: rows.map((r) => ({ at: r.y, label: short[r.coder] })), min: rows[rows.length - 1].y + 0.7, max: -1.6 }}
+  {series}
+  annotations={withRules(LEFT)}
+  left={LEFT}
+  right={56}
+  width={480}
+  height={380}
+  minScale={0.6}
+  phone={{
+    left: PHONE_LEFT,
+    right: 58,
+    height: 420,
+    x: { label: 'change, same file size (points)' },
+    annotations: withRules(PHONE_LEFT),
+  }}
+/>

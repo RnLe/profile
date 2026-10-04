@@ -1,25 +1,29 @@
 // Preset 3: linear diffusion on the Essen lab terrain with a per-class
-// diffusivity D0 x ratio[class]. The ratios are assumptions, not measurements.
+// diffusivity: D0 on rock, D0 x factor on loose ground. The factor is an
+// assumption, not a measurement; one choice replaces a factor per map unit.
 
 import type { LabData, LegendEntry } from "../data/bundle";
-import { h, uid } from "../data/dom";
-import { formatPercent, formatSci, formatYears } from "../data/format";
+import { h } from "../data/dom";
+import { formatYears } from "../data/format";
 import { cssGradient, DIVERGING_STOPS, ELEVATION_STOPS } from "../data/palette";
 import type { RunFrame, RunSpec } from "./protocol";
 import { drawClasses, drawDiverging, drawHeight, niceRange } from "./render";
 import { controlStrip, diagnosticsList, logSlider, minMax, rampLegend, selectField, type Preset, type RunnerApi } from "./ui";
 
 const FRAMES = 50;
-const MAX_RATIO = 50;
+/** Map units that are loose ground rather than rock. */
+const LOOSE = new Set(["anthropogenic unconsolidated material", "pebble gravel size sediment", "sand", "silt"]);
+const LOOSE_COLOR = "#e6d29a";
+const ROCK_COLOR = "#8a7f9e";
 
 export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: LegendEntry[]): Preset {
   let data: LabData | null = null;
   let loadError: string | null = null;
-  const ratios = new Map<number, number>(legend.map((e) => [e.code, 1]));
+  const loose = new Set(legend.filter((e) => LOOSE.has(e.label)).map((e) => e.code));
 
-  const d0 = logSlider("Base diffusivity D0", 0.001, 0.1, 0.01, "m²/yr", 2);
+  const d0 = logSlider("Creep rate of rock", 0.001, 0.1, 0.01, "m²/yr", 2);
   const years = selectField(
-    "Run length N",
+    "Run length",
     [
       ["10000", "10,000 years"],
       ["100000", "100,000 years"],
@@ -27,56 +31,22 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
     ],
     "100000",
   );
+  const factor = selectField(
+    "Loose ground creeps",
+    [
+      ["1", "as fast as rock"],
+      ["3", "3 times faster"],
+      ["10", "10 times faster"],
+    ],
+    "3",
+  );
   d0.input.addEventListener("change", () => api.paramsChanged());
   years.select.addEventListener("change", () => api.paramsChanged());
+  factor.select.addEventListener("change", () => api.paramsChanged());
   const strip = controlStrip(api);
+  const ratio = (code: number) => (loose.has(code) ? Number(factor.value()) : 1);
 
-  const tableBody = h("tbody");
-  const inputs = new Map<number, HTMLInputElement>();
-  const shareCells = new Map<number, HTMLElement>();
-  const changeCells = new Map<number, HTMLElement>();
-  for (const entry of legend) {
-    const id = uid("gn-ratio");
-    const input = h("input", { type: "number", id, min: 0, max: MAX_RATIO, step: 0.1, value: 1, class: "gn-number", inputmode: "decimal" });
-    input.addEventListener("change", () => {
-      let v = Number(input.value);
-      if (!Number.isFinite(v) || v < 0) v = 0;
-      if (v > MAX_RATIO) v = MAX_RATIO;
-      input.value = String(v);
-      ratios.set(entry.code, v);
-      api.paramsChanged();
-    });
-    inputs.set(entry.code, input);
-    const share = h("td", { class: "gn-num" });
-    const change = h("td", { class: "gn-num" });
-    shareCells.set(entry.code, share);
-    changeCells.set(entry.code, change);
-    tableBody.append(
-      h(
-        "tr",
-        {},
-        h(
-          "th",
-          { scope: "row" },
-          h("span", { class: entry.code === 0 ? "gn-swatch gn-swatch-unmapped" : "gn-swatch", style: entry.code === 0 ? "" : `background:${entry.color}`, "aria-hidden": "true" }),
-          h("label", { for: id }, entry.label),
-        ),
-        h("td", {}, input),
-        share,
-        change,
-      ),
-    );
-  }
-  const resetRatios = h("button", { type: "button", class: "gn-button" }, "All ratios to 1");
-  resetRatios.addEventListener("click", () => {
-    for (const [code, input] of inputs) {
-      input.value = "1";
-      ratios.set(code, 1);
-    }
-    api.paramsChanged();
-  });
-
-  const classCanvas = h("canvas", { class: "gn-lab-canvas", role: "img", "aria-label": "Mapped geology classes of the lab terrain" });
+  const classCanvas = h("canvas", { class: "gn-lab-canvas", role: "img", "aria-label": "Loose ground and rock on the lab terrain" });
   const heightCanvas = h("canvas", { class: "gn-lab-canvas", role: "img", "aria-label": "Lab terrain height now" });
   const changeCanvas = h("canvas", { class: "gn-lab-canvas", role: "img", "aria-label": "Change in height since the start" });
   const heightLegend = h("div", {});
@@ -85,38 +55,30 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
 
   const el = h(
     "div",
-    { class: "gn-lab-preset" },
+    { class: "gn-lab-preset gn-lab-material" },
     h(
       "p",
       { class: "gn-lab-intro" },
-      "Linear diffusion on the Essen terrain sampled every 80 m (129 x 129 nodes), closed boundaries. Each node takes the diffusivity D0 x ratio of its mapped " +
-        "surface class; faces use the harmonic mean of their two cells. A conditional sensitivity experiment: it shows how an assumed contrast would redistribute " +
-        "height, not how the Ruhr valley erodes.",
+      "Soil creep on the real Essen terrain (80 m grid), where loose ground (sand, silt, gravel, made ground) creeps faster than rock. The factor is an assumption, not a measurement: this shows what a contrast would do, not how the Ruhr valley erodes.",
     ),
-    h("div", { class: "gn-controls" }, d0.el, years.el),
-    h(
-      "div",
-      { class: "gn-lab-assume" },
-      h("p", { class: "gn-legend-title" }, "Diffusivity ratio per class: assumed values, not measured properties"),
-      h(
-        "div",
-        { class: "gn-table-wrap" },
-        h(
-          "table",
-          { class: "gn-table" },
-          h("thead", {}, h("tr", {}, h("th", { scope: "col" }, "Mapped class"), h("th", { scope: "col" }, "Ratio (assumed)"), h("th", { scope: "col" }, "Share of nodes"), h("th", { scope: "col" }, "Mean change (m)"))),
-          tableBody,
-        ),
-      ),
-      resetRatios,
-    ),
-    strip.el,
+    h("div", { class: "gn-controls" }, factor.el, d0.el, years.el, strip.el),
     h(
       "div",
       { class: "gn-lab-grid gn-lab-grid-3" },
-      h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Mapped classes (table colours)"), classCanvas),
+      h(
+        "figure",
+        { class: "gn-lab-card" },
+        h("figcaption", { class: "gn-legend-title" }, "Loose ground and rock"),
+        classCanvas,
+        h(
+          "ul",
+          { class: "gn-legend-list gn-legend-inline", "aria-label": "Ground" },
+          h("li", {}, h("span", { class: "gn-swatch", style: `background:${LOOSE_COLOR}`, "aria-hidden": "true" }), "loose ground"),
+          h("li", {}, h("span", { class: "gn-swatch", style: `background:${ROCK_COLOR}`, "aria-hidden": "true" }), "rock"),
+        ),
+      ),
       h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Height now"), heightCanvas, heightLegend, diag),
-      h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Change in height since the start"), changeCanvas, changeLegend),
+      h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Change since the start"), changeCanvas, changeLegend),
     ),
   );
 
@@ -130,16 +92,14 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
       data = d;
       const t = d.terrain;
       range = minMax(t.height);
-      const counts = new Map<number, number>();
-      for (const c of t.classes) counts.set(c, (counts.get(c) ?? 0) + 1);
-      for (const [code, cell] of shareCells) cell.textContent = formatPercent((counts.get(code) ?? 0) / t.classes.length);
-      drawClasses(classCanvas, t.classes, t.side, new Map(legend.map((e) => [e.code, e.color])));
+      // Unmapped cells (code 0) stay neutral; every other unit is loose ground or rock.
+      drawClasses(classCanvas, t.classes, t.side, new Map(legend.filter((e) => e.code !== 0).map((e) => [e.code, loose.has(e.code) ? LOOSE_COLOR : ROCK_COLOR])));
       // Nothing can have run before the terrain arrived.
       initial();
       strip.update(false, true, false, false);
     },
     (err: unknown) => {
-      loadError = `Could not load the lab terrain: ${err instanceof Error ? err.message : String(err)}`;
+      loadError = `The terrain could not load: ${err instanceof Error ? err.message : String(err)}`;
       show();
     },
   );
@@ -151,10 +111,7 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
     current = null;
     time = 0;
     show();
-    if (data && !loadError) {
-      const maxRatio = Math.max(...legend.map((e) => ratios.get(e.code) ?? 1));
-      strip.status.textContent = `Ready: ${FRAMES} steps of ${formatYears(N() / FRAMES)}; largest D = ${formatSci(d0.value() * maxRatio, 2)} m²/yr.`;
-    }
+    if (data && !loadError) strip.status.textContent = `Ready: ${FRAMES} steps of ${formatYears(N() / FRAMES)}.`;
   }
 
   function show(): void {
@@ -164,34 +121,27 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
       return;
     }
     if (!data) {
-      strip.status.textContent = "Loading the lab terrain...";
+      strip.status.textContent = "Loading the terrain…";
       strip.update(false, false, false, false);
       return;
     }
     const t = data.terrain;
     const now = current ?? t.height;
     drawHeight(heightCanvas, now, t.side, t.spacingM, range[0], range[1]);
-    heightLegend.replaceChildren(rampLegend(cssGradient(ELEVATION_STOPS), `${range[0].toFixed(0)} m`, "", `${range[1].toFixed(0)} m`, "Fixed scale from the start surface."));
+    heightLegend.replaceChildren(rampLegend(cssGradient(ELEVATION_STOPS), `${range[0].toFixed(0)} m`, "", `${range[1].toFixed(0)} m`));
     const delta = new Float32Array(now.length);
     let rise = 0;
     let fall = 0;
-    const sums = new Map<number, [number, number]>();
     for (let i = 0; i < now.length; i++) {
       const v = now[i] - t.height[i];
       delta[i] = v;
       rise = Math.max(rise, v);
       fall = Math.min(fall, v);
-      const s = sums.get(t.classes[i]) ?? [0, 0];
-      s[0] += v;
-      s[1] += 1;
-      sums.set(t.classes[i], s);
     }
     // Colour scale from the 99th percentile of |change|, so a few steep banks do not wash out the rest.
     const sorted = Float32Array.from(delta, Math.abs).sort();
     const p99 = sorted[Math.floor(0.99 * (sorted.length - 1))];
     const r = niceRange(Math.max(p99, 1e-3));
-    let clipped = 0;
-    for (const v of sorted) if (v > r) clipped++;
     drawDiverging(changeCanvas, delta, t.side, r);
     changeLegend.replaceChildren(
       rampLegend(
@@ -199,29 +149,22 @@ export function materialPreset(api: RunnerApi, lab: Promise<LabData>, legend: Le
         `-${r} m`,
         "0",
         `+${r} m`,
-        current
-          ? `After ${formatYears(time)}: largest rise +${rise.toFixed(2)} m, largest lowering ${fall.toFixed(2)} m. Blue lowered, red raised. ` +
-            `Scale from the 99th percentile of |change|; ${formatPercent(clipped / sorted.length)} of nodes lie beyond it and show the end colours.`
-          : "No change yet.",
+        current ? `Blue lowered, red raised. Largest rise +${rise.toFixed(2)} m, largest drop ${fall.toFixed(2)} m.` : "No change yet.",
       ),
     );
-    for (const [code, cell] of changeCells) {
-      const s = sums.get(code);
-      cell.textContent = current && s && s[1] ? (s[0] / s[1]).toFixed(3) : "";
-    }
     const f = frames[0];
-    diag.replaceChildren(diagnosticsList(f?.diagnostics ?? null, f?.stopped ?? null, t.side * t.side * t.spacingM * t.spacingM));
+    diag.replaceChildren(diagnosticsList(f?.diagnostics ?? null, f?.stopped ?? null));
   }
 
   return {
     el,
-    key: () => `material|${d0.value()}|${N()}|${legend.map((e) => ratios.get(e.code) ?? 1).join(",")}`,
+    key: () => `material|${d0.value()}|${N()}|${factor.value()}`,
     specs(): RunSpec[] | null {
       if (!data) return null;
       const t = data.terrain;
       const base = d0.value();
       const field = new Float64Array(t.side * t.side);
-      for (let i = 0; i < field.length; i++) field[i] = base * (ratios.get(t.classes[i]) ?? 1);
+      for (let i = 0; i < field.length; i++) field[i] = base * ratio(t.classes[i]);
       return [
         {
           key: "terrain",

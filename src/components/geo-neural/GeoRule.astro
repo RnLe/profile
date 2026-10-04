@@ -1,0 +1,261 @@
+---
+/**
+ * The frozen H1 rule, condition by condition: for each decision bound and
+ * each cohort, the measured value and whether it passes. Bytes pass almost
+ * everywhere; the drainage condition fails at every bound of the
+ * confirmation run, so H1 is not supported.
+ */
+import { CONF_REGIONS, DECISION_BOUNDS, DEV_REGIONS, TONE, data, fmtBound } from './geo';
+
+type Cmp = { geometricMeanRatio: number; bootstrap95: number[]; perRegion: Record<string, number>; allRegionsSmaller: boolean };
+type PerBound = Record<string, { learnedStandaloneVsBestConventional: Cmp; tolerantF1: { learned: Record<string, number>; bestConventional: Record<string, number> }; passes: boolean }>;
+const rule = data.h1.verdictConfirmation.rule;
+
+function rows(perBound: PerBound, regions: string[]) {
+  return DECISION_BOUNDS.map((b) => {
+    const v = perBound[b];
+    const c = v.learnedStandaloneVsBestConventional;
+    const drops = regions.map((r) => v.tolerantF1.bestConventional[r] - v.tolerantF1.learned[r]);
+    const worst = Math.max(...drops);
+    const smaller = regions.filter((r) => c.perRegion[r] < 1).length;
+    const cells = [
+      { text: `${c.geometricMeanRatio.toFixed(2)}×`, ok: c.geometricMeanRatio <= rule.maxRatio },
+      { text: c.bootstrap95[1].toFixed(2), ok: c.bootstrap95[1] < rule.bootstrapUpperBelow },
+      { text: `${smaller} of ${regions.length}`, ok: smaller === regions.length },
+      // The drop in points: the share of streams found again, times 100.
+      { text: worst > 0 ? `−${(100 * worst).toFixed(1)}` : `+${(-100 * worst).toFixed(1)}`, ok: worst <= rule.maxTolerantF1Drop },
+    ];
+    const all = cells.every((x) => x.ok);
+    if (all !== v.passes) throw new Error(`H1 rule cells disagree with the recorded verdict at ${b} m`);
+    return { cells, all };
+  });
+}
+
+const blocks = [
+  { title: `${CONF_REGIONS.length} new regions`, cols: rows(data.h1.verdictConfirmation.perBound as unknown as PerBound, CONF_REGIONS) },
+  { title: `${DEV_REGIONS.length} development regions`, cols: rows(data.h1.verdictDevelopment.perBound as unknown as PerBound, DEV_REGIONS) },
+];
+const conditions = ['size ≤ 0.90×', 'range top < 0.95×', 'all regions smaller', 'streams drop ≤ 1 point', 'rule passes'];
+const L = 164;
+const W = 76;
+const H = 26;
+const G = 4;
+const width = L + DECISION_BOUNDS.length * (W + G) + 4;
+const headTop = 22;
+const blockH = 26 + conditions.length * (H + G) + 14;
+const height = headTop + 8 + blocks.length * blockH;
+const yBlock = (k: number) => headTop + 8 + k * blockH;
+const check = (x: number, y: number) => `M${x - 4.5},${y}l3.2,3.4l6,-7`;
+const cross = (x: number, y: number) => `M${x - 3.6},${y - 3.6}l7.2,7.2M${x + 3.6},${y - 3.6}l-7.2,7.2`;
+const fails = blocks[0].cols.filter((c) => !c.all).length;
+const aria = `The rule fixed in advance, per largest error. New regions: the size checks pass from 5 cm to 50 cm, the streams check fails at all five errors, so the rule fails at ${fails} of 5. Development regions: only 5 cm passes all four checks.`;
+
+// A phone gets the same matrix with each condition's name on its own line
+// above its five cells, so the cells keep the full width.
+const PW = 66;
+const PG = 4;
+const PH = 26;
+const pWidth = DECISION_BOUNDS.length * (PW + PG) - PG + 4;
+const pName = 18;
+const pRow = pName + PH + 8;
+const pHead = 22;
+const pBlockH = 28 + conditions.length * pRow + 10;
+const pHeight = pHead + 6 + blocks.length * pBlockH;
+const pBlock = (k: number) => pHead + 6 + k * pBlockH;
+---
+
+<div class="geo-rule" style={`max-width:${Math.round(width * 1.35)}px`}>
+  <div class="variant--wide">
+    <svg viewBox={`0 0 ${width} ${height}`} role="img" style={`min-width:${Math.round(width * 0.65)}px`} aria-label={aria}>
+      {DECISION_BOUNDS.map((b, j) => (
+        <text class="col" x={L + j * (W + G) + W / 2} y={headTop - 6} text-anchor="middle">{fmtBound(b)}</text>
+      ))}
+      <text class="col-title" x={L - 10} y={headTop - 6} text-anchor="end">largest error</text>
+      {blocks.map((block, k) => (
+        <g transform={`translate(0,${yBlock(k)})`}>
+          <text class="block" x="0" y="14">{block.title}</text>
+          {conditions.map((name, i) => {
+            const y = 24 + i * (H + G);
+            const last = i === conditions.length - 1;
+            return (
+              <g>
+                <text class:list={['cond', last && 'strong']} x={L - 10} y={y + H / 2 + 4} text-anchor="end">{name}</text>
+                {block.cols.map((col, j) => {
+                  const ok = last ? col.all : col.cells[i].ok;
+                  const x = L + j * (W + G);
+                  return (
+                    <g class:list={['cell', ok ? 'ok' : 'no', last && 'verdict']}>
+                      <rect x={x} y={y} width={W} height={H} rx="4" />
+                      <path d={ok ? check(x + 12, y + H / 2) : cross(x + 12, y + H / 2)} />
+                      <text x={x + W - 7} y={y + H / 2 + 4} text-anchor="end">{last ? (ok ? 'pass' : 'fail') : col.cells[i].text}</text>
+                      <title>{`${block.title}, ${fmtBound(DECISION_BOUNDS[j])}, ${name}: ${last ? (ok ? 'pass' : 'fail') : col.cells[i].text} (${ok ? 'pass' : 'fail'})`}</title>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })}
+        </g>
+      ))}
+    </svg>
+  </div>
+  <div class="variant--phone">
+    <svg viewBox={`0 0 ${pWidth} ${pHeight}`} role="img" aria-label={aria}>
+      {DECISION_BOUNDS.map((b, j) => (
+        <text class="col" x={2 + j * (PW + PG) + PW / 2} y={pHead - 6} text-anchor="middle">{fmtBound(b)}</text>
+      ))}
+      {blocks.map((block, k) => (
+        <g transform={`translate(0,${pBlock(k)})`}>
+          <text class="block" x="2" y="16">{block.title}</text>
+          {conditions.map((name, i) => {
+            const y = 28 + i * pRow;
+            const last = i === conditions.length - 1;
+            return (
+              <g>
+                <text class:list={['cond', last && 'strong']} x="2" y={y + 13}>{name}</text>
+                {block.cols.map((col, j) => {
+                  const ok = last ? col.all : col.cells[i].ok;
+                  const x = 2 + j * (PW + PG);
+                  const cy = y + pName + PH / 2;
+                  return (
+                    <g class:list={['cell', ok ? 'ok' : 'no', last && 'verdict']}>
+                      <rect x={x} y={y + pName} width={PW} height={PH} rx="4" />
+                      <path d={ok ? check(x + 8, cy) : cross(x + 8, cy)} />
+                      <text x={x + PW - 4} y={cy + 4.5} text-anchor="end">{last ? (ok ? 'pass' : 'fail') : col.cells[i].text}</text>
+                      <title>{`${block.title}, ${fmtBound(DECISION_BOUNDS[j])}, ${name}: ${last ? (ok ? 'pass' : 'fail') : col.cells[i].text} (${ok ? 'pass' : 'fail'})`}</title>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })}
+        </g>
+      ))}
+    </svg>
+  </div>
+</div>
+
+<style define:vars={{ pass: TONE.pass, fail: TONE.fail }}>
+  .geo-rule {
+    min-width: 0;
+    container: geo-rule / inline-size;
+  }
+
+  .variant--phone {
+    display: none;
+  }
+
+  /* 26rem, as in fer/Plot: below it the phone drawing replaces the wide one. */
+  @container geo-rule (max-width: 25.99rem) {
+    .variant--wide {
+      display: none;
+    }
+
+    .variant--phone {
+      display: block;
+    }
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .col,
+  .col-title,
+  .cell text {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-muted);
+  }
+
+  .col-title {
+    fill: var(--ink-faint);
+  }
+
+  .block {
+    font-size: 12px;
+    font-weight: 650;
+    fill: var(--ink-heading);
+  }
+
+  .cond {
+    font-size: 11.5px;
+    fill: var(--ink);
+  }
+
+  .cond.strong {
+    font-weight: 650;
+  }
+
+  .cell rect {
+    stroke-width: 1;
+  }
+
+  .cell.ok rect {
+    fill: color-mix(in srgb, var(--pass) 12%, var(--surface));
+    stroke: color-mix(in srgb, var(--pass) 35%, transparent);
+  }
+
+  .cell.no rect {
+    fill: color-mix(in srgb, var(--fail) 12%, var(--surface));
+    stroke: color-mix(in srgb, var(--fail) 35%, transparent);
+  }
+
+  .cell path {
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cell.ok path {
+    stroke: var(--pass);
+  }
+
+  .cell.no path {
+    stroke: var(--fail);
+  }
+
+  .cell.ok text {
+    fill: color-mix(in srgb, var(--pass) 70%, var(--ink));
+  }
+
+  .cell.no text {
+    fill: color-mix(in srgb, var(--fail) 75%, var(--ink));
+  }
+
+  .cell.verdict text {
+    font-weight: 700;
+  }
+
+  .cell.verdict.ok rect {
+    fill: color-mix(in srgb, var(--pass) 26%, var(--surface));
+  }
+
+  .cell.verdict.no rect {
+    fill: color-mix(in srgb, var(--fail) 24%, var(--surface));
+  }
+
+  @media (max-width: 40rem) {
+    .col,
+    .col-title,
+    .cell text {
+      font-size: 12px;
+    }
+  }
+
+  .variant--phone .col,
+  .variant--phone .cell text {
+    font-size: 12.5px;
+  }
+
+  .variant--phone .cond {
+    font-size: 13.5px;
+  }
+
+  .variant--phone .block {
+    font-size: 14.5px;
+  }
+</style>

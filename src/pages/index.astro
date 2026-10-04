@@ -4,7 +4,7 @@
  * the argument, the copy stays out of its way.
  *
  * 1 hero + evidence strip · 2 projects, latest first, each opening its case
- * study in an overlay modal · 3 a short band saying the site is still growing
+ * study as a page · 3 a short band saying the site is still growing
  *
  * Contact lives in the footer alone; a "get in touch" band here would repeat
  * it a screen earlier.
@@ -18,6 +18,10 @@ import SectionHeading from '../components/ui/SectionHeading.astro';
 import ExpansionNote from '../components/ui/ExpansionNote.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
 import { site, evidenceStrip, landingPins } from '../data/site';
+
+// The case-study overlay (ProjectModal) is parked: entries open the full page.
+// Set this to true to bring the overlay back.
+const OVERLAY = false;
 import { getPublishedProjects } from '../lib/content';
 import Icon from '../components/ui/Icon.astro';
 import Marked from '../components/ui/Marked.astro';
@@ -104,7 +108,7 @@ const jsonLd = [personSchema(origin)];
     </div>
   </section>
 
-  <ProjectModal />
+  {OVERLAY && <ProjectModal />}
 </AcademicLayout>
 
 <style>

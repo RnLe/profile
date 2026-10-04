@@ -1,0 +1,34 @@
+---
+/**
+ * The classic neural-field approach, charged in full: a coordinate network
+ * (latent grid plus a small decoder) fitted to one field to shrink the
+ * residual a conventional lattice leaves. Prototype, Essen-Ruhr at 50 cm.
+ */
+import Bars from '../fer/Bars.astro';
+import { CODER_COLORS, data, fmtBound } from './geo';
+
+const f = data.prototype.perFieldNetwork;
+const k = (b: number) => b / 1000;
+const mlp = f.networkBytes - f.latentBytes;
+const rows = [
+  { label: 'standard file', values: [k(f.baseResidualBytes), 0, 0] },
+  { label: 'with a network', values: [k(f.baseResidualBytes - f.residualSavedBytes), k(f.latentBytes), k(mlp)], strong: true },
+];
+---
+
+<Bars
+  label={`A neural network fitted to one terrain at ${fmtBound(f.boundM)}: it saves ${(f.residualSavedBytes / 1000).toFixed(1)} kB of coded terrain and costs ${(f.networkBytes / 1000).toFixed(1)} kB to store, so the file grows from ${(f.baseResidualBytes / 1000).toFixed(0)} to ${(f.withNetworkBytes / 1000).toFixed(0)} kB.`}
+  {rows}
+  parts={[
+    { label: 'coded terrain', color: CODER_COLORS.best },
+    { label: 'learned grid', color: CODER_COLORS.learned },
+    { label: 'network weights', color: '#e8b7a3' },
+  ]}
+  x={{ label: 'file size (kB)', max: 160 }}
+  value={{ digits: 1, unit: ' kB' }}
+  labelWidth={140}
+  rowHeight={34}
+  width={490}
+  phone={{ labelWidth: 150, right: 66, x: { ticks: [0, 50, 100, 150] } }}
+  reference={{ at: k(f.baseResidualBytes), text: 'without the network' }}
+/>

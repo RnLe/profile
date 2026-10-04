@@ -24,8 +24,11 @@ interface Props {
 }
 
 const { label, rows, cols, values, color = '#2f6db0', digits = 0, percent = true, max, rowTitle, colTitle, cell = 44, labelWidth = 70, diagonal = false } = Astro.props;
-const top = 58;
-const width = labelWidth + cols.length * cell + 60; // room for the last rotated column label
+// Room above and to the right for the column labels, set at -40 degrees:
+// enough for the longest one (about 6.4 px a character at 11.5 px).
+const run = Math.max(...cols.map((c) => c.length)) * 6.4;
+const top = Math.max(58, Math.ceil(run * Math.sin((40 * Math.PI) / 180)) + 14);
+const width = labelWidth + cols.length * cell + Math.max(60, Math.ceil(run * Math.cos((40 * Math.PI) / 180) - cell / 2 + 12));
 const height = top + rows.length * cell + 4;
 const peak = max ?? Math.max(...values.flat());
 const text = (v: number) => (percent ? (v * 100).toFixed(digits) : v.toFixed(digits));

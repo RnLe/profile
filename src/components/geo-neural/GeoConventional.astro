@@ -1,0 +1,59 @@
+---
+/**
+ * The conventional bar, from the prototype round on three development
+ * regions: complete bytes against the maximum error for each codec at its
+ * absolute-error setting (geometric mean over the regions). The first
+ * version of the study compared against q32 + zstd; SZ3 and SPERR need far
+ * fewer bytes for the same guarantee.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, CODER_NAMES, data, fmtBound, fmtBytes, geoMean } from './geo';
+
+type Row = { region: string; codec: string; boundM: number; bytes: number; maxM: number };
+const rows = data.prototype.conventional as Row[];
+const regions = [...new Set(rows.map((r) => r.region))];
+const bounds = [...new Set(rows.map((r) => r.boundM))].sort((a, b) => a - b);
+const curve = (codec: string) =>
+  bounds.map((b) => [b, geoMean(regions.map((reg) => rows.find((r) => r.codec === codec && r.boundM === b && r.region === reg)!.bytes)) / 1000] as [number, number]);
+const strong = ['q32dz', 'sperr', 'sz3'];
+const weak = ['zfp', 'lerc'];
+const series = [
+  ...weak.map((codec) => ({ label: CODER_NAMES[codec], color: CODER_COLORS[codec], width: 1.2, points: curve(codec) })),
+  ...strong.map((codec) => {
+    const pts = curve(codec);
+    return {
+      label: codec === 'q32dz' ? 'q32 (first comparison)' : CODER_NAMES[codec],
+      color: CODER_COLORS[codec],
+      width: 2.2,
+      marker: 'dot' as const,
+      size: 2.8,
+      points: pts,
+      tips: pts.map(([b, v]) => `${CODER_NAMES[codec]}, ${fmtBound(b)}: ${fmtBytes(v * 1000)}`),
+    };
+  }),
+];
+const q = curve('q32dz');
+const s = curve('sz3');
+const ratio = (i: number) => s[i][1] / q[i][1];
+const at = bounds.indexOf(1);
+// The ring marks SZ3 at 1 m; its note sits in the empty lower left, clear of
+// every line and of the axis.
+const annotations = [
+  { kind: 'point' as const, x: 1, y: s[at][1], color: CODER_COLORS.sz3 },
+  { kind: 'label' as const, x: bounds[0], y: 30, anchor: 'start' as const, text: `At 1 m (ring), SZ3 needs ${Math.round((1 - ratio(at)) * 100)}%\nfewer bytes than q32`, color: CODER_COLORS.sz3 },
+];
+const ticks = bounds.map((b) => ({ at: b, label: fmtBound(b) }));
+---
+
+<Plot
+  id="geo-conventional"
+  label={`File size against largest error for five standard codecs in the first test. SZ3 needs ${Math.round((1 - ratio(0)) * 100)} to ${Math.round((1 - ratio(bounds.length - 1)) * 100)}% fewer bytes than q32, the codec the first version compared against.`}
+  x={{ label: 'largest error', log: true, min: 0.04, max: 2.5, tickLabels: ticks }}
+  y={{ label: 'file size (kB)', log: true, min: 15, max: 1300, ticks: [20, 50, 100, 200, 500, 1000] }}
+  {series}
+  {annotations}
+  width={520}
+  height={300}
+  minScale={0.63}
+  phone
+/>

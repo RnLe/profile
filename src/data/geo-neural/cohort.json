@@ -1,0 +1,313 @@
+{
+ "note": "Derived from results/v2/cohort.json and src/geoneural/configs/regions.json of the GeoNeural repository: tile origins in EPSG:25832 (km), the exposure log of every probed candidate in rank order, and the selection rule.",
+ "tileKm": 10.24,
+ "bufferKm": 15.0,
+ "strataStdM": {
+  "flat": 8,
+  "rough": 30
+ },
+ "development": [
+  {
+   "region": "essen-ruhr",
+   "x": 356.0,
+   "y": 5694.0
+  },
+  {
+   "region": "muensterland-plain",
+   "x": 394.0,
+   "y": 5744.0
+  },
+  {
+   "region": "lower-rhine",
+   "x": 318.0,
+   "y": 5715.4
+  },
+  {
+   "region": "teutoburg-forest",
+   "x": 466.0,
+   "y": 5761.0
+  },
+  {
+   "region": "bergisches-land",
+   "x": 379.0,
+   "y": 5656.0
+  },
+  {
+   "region": "rothaar-sauerland",
+   "x": 452.0,
+   "y": 5671.0
+  }
+ ],
+ "probed": [
+  {
+   "rankOrder": 1,
+   "name": "nrw-335-5802",
+   "x": 335.0,
+   "y": 5802.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 2,
+   "name": "nrw-368-5747",
+   "x": 368.0,
+   "y": 5747.0,
+   "outcome": "selected",
+   "stratum": "moderate",
+   "stdM": 15.8
+  },
+  {
+   "rankOrder": 3,
+   "name": "nrw-456-5604",
+   "x": 456.0,
+   "y": 5604.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 4,
+   "name": "nrw-280-5736",
+   "x": 280.0,
+   "y": 5736.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": 18.5
+  },
+  {
+   "rankOrder": 5,
+   "name": "nrw-390-5780",
+   "x": 390.0,
+   "y": 5780.0,
+   "outcome": "selected",
+   "stratum": "flat",
+   "stdM": 4.6
+  },
+  {
+   "rankOrder": 6,
+   "name": "nrw-489-5626",
+   "x": 489.0,
+   "y": 5626.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 7,
+   "name": "nrw-324-5648",
+   "x": 324.0,
+   "y": 5648.0,
+   "outcome": "selected",
+   "stratum": "moderate",
+   "stdM": 16.7
+  },
+  {
+   "rankOrder": 8,
+   "name": "nrw-313-5659",
+   "x": 313.0,
+   "y": 5659.0,
+   "outcome": "selected",
+   "stratum": "rough",
+   "stdM": 32.5
+  },
+  {
+   "rankOrder": 9,
+   "name": "nrw-280-5604",
+   "x": 280.0,
+   "y": 5604.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 10,
+   "name": "nrw-401-5791",
+   "x": 401.0,
+   "y": 5791.0,
+   "outcome": "selected",
+   "stratum": "moderate",
+   "stdM": 27.8
+  },
+  {
+   "rankOrder": 11,
+   "name": "nrw-511-5791",
+   "x": 511.0,
+   "y": 5791.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 12,
+   "name": "nrw-522-5769",
+   "x": 522.0,
+   "y": 5769.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 13,
+   "name": "nrw-478-5593",
+   "x": 478.0,
+   "y": 5593.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 14,
+   "name": "nrw-280-5637",
+   "x": 280.0,
+   "y": 5637.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": 33.6
+  },
+  {
+   "rankOrder": 15,
+   "name": "nrw-445-5703",
+   "x": 445.0,
+   "y": 5703.0,
+   "outcome": "selected",
+   "stratum": "rough",
+   "stdM": 47.2
+  },
+  {
+   "rankOrder": 16,
+   "name": "nrw-522-5571",
+   "x": 522.0,
+   "y": 5571.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 17,
+   "name": "nrw-324-5791",
+   "x": 324.0,
+   "y": 5791.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 18,
+   "name": "nrw-500-5780",
+   "x": 500.0,
+   "y": 5780.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": 54.8
+  },
+  {
+   "rankOrder": 19,
+   "name": "nrw-500-5615",
+   "x": 500.0,
+   "y": 5615.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 20,
+   "name": "nrw-401-5593",
+   "x": 401.0,
+   "y": 5593.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 21,
+   "name": "nrw-489-5571",
+   "x": 489.0,
+   "y": 5571.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 22,
+   "name": "nrw-522-5560",
+   "x": 522.0,
+   "y": 5560.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 23,
+   "name": "nrw-302-5648",
+   "x": 302.0,
+   "y": 5648.0,
+   "outcome": "stratum full",
+   "stratum": "moderate",
+   "stdM": 17.5
+  },
+  {
+   "rankOrder": 24,
+   "name": "nrw-478-5714",
+   "x": 478.0,
+   "y": 5714.0,
+   "outcome": "stratum full",
+   "stratum": "rough",
+   "stdM": 50.0
+  },
+  {
+   "rankOrder": 25,
+   "name": "nrw-324-5747",
+   "x": 324.0,
+   "y": 5747.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": 3.5
+  },
+  {
+   "rankOrder": 26,
+   "name": "nrw-368-5560",
+   "x": 368.0,
+   "y": 5560.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 27,
+   "name": "nrw-291-5692",
+   "x": 291.0,
+   "y": 5692.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 28,
+   "name": "nrw-324-5758",
+   "x": 324.0,
+   "y": 5758.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 29,
+   "name": "nrw-478-5571",
+   "x": 478.0,
+   "y": 5571.0,
+   "outcome": "missing values",
+   "stratum": null,
+   "stdM": null
+  },
+  {
+   "rankOrder": 30,
+   "name": "nrw-412-5769",
+   "x": 412.0,
+   "y": 5769.0,
+   "outcome": "selected",
+   "stratum": "flat",
+   "stdM": 2.3
+  }
+ ]
+}

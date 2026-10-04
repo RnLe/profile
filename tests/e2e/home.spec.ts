@@ -65,7 +65,7 @@ test('the project list leads with its picks, then runs latest first', async ({ p
     '2026 – present',
     '2026 – present',
     '2026 – present',
-    '2026',
+    '2024 and 2026',
     '2026',
     '2024',
     '2023',
@@ -78,6 +78,7 @@ test('the project list leads with its picks, then runs latest first', async ({ p
   await expect(label('envelope-approximation')).toHaveText('Master Thesis');
   await expect(label('hard-spheres')).toHaveText('Team Project');
   await expect(label('swarm-dynamics')).toHaveText('Bachelor Thesis');
+  for (const id of ['geo-neural', 'facial-emotion-recognition']) await expect(label(id)).toHaveCount(0);
   const mark = (id: string) => page.locator(`[data-project-list] li[data-project-id="${id}"] .activity`);
   for (const id of ['blaze2d', 'envelope-approximation', 'geo-neural', 'recover-in-real-time', 'residual-worlds']) {
     await expect(mark(id)).toHaveAttribute('aria-label', 'Active Research');

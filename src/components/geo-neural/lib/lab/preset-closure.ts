@@ -1,23 +1,27 @@
-// Preset 2: the nonlinear teacher and three learned closures from the same
-// start, stepped in lockstep. Shows the volume balance and the distance to
-// the teacher.
+// Preset 2: the nonlinear teacher (shown as "Simulation"), the selected
+// conductance closure and one rejected early design (the flux network) from
+// the same start, stepped in lockstep. Shows the volume balance and the
+// distance to the teacher.
 
-import type { LabData } from "../data/bundle";
+import type { ClosureMeta, LabData } from "../data/bundle";
 import { h } from "../data/dom";
-import { formatSci, formatYears } from "../data/format";
+import { formatYears } from "../data/format";
 import { cssGradient, ELEVATION_STOPS } from "../data/palette";
 import { floorNote, linePlot, type Marker } from "./plot";
 import type { RunFrame, RunSpec } from "./protocol";
 import { drawHeight } from "./render";
-import { controlStrip, diagnosticsList, minMax, plotWidth, rampLegend, selectField, type Preset, type RunnerApi } from "./ui";
+import { controlStrip, diagnosticsList, minMax, plotHeight, plotWidth, rampLegend, selectField, type Preset, type RunnerApi } from "./ui";
 
 const STEPS = 64;
 const FLOOR = 1e-16;
+const FLAT = "flat";
 
 interface Arm {
   key: string;
-  model: "nonlinear" | "flux" | "kfield" | "penalty";
+  model: "nonlinear" | "flux" | "conductance";
   title: string;
+  /** Short name for the chart labels. */
+  label: string;
   text: string;
   className: string;
   marker: Marker;
@@ -25,11 +29,37 @@ interface Arm {
 }
 
 const ARMS: Arm[] = [
-  { key: "teacher", model: "nonlinear", title: "Teacher", text: "Critical-slope nonlinear diffusion, the target the arms were trained on.", className: "gn-s1", marker: "circle" },
-  { key: "flux", model: "flux", title: "Flux arm", text: "Learned flux per cell face; each face moves material from one cell to its neighbour.", className: "gn-s2", marker: "square", dash: "6 3" },
-  { key: "kfield", model: "kfield", title: "K-field arm", text: "Learned diffusivity per cell times the cell's Laplacian. Trained without a conservation term.", className: "gn-s3", marker: "triangle", dash: "2 3" },
-  { key: "penalty", model: "penalty", title: "Penalty arm", text: "Same K-field form, trained with a conservation penalty in the loss.", className: "gn-s4", marker: "diamond", dash: "8 3 2 3" },
+  { key: "teacher", model: "nonlinear", title: "Simulation", label: "Simulation", text: "The simulation the networks learned from.", className: "gn-s1", marker: "circle" },
+  {
+    key: "conductance",
+    model: "conductance",
+    title: "Selected network: edge rate with floor",
+    label: "Selected network",
+    text: "Sets one creep rate per cell edge, never below the simple creep law. Flat ground stays flat, and no soil is lost.",
+    className: "gn-s3",
+    marker: "triangle",
+  },
+  {
+    key: "flux",
+    model: "flux",
+    title: "Flux network (early design, rejected)",
+    label: "Flux network",
+    text: "Moves soil across cell edges, so none is lost, but it also moves flat ground.",
+    className: "gn-s2",
+    marker: "square",
+    dash: "6 3",
+  },
 ];
+
+/** The narrowest training range over the shown networks: every panel accepts a state inside it. */
+function shownRange(meta: ClosureMeta): ClosureMeta["validated"] {
+  const ranges = [meta.validated, ...ARMS.map((arm) => meta.arms[arm.model]?.validated).filter((v) => v !== undefined)];
+  return {
+    maxSlope: Math.min(...ranges.map((v) => v.maxSlope)),
+    minHeightM: Math.max(...ranges.map((v) => v.minHeightM)),
+    maxHeightM: Math.min(...ranges.map((v) => v.maxHeightM)),
+  };
+}
 
 export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
   let data: LabData | null = null;
@@ -40,8 +70,8 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
   const boundarySel = selectField<"closed" | "fixed">(
     "Boundary",
     [
-      ["closed", "closed: nothing crosses the edge"],
-      ["fixed", "fixed: edge ring held at its start height"],
+      ["closed", "closed (nothing leaves)"],
+      ["fixed", "edge heights fixed"],
     ],
     "closed",
   );
@@ -49,7 +79,8 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
   boundarySel.select.addEventListener("change", () => api.paramsChanged());
 
   const cards = new Map<string, { canvas: HTMLCanvasElement; diag: HTMLElement }>();
-  const grid = h("div", { class: "gn-lab-grid gn-lab-grid-4" });
+  const grid = h("div", { class: "gn-lab-grid gn-lab-grid-3" });
+  let flat: Float32Array | null = null;
   for (const arm of ARMS) {
     const canvas = h("canvas", { class: "gn-lab-canvas", role: "img", "aria-label": `${arm.title} surface` });
     const diag = h("div", { class: "gn-lab-diag" });
@@ -60,8 +91,8 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
         { class: "gn-lab-card" },
         h("figcaption", { class: "gn-legend-title" }, h("span", { class: `gn-series-key ${arm.className}`, "aria-hidden": "true" }), arm.title),
         canvas,
-        h("p", { class: "gn-note" }, arm.text),
         diag,
+        h("p", { class: "gn-note" }, arm.text),
       ),
     );
   }
@@ -70,34 +101,29 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
   const errorHost = h("div", { class: "gn-lab-plot" });
   const rangeNote = h("p", { class: "gn-note" });
 
+  // On a wide column the three surfaces and the two charts share one row.
   const el = h(
     "div",
-    { class: "gn-lab-preset" },
+    { class: "gn-lab-preset gn-lab-closure" },
     h(
       "p",
       { class: "gn-lab-intro" },
-      "Four models step the same start surface in lockstep: 64 steps of 200 years (12,800 years). The kernel splits a step into substeps below each model's " +
-        "stability bound; the substep count is listed per panel. The flux arm predicts one flux per cell face, and each interior face adds to one cell exactly what it " +
-        "takes from the next, so these terms cancel in the sum: its integral can only change through the boundary. The K-field arms multiply a per-cell diffusivity " +
-        "by the cell's Laplacian; neighbours see different K across the same face, the terms no longer cancel, and a loss penalty shrinks the leak without closing it.",
+      "The selected network, one rejected early design and the simulation start from the same surface and run 64 steps of 200 years. Start from flat ground to see which one keeps it flat.",
     ),
-    h("div", { class: "gn-controls" }, surfaceSel.el, boundarySel.el),
-    strip.el,
-    rangeNote,
-    legendHost,
-    grid,
+    h("div", { class: "gn-controls" }, surfaceSel.el, boundarySel.el, strip.el),
     h(
       "div",
-      { class: "gn-lab-grid" },
-      h("figure", { class: "gn-lab-card gn-lab-card-wide" }, h("figcaption", { class: "gn-legend-title" }, "Volume balance: |residual| / sum |h| a"), balanceHost),
-      h("figure", { class: "gn-lab-card gn-lab-card-wide" }, h("figcaption", { class: "gn-legend-title" }, "Distance to the teacher (RMS height difference)"), errorHost),
+      { class: "gn-lab-split" },
+      h("div", { class: "gn-lab-surfaces" }, legendHost, grid),
+      h(
+        "div",
+        { class: "gn-lab-charts" },
+        h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Soil gained or lost, relative"), balanceHost),
+        h("figure", { class: "gn-lab-card" }, h("figcaption", { class: "gn-legend-title" }, "Difference from the simulation"), errorHost),
+      ),
     ),
-    h(
-      "p",
-      { class: "gn-note" },
-      "Residual = integral now - integral at start - boundary exchange. It is numerical volume balance on a synthetic surface, not sediment mass. " +
-        "The start surfaces are fresh draws from the training distribution, not seen in training.",
-    ),
+    rangeNote,
+    h("p", { class: "gn-note" }, `${floorNote(FLOOR)} Start surfaces are synthetic ones the networks never saw in training, or flat ground at 0 m.`),
   );
 
   let balance = new Map<string, [number, number][]>();
@@ -110,33 +136,35 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     (d) => {
       data = d;
       if (!d.closure || !d.closureText || !d.surfaces.length) {
-        loadError = "This bundle has no learned closure.";
+        loadError = "This bundle has no learned networks.";
       } else {
-        surfaceSel.select.replaceChildren(...d.surfaces.map((_, i) => h("option", { value: String(i) }, `surface ${i + 1} of ${d.surfaces.length}`)));
-        const v = d.closure.validated;
-        rangeNote.textContent =
-          `The learned arms accept only states inside their training range (heights ${v.minHeightM.toFixed(0)} to ${v.maxHeightM.toFixed(0)} m, slope up to ${v.maxSlope.toFixed(2)}); ` +
-          `the kernel refuses a step outside it and the panel says so. Grid ${d.surfaceSide} x ${d.surfaceSide} at ${d.surfaceSpacingM} m, teacher D = ${d.closure.teacher.diffusivity} m²/yr, critical slope ${d.closure.teacher.criticalSlope}.`;
+        surfaceSel.select.replaceChildren(
+          ...d.surfaces.map((_, i) => h("option", { value: String(i) }, `surface ${i + 1} of ${d.surfaces.length}`)),
+          h("option", { value: FLAT }, "flat ground"),
+        );
+        const v = shownRange(d.closure);
+        rangeNote.textContent = `The networks only accept heights from ${v.minHeightM.toFixed(0)} to ${v.maxHeightM.toFixed(0)} m and slopes up to ${v.maxSlope.toFixed(2)}; outside that, a run stops.`;
       }
       // Nothing can have run before the inputs arrived.
       initial();
       if (!loadError) strip.update(false, true, false, false);
     },
     (err: unknown) => {
-      loadError = `Could not load the lab inputs: ${err instanceof Error ? err.message : String(err)}`;
+      loadError = `The networks could not load: ${err instanceof Error ? err.message : String(err)}`;
       show();
     },
   );
 
   function start(): Float32Array | null {
     if (!data || !data.surfaces.length) return null;
+    if (surfaceSel.value() === FLAT) return (flat ??= new Float32Array(data.surfaceSide * data.surfaceSide));
     return data.surfaces[Number(surfaceSel.value()) || 0];
   }
 
   function drawCharts(): void {
     const T = STEPS * 200;
     const bal = ARMS.map((arm) => ({
-      label: arm.title,
+      label: arm.label,
       points: (balance.get(arm.key) ?? []).filter(([t]) => t > 0),
       className: arm.className,
       marker: arm.marker,
@@ -146,23 +174,22 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     for (const s of bal) for (const [, v] of s.points) top = Math.max(top, v);
     balanceHost.replaceChildren(
       linePlot({
-        title: "Relative volume residual over time, log axis with a floor",
+        title: "Soil gained or lost over time, relative, log axis",
         width: plotWidth(balanceHost),
-        height: 240,
+        height: plotHeight(balanceHost),
         x: { min: 0, max: T, label: "time (thousand years)", format: (v) => String(v / 1000) },
         y: {
           min: FLOOR,
           max: Math.pow(10, Math.ceil(Math.log10(top * 3))),
           log: true,
           floor: FLOOR,
-          label: "|residual| relative (log)",
+          label: "relative (log)",
         },
         series: bal,
       }),
-      h("p", { class: "gn-note" }, floorNote(FLOOR)),
     );
     const err = ARMS.filter((a) => a.key !== "teacher").map((arm) => ({
-      label: arm.title,
+      label: arm.label,
       points: distance.get(arm.key) ?? [],
       className: arm.className,
       marker: arm.marker,
@@ -172,9 +199,9 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     for (const s of err) for (const [, v] of s.points) errTop = Math.max(errTop, v);
     errorHost.replaceChildren(
       linePlot({
-        title: "RMS height difference to the teacher over time",
+        title: "Difference from the simulation over time",
         width: plotWidth(errorHost),
-        height: 240,
+        height: plotHeight(errorHost),
         x: { min: 0, max: T, label: "time (thousand years)", format: (v) => String(v / 1000) },
         y: { min: 0, max: Math.ceil(errTop * 1.1), label: "RMS difference (m)" },
         series: err,
@@ -190,10 +217,11 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     const s0 = start();
     if (s0) {
       const [lo, hi] = minMax(s0);
-      range = [lo, hi];
+      // Flat ground gets a few meters either side, so any movement shows.
+      range = hi > lo ? [lo, hi] : [lo - 2, hi + 2];
     }
     show();
-    if (data && s0 && !loadError) strip.status.textContent = `Ready: ${STEPS} steps of 200 years. The learned arms take roughly 50 to 150 ms per substep here.`;
+    if (data && s0 && !loadError) strip.status.textContent = `Ready: ${STEPS} steps of 200 years.`;
   }
 
   function show(): void {
@@ -204,7 +232,7 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
       return;
     }
     if (!data || !s0) {
-      strip.status.textContent = "Loading lab inputs (closure weights and surfaces, about 450 kB)...";
+      strip.status.textContent = "Loading the networks and test surfaces (about 320 kB)…";
       strip.update(false, false, false, false);
       return;
     }
@@ -217,7 +245,7 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
       card.diag.replaceChildren(diagnosticsList(f?.diagnostics ?? null, f?.stopped ?? null));
     }
     legendHost.replaceChildren(
-      rampLegend(cssGradient(ELEVATION_STOPS), `${range[0].toFixed(0)} m`, "", `${range[1].toFixed(0)} m`, "Height, one fixed scale for all four panels, from the start surface."),
+      rampLegend(cssGradient(ELEVATION_STOPS), `${range[0].toFixed(0)} m`, "", `${range[1].toFixed(0)} m`, "Height, same scale in all three panels."),
     );
     drawCharts();
   }
@@ -254,7 +282,7 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     untilYears: () => STEPS * 200,
     stepsPerMessage: () => 1,
     showInitial: initial,
-    onFrame(next, elapsedMs) {
+    onFrame(next) {
       frames = next;
       const teacher = next.find((f) => f.key === "teacher");
       for (const f of next) {
@@ -275,11 +303,7 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
       time = Math.min(...next.filter((f) => f.diagnostics && !f.stopped).map((f) => f.diagnostics!.timeYears), STEPS * 200);
       if (!Number.isFinite(time)) time = STEPS * 200;
       show();
-      const step = Math.round(time / 200);
-      const flux = next.find((f) => f.key === "flux")?.diagnostics;
-      strip.status.textContent =
-        `Step ${step} of ${STEPS} (${formatYears(time)}), ${elapsedMs.toFixed(0)} ms for the last message.` +
-        (flux ? ` Flux arm residual ${formatSci(flux.residualM3, 2)} m³.` : "");
+      strip.status.textContent = `Step ${Math.round(time / 200)} of ${STEPS} (${formatYears(time)}).`;
     },
     finished: () => time >= STEPS * 200 - 1e-6 || (frames.length > 0 && frames.every((f) => f.stopped !== null)),
     timeYears: () => time,
@@ -289,6 +313,9 @@ export function closurePreset(api: RunnerApi, lab: Promise<LabData>): Preset {
     setRunning(running) {
       const ready = !!data && !loadError;
       strip.update(running, ready, time > 0, time >= STEPS * 200 - 1e-6);
+    },
+    redraw() {
+      if (data && !loadError) drawCharts();
     },
   };
 }

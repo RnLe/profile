@@ -5,6 +5,7 @@
  */
 import { runs } from '../../lib/marks';
 import { withBase } from '../../lib/routes';
+import { glue } from '../../lib/typography';
 
 interface Props {
   text: string;
@@ -16,12 +17,12 @@ const href = (target: string) => (target.startsWith('/') ? withBase(target) : ta
 
 {runs(text).map((run) =>
   run.kind === 'strong' ? (
-    <strong>{run.text}</strong>
+    <strong>{glue(run.text)}</strong>
   ) : run.kind === 'mark' ? (
-    <mark>{run.text}</mark>
+    <mark>{glue(run.text)}</mark>
   ) : run.kind === 'link' ? (
-    <a href={href(run.href!)} rel={run.href!.startsWith('/') ? undefined : 'noopener'}>{run.text}</a>
+    <a href={href(run.href!)} rel={run.href!.startsWith('/') ? undefined : 'noopener'}>{glue(run.text)}</a>
   ) : (
-    run.text
+    glue(run.text)
   ),
 )}

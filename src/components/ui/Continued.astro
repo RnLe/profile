@@ -1,0 +1,94 @@
+---
+/**
+ * Work still to come, as a band across the full width of its column: a calm
+ * warm tint, a construction sign, a small label, then the text, which takes
+ * the light emphasis of src/lib/marks.ts. A note rather than a landmark, so
+ * several on one page stay out of the landmark list.
+ *
+ *   <Continued text="Stopped in October 2026. **Next:** the geology study." />
+ */
+import Icon from './Icon.astro';
+import Marked from './Marked.astro';
+
+interface Props {
+  text: string;
+  /** The small label above the text. */
+  label?: string;
+}
+
+const { text, label = 'To be continued' } = Astro.props;
+---
+
+<div class="continued marked" role="note">
+  <span class="continued-icon"><Icon name="construction" size={20} /></span>
+  <div class="continued-body">
+    <p class="continued-label">{label}</p>
+    <p class="continued-text"><Marked text={text} /></p>
+  </div>
+</div>
+
+<style>
+  .continued {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+    padding: var(--sp-5) var(--sp-6);
+    border: 1px solid color-mix(in srgb, var(--status-active) 26%, transparent);
+    border-radius: var(--r-lg);
+    background: var(--status-active-bg);
+    color: var(--ink);
+  }
+
+  .continued-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--status-active) 12%, var(--surface));
+    color: var(--status-active);
+  }
+
+  .continued-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
+
+  .continued-label,
+  .continued-text {
+    margin: 0;
+  }
+
+  .continued-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 560;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--status-active);
+  }
+
+  .continued-text {
+    max-width: var(--w-prose);
+    line-height: var(--lh-snug);
+  }
+
+  .continued :global(strong) {
+    color: var(--status-active);
+  }
+
+  @container (max-width: 26rem) {
+    .continued {
+      gap: var(--sp-3);
+      padding: var(--sp-4);
+    }
+
+    .continued-icon {
+      inline-size: 2rem;
+      block-size: 2rem;
+    }
+  }
+</style>

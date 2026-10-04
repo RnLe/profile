@@ -57,6 +57,20 @@ const jsonLd = [
   )}
 </AcademicLayout>
 
+<style is:global>
+  /* A case study with its own rail (CaseRail) widens the page by that rail,
+     and a wide one runs to the gutters. Header, trail and footer go with
+     it, so they line up with its edges. Only on its own page: in the
+     landing page's overlay the article sits inside the dialog. */
+  body:has(.case-layout:not(dialog *)) {
+    --w-content: var(--w-case);
+  }
+
+  body:has(.project-article[data-wide]:not(dialog *)) {
+    --w-content: 160rem;
+  }
+</style>
+
 <style>
   .crumbs {
     border-bottom: 1px solid var(--line);

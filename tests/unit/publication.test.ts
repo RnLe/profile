@@ -39,6 +39,7 @@ const project = (overrides: Partial<ProjectFrontmatter> = {}): { data: ProjectFr
     figureIds: [],
     sections: [],
     tabs: [],
+    wide: false,
     links: [],
     related: [],
     ...overrides,

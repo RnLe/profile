@@ -1,5 +1,6 @@
 // Terrain viewer: the 513 x 513 display grid with overlays, inspector and
 // cross-section. Framework-free; mount into any element and call dispose().
+// Map mode (map.ts) shows the reference alone with a lean set of controls.
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -17,15 +18,25 @@ import {
   type FieldStats,
   type LegendContext,
 } from "./legend";
+import { mountMap } from "./map";
 import { renderProfile, sampleProfile, type ProfilePoint } from "./profile";
 import { STREAM_BOTH, STREAM_LOST, STREAM_SPURIOUS, Terrain } from "./terrain";
 
-export interface ViewerOptions {
-  bundle: Bundle;
-  store: SelectionStore;
-  /** Half-width of the shared signed-error scale, metres. Default 5. */
-  errorRangeM?: number;
-}
+export type ViewerOptions =
+  | {
+      mode?: "full";
+      bundle: Bundle;
+      store: SelectionStore;
+      /** Half-width of the shared signed-error scale, metres. Default 5. */
+      errorRangeM?: number;
+    }
+  | {
+      /** The reference surface only: layer, exaggeration and camera controls. */
+      mode: "map";
+      bundle: Bundle;
+      /** Starting vertical exaggeration. Default 5. */
+      exaggeration?: number;
+    };
 
 export interface ViewerHandle {
   dispose(): void;
@@ -52,6 +63,7 @@ function webglAvailable(): boolean {
 }
 
 export function mountViewer(el: HTMLElement, options: ViewerOptions): ViewerHandle {
+  if (options.mode === "map") return mountMap(el, options);
   const { bundle, store } = options;
   const m = bundle.manifest;
   const side = bundle.side;

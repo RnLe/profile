@@ -1,0 +1,83 @@
+---
+/**
+ * The drainage condition of H1. Left: tolerant stream F1 (a stream cell
+ * counts as found again when the decoded surface has one within a cell),
+ * mean over the seven confirmation tiles, per coder. Right: the learned
+ * coder's F1 minus that of the best conventional product at the same bound,
+ * per tile, against the frozen allowance of 0.01, drawn in points (x100).
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, CODER_NAMES, CONF_REGIONS, STRATUM, STRATUM_DASH, TONE, bestConventional, fmtBound, mean, regionName, table } from './geo';
+
+const bounds = ['0.01', '0.025', '0.05', '0.1', '0.25', '0.5', '1.0', '2.0'];
+const t = table('confirmation');
+const f1 = (region: string, b: string, coder: string) =>
+  coder === 'best' ? bestConventional('confirmation', region, b).result.tolerantF1 : t[region][b][coder].tolerantF1;
+const curve = (coder: string) => bounds.map((b) => [Number(b), mean(CONF_REGIONS.map((r) => f1(r, b, coder)))] as [number, number]);
+const left = [
+  { label: CODER_NAMES.sperr, color: CODER_COLORS.sperr, width: 1.4, points: curve('sperr') },
+  { label: CODER_NAMES['cubic-ctx'], color: CODER_COLORS['cubic-ctx'], width: 1.4, dash: '5 3', points: curve('cubic-ctx') },
+  { label: 'Best standard codec', color: CODER_COLORS.best, width: 2.2, marker: 'ring' as const, size: 2.8, points: curve('best') },
+  { label: CODER_NAMES.learned, color: CODER_COLORS.learned, width: 2.2, marker: 'dot' as const, size: 2.8, points: curve('learned') },
+];
+const decision = ['0.05', '0.1', '0.25', '0.5', '1.0'];
+/** The difference in points: the share of streams found again, times 100. */
+const gap = (region: string, b: string) => 100 * (f1(region, b, 'learned') - f1(region, b, 'best'));
+const right = CONF_REGIONS.map((region) => {
+  const s = STRATUM[region];
+  return {
+    label: undefined as string | undefined,
+    quiet: true,
+    color: TONE[s],
+    width: s === 'flat' ? 2.2 : 1.4,
+    dash: STRATUM_DASH[s],
+    marker: s === 'flat' ? ('dot' as const) : undefined,
+    size: 2.6,
+    points: decision.map((b) => [Number(b), gap(region, b)] as [number, number]),
+    tips: decision.map((b) => `${regionName(region)} (${s}), ${fmtBound(b)}: ${gap(region, b) >= 0 ? '+' : ''}${gap(region, b).toFixed(1)} points`),
+  };
+});
+for (const s of ['flat', 'moderate', 'rough'] as const) {
+  const first = right.find((_, i) => STRATUM[CONF_REGIONS[i]] === s)!;
+  first.label = `${s} regions`;
+  first.quiet = false;
+}
+const worst = Math.min(...decision.flatMap((b) => CONF_REGIONS.map((r) => gap(r, b))));
+const worstAt = decision.flatMap((b) => CONF_REGIONS.map((r) => ({ b, r, g: gap(r, b) }))).find((x) => x.g === worst)!;
+const ticks = (list: string[]) => list.map((b) => ({ at: Number(b), label: fmtBound(b) }));
+---
+
+<div class="geo-pair">
+  <Plot
+    id="geo-drainage-f1"
+    title={`Streams found again, ${CONF_REGIONS.length} new regions`}
+    label="Streams found again against the largest error, average over the new regions. Every codec loses streams as the error grows; from 50 cm the neural predictor keeps fewer than the best standard codec in every region, and SPERR keeps the most of the codecs shown."
+    x={{ label: 'largest error', log: true, min: 0.008, max: 2.5, tickLabels: ticks(['0.01', '0.05', '0.1', '0.25', '1.0', '2.0']) }}
+    y={{ label: 'streams found again', min: 0.25, max: 1, ticks: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], percent: true, unit: '%', digits: 0 }}
+    series={left}
+    width={440}
+    height={300}
+    minScale={0.8}
+    phone={{ x: { tickLabels: ticks(['0.01', '0.05', '0.25', '1.0', '2.0']) } }}
+  />
+  <Plot
+    id="geo-drainage-gap"
+    title="Neural minus best standard codec, per region"
+    label={`Difference in streams found again between the neural predictor and the best standard codec, per new region, in points. The rule allows a drop of 1 point; the largest drop is ${(-worst).toFixed(1)} points, in the ${STRATUM[worstAt.r]} region ${regionName(worstAt.r)} at ${fmtBound(worstAt.b)}.`}
+    x={{ label: 'largest error', log: true, min: 0.042, max: 1.2, tickLabels: ticks(decision) }}
+    y={{ label: 'difference in streams found (points)', min: -10, max: 4.5, ticks: [-10, -8, -6, -4, -2, 0, 2, 4], digits: 0 }}
+    series={right}
+    annotations={[
+      { kind: 'hband', y: -10, y2: -1, color: 'color-mix(in srgb, #b4503a 9%, transparent)' },
+      { kind: 'hline', y: 0 },
+      { kind: 'hline', y: -1, color: TONE.fail },
+      { kind: 'label', x: 0.045, y: -9.4, anchor: 'start', text: 'fails: more than 1 point lower', color: TONE.fail },
+      { kind: 'label', x: 0.045, y: 3.6, anchor: 'start', text: '↑ neural keeps more', color: 'var(--ink-muted)' },
+    ]}
+    width={440}
+    height={300}
+    left={50}
+    minScale={0.8}
+    phone
+  />
+</div>

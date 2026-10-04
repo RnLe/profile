@@ -1,0 +1,110 @@
+---
+/**
+ * H5, learned hillslope closures: height error after rollouts of 8, 32 and
+ * 64 steps of 200 years (mean of the three), on unseen surfaces, one dot per
+ * seed; the selection rule ranks the median over seeds. Arms
+ * that break a structural gate (a flat surface must stay flat, material must
+ * be conserved) are drawn hollow and excluded from the selection.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, TONE, data, median } from './geo';
+
+type Run = {
+  arm: string;
+  seed: number;
+  rollouts: Record<string, { rmseM: Record<string, number> }>;
+  structure: { flatStill: boolean; conservative: boolean };
+};
+const study = data.physics['closure-study'].results as unknown as {
+  runs: Run[];
+  summary: { baselines: Record<string, Record<string, { meanRmseM: number }>> };
+  selection: { accepted: string };
+};
+const NAMES: Record<string, string> = {
+  conductance: 'edge rate, with floor',
+  'conductance-nofloor': 'edge rate, no floor',
+  kfield: 'cell rate',
+  flux: 'flux network',
+  facek: 'edge rate, other form',
+  penalty: 'cell rate + penalty',
+};
+const score = (r: Run) => {
+  const v = Object.values(r.rollouts['in-range'].rmseM);
+  return v.reduce((a, x) => a + x, 0) / v.length;
+};
+const arms = [...new Set(study.runs.map((r) => r.arm))]
+  .map((arm) => {
+    const runs = study.runs.filter((r) => r.arm === arm);
+    const s = runs[0].structure;
+    const gate = [!s.flatStill && 'moves flat ground', !s.conservative && 'leaks soil'].filter(Boolean).join(', ');
+    return { arm, runs, med: median(runs.map(score)), gate };
+  })
+  .sort((a, b) => a.med - b.med);
+const accepted = study.selection.accepted;
+const color = (a: { arm: string; gate: string }) => (a.arm === accepted ? CODER_COLORS.learned : a.gate ? TONE.muted : CODER_COLORS['cubic-ctx']);
+const series = [
+  ...arms.map((a, i) => ({
+    color: color(a),
+    kind: 'segments' as const,
+    width: 2,
+    opacity: 0.35,
+    quiet: true,
+    points: [[Math.min(...a.runs.map(score)), i], [Math.max(...a.runs.map(score)), i]] as [number, number][],
+  })),
+  ...([
+    ['selected', (a: { arm: string; gate: string }) => a.arm === accepted, 'dot'],
+    ['passes the physics checks', (a: { arm: string; gate: string }) => a.arm !== accepted && !a.gate, 'dot'],
+    ['breaks a physics rule, excluded', (a: { arm: string; gate: string }) => !!a.gate, 'ring'],
+  ] as const).map(([name, test, marker]) => {
+    const picked = arms.map((a, i) => ({ a, i })).filter(({ a }) => test(a));
+    return {
+      label: name,
+      color: color(picked[0].a),
+      kind: 'scatter' as const,
+      marker,
+      size: 3.6,
+      points: picked.flatMap(({ a, i }) => a.runs.map((r) => [score(r), i] as [number, number])),
+      tips: picked.flatMap(({ a }) => a.runs.map((r) => `${NAMES[a.arm]}, seed ${r.seed}: ${score(r).toFixed(2)} m`)),
+    };
+  }),
+];
+const linear = study.summary.baselines.linear['in-range'].meanRmseM;
+const teacher = study.summary.baselines.teacher['in-range'].meanRmseM;
+/** The medians sit in a column right of every dot and reference line. */
+const COLUMN = 10.6;
+const XMAX = 18;
+if (Math.max(...arms.flatMap((a) => a.runs.map(score))) > COLUMN - 0.4) throw new Error('geo-closure-arms: a seed reaches the value column');
+const medians = (withGate: boolean) =>
+  arms.map((a, i) => ({
+    kind: 'label' as const,
+    x: COLUMN,
+    y: i,
+    dy: -0.5,
+    anchor: 'start' as const,
+    text: a.gate && withGate ? `${a.med.toFixed(2)} m · ${a.gate}` : `${a.med.toFixed(2)} m`,
+    color: a.gate ? 'var(--ink-muted)' : color(a),
+  }));
+const refs = (short: boolean) => [
+  { kind: 'vline' as const, x: linear },
+  { kind: 'vline' as const, x: teacher, color: TONE.pass },
+  { kind: 'label' as const, x: linear, y: -0.95, dx: 4, anchor: 'start' as const, text: `${short ? 'straight line' : 'straight-line law'} ${linear.toFixed(2)} m`, color: 'var(--ink-muted)' },
+  { kind: 'label' as const, x: teacher, y: -0.95, dx: -4, anchor: 'end' as const, text: `perfect copy ${teacher.toFixed(2)} m`, color: TONE.pass },
+];
+const annotations = [...refs(false), ...medians(true)];
+const best = arms[0];
+const label = `Height error of six network designs, averaged over runs of 8, 32 and 64 steps, five seeds each. The edge rate with a floor has the lowest error (median ${best.med.toFixed(2)} m), against ${teacher.toFixed(2)} m for a perfect copy of the simulation's step and ${linear.toFixed(2)} m for a straight-line creep law; designs that move flat ground or leak soil are excluded.`;
+---
+
+<Plot
+  id="geo-closure-arms"
+  {label}
+  x={{ label: 'average height error over the run (m)', min: 0, max: XMAX, ticks: [0, 2, 4, 6, 8, 10] }}
+  y={{ tickLabels: arms.map((a, i) => ({ at: i, label: NAMES[a.arm] })), min: arms.length - 0.4, max: -1.5 }}
+  {series}
+  {annotations}
+  left={192}
+  width={600}
+  height={270}
+  minScale={0.59}
+  phone={{ left: 186, height: 300, x: { label: 'average height error (m)', ticks: [0, 4, 8] }, annotations: [...refs(true), ...medians(false)] }}
+/>

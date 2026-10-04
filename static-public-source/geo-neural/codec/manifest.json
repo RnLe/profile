@@ -1,0 +1,428 @@
+{
+  "attribution": [
+    "Terrain: DGM1, Geobasis NRW (Bezirksregierung Koeln), DL-DE-Zero-2.0"
+  ],
+  "bounds": [
+    0.25
+  ],
+  "coders": [
+    "sz3",
+    "cubic-ctx",
+    "learned"
+  ],
+  "createdUtc": "2026-10-04T13:29:09.609809+00:00",
+  "latticeM": 0.001,
+  "models": [
+    {
+      "bytes": 3678,
+      "file": {
+        "bytes": 3678,
+        "encoding": "gnm",
+        "file": "models/loro-essen-ruhr-s0.gnm",
+        "sha256": "aed0116671de3ce37da41b928847b7e62d8fc34fb6bee5ffdf5be1d83245147b"
+      },
+      "heldOut": "essen-ruhr",
+      "id": "loro-essen-ruhr-s0",
+      "sha256": "aed0116671de3ce37da41b928847b7e62d8fc34fb6bee5ffdf5be1d83245147b",
+      "widths": [
+        32,
+        32
+      ]
+    },
+    {
+      "bytes": 3678,
+      "file": {
+        "bytes": 3678,
+        "encoding": "gnm",
+        "file": "models/loro-muensterland-plain-s0.gnm",
+        "sha256": "3607dcb452e0e9316acbf649840b54daef64269b54e01355fb8fc747266e7090"
+      },
+      "heldOut": "muensterland-plain",
+      "id": "loro-muensterland-plain-s0",
+      "sha256": "3607dcb452e0e9316acbf649840b54daef64269b54e01355fb8fc747266e7090",
+      "widths": [
+        32,
+        32
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "crop": null,
+      "crs": "EPSG:25832",
+      "display": {
+        "side": 513,
+        "stride": 2
+      },
+      "extent": [
+        356000.5,
+        5694000.5,
+        366240.5,
+        5704240.5
+      ],
+      "id": "essen-ruhr",
+      "products": [
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "container": 120,
+            "foreign": 191709
+          },
+          "bytes": 191829,
+          "coder": "sz3",
+          "decodeS": 0.008864783972967416,
+          "error": {
+            "bytes": 263272,
+            "encoding": "u8",
+            "file": "essen-ruhr/0.25/sz3.error.bin",
+            "sha256": "242959ff6589ade464e76024713fd1267be83aaa66feecda190d1f80fe93f1ba"
+          },
+          "errorScaleM": 0.25,
+          "family": "conventional",
+          "id": "essen-ruhr/0.25/sz3",
+          "label": "SZ3 3.3.2",
+          "latticeSha256": null,
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.11281060247835413,
+            "maxM": 0.25,
+            "p99M": 0.24664306640625,
+            "rmseM": 0.13330911035858928,
+            "streamJaccard": 0.4149572119558477,
+            "streamTolerantF1": 0.8217008338565268
+          },
+          "model": null,
+          "product": {
+            "bytes": 191829,
+            "encoding": "gnc",
+            "file": "essen-ruhr/0.25/sz3.gnc",
+            "sha256": "79ce800746a82e2fc205965835ec39001dc8c82a8f7bcae6d8511148488bf1f6"
+          },
+          "standaloneBytes": 191829,
+          "streams": {
+            "bytes": 12436,
+            "encoding": "bits",
+            "file": "essen-ruhr/0.25/sz3.streams.bin",
+            "sha256": "11264091e0949e1519d9b3a1c5de829b9e2f1e840f011fca1d5ad8b35c454719"
+          }
+        },
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "coarse": 699,
+            "container": 147,
+            "params": 96,
+            "raw": 12964,
+            "stream": 156329
+          },
+          "bytes": 170235,
+          "coder": "cubic-ctx",
+          "decodeS": 0.06946478300960734,
+          "error": {
+            "bytes": 263272,
+            "encoding": "u8",
+            "file": "essen-ruhr/0.25/cubic-ctx.error.bin",
+            "sha256": "9a5119c73cbc185dce66e9f8c4149b34172e1072f17b19bf9f947cfedde30cdb"
+          },
+          "errorScaleM": 0.25,
+          "family": "multilevel-fixed",
+          "id": "essen-ruhr/0.25/cubic-ctx",
+          "label": "cubic-ctx (fixed multilevel)",
+          "latticeSha256": "44868b62dba5bf8b6a558fc0615214c84baee480bc890f0e220bf7a45c15bb3d",
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.11241575091219419,
+            "maxM": 0.24950000000000472,
+            "p99M": 0.24600305175781045,
+            "rmseM": 0.1328796288874901,
+            "streamJaccard": 0.4218114694804061,
+            "streamTolerantF1": 0.8218237103938208
+          },
+          "model": null,
+          "product": {
+            "bytes": 170235,
+            "encoding": "gnc",
+            "file": "essen-ruhr/0.25/cubic-ctx.gnc",
+            "sha256": "03bb819c27eb1bf040464e0ed048764a2ba0b40b4b3a26cf4293db33061e1055"
+          },
+          "standaloneBytes": 170235,
+          "streams": {
+            "bytes": 12497,
+            "encoding": "bits",
+            "file": "essen-ruhr/0.25/cubic-ctx.streams.bin",
+            "sha256": "c44cabeb0686a126c2967eb2a58fb4438fe8cc76ca144d34fa966732f5e95dd9"
+          }
+        },
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "coarse": 699,
+            "container": 147,
+            "params": 0,
+            "raw": 11417,
+            "stream": 137231
+          },
+          "bytes": 149494,
+          "coder": "learned",
+          "decodeS": 0.47815885601448826,
+          "error": {
+            "bytes": 263272,
+            "encoding": "u8",
+            "file": "essen-ruhr/0.25/learned.error.bin",
+            "sha256": "4e8fdf4379c4b20077b581ee8111f106fc2a674430164ffb6268364fc5b96486"
+          },
+          "errorScaleM": 0.25,
+          "family": "learned",
+          "id": "essen-ruhr/0.25/learned",
+          "label": "learned multilevel",
+          "latticeSha256": "406b94ae3f712f72b2eebadd87504e9ea88a1c97df524a118815e4a6807d498f",
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.10848535943291988,
+            "maxM": 0.24950000000001182,
+            "p99M": 0.24599755859375705,
+            "rmseM": 0.1291813043406191,
+            "streamJaccard": 0.43581967839759433,
+            "streamTolerantF1": 0.8347914267869334
+          },
+          "model": "loro-essen-ruhr-s0",
+          "product": {
+            "bytes": 149494,
+            "encoding": "gnc",
+            "file": "essen-ruhr/0.25/learned.gnc",
+            "sha256": "5961f85f95b13021e2389f7de9231cc1c86809da86e8476fd601760f81f7f218"
+          },
+          "standaloneBytes": 153181,
+          "streams": {
+            "bytes": 12293,
+            "encoding": "bits",
+            "file": "essen-ruhr/0.25/learned.streams.bin",
+            "sha256": "374be71b5f7625f7abd41a264349b87baeb847943c196b19bea3d1fffb2f86e5"
+          }
+        }
+      ],
+      "reference": {
+        "height": {
+          "bytes": 370653,
+          "encoding": "u16-delta",
+          "file": "essen-ruhr/reference.height.bin",
+          "offsetM": 39.0,
+          "quantumM": 0.01,
+          "sha256": "8cce78448905f9870e8aa9e6a428ebb222834ad47e0f88c3ddeb7b4cf7d376e8"
+        },
+        "maxM": 168.60250854492188,
+        "minM": 39.125,
+        "sha256": "3495dbee3e59108416f2806570d5672174edf82f87a1a951d556203c7372e215",
+        "streams": {
+          "bytes": 12267,
+          "encoding": "bits",
+          "file": "essen-ruhr/reference.streams.bin",
+          "sha256": "9c76e3938523e28c051cee02cc10fc8ac33df9fa0e2a7cdae920d89614703d25"
+        }
+      },
+      "side": 1025,
+      "spacingM": 10.0,
+      "title": "Southern Essen / Ruhr, NRW DGM1",
+      "verticalCrs": "EPSG:7837"
+    },
+    {
+      "crop": null,
+      "crs": "EPSG:25832",
+      "display": {
+        "side": 513,
+        "stride": 2
+      },
+      "extent": [
+        394000.5,
+        5744000.5,
+        404240.5,
+        5754240.5
+      ],
+      "id": "muensterland-plain",
+      "products": [
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "container": 120,
+            "foreign": 81766
+          },
+          "bytes": 81886,
+          "coder": "sz3",
+          "decodeS": 0.004732230998342857,
+          "error": {
+            "bytes": 263171,
+            "encoding": "u8",
+            "file": "muensterland-plain/0.25/sz3.error.bin",
+            "sha256": "260eea989ce955d23014a0ae49b0d358e6a79687361ea52e5e576ccabc34628a"
+          },
+          "errorScaleM": 0.25,
+          "family": "conventional",
+          "id": "muensterland-plain/0.25/sz3",
+          "label": "SZ3 3.3.2",
+          "latticeSha256": null,
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.09663143391878672,
+            "maxM": 0.25,
+            "p99M": 0.2437744140625,
+            "rmseM": 0.11693800766015128,
+            "streamJaccard": 0.14880930335913484,
+            "streamTolerantF1": 0.550505610922671
+          },
+          "model": null,
+          "product": {
+            "bytes": 81886,
+            "encoding": "gnc",
+            "file": "muensterland-plain/0.25/sz3.gnc",
+            "sha256": "960de94a67f4e5f4f1d8c902f6b10eeab8464383169de5b9236f33ec705fc4c2"
+          },
+          "standaloneBytes": 81886,
+          "streams": {
+            "bytes": 12692,
+            "encoding": "bits",
+            "file": "muensterland-plain/0.25/sz3.streams.bin",
+            "sha256": "520634b1950258dc88ef162b33111c27774e2f44c9a16e4a025017a01cb60e78"
+          }
+        },
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "coarse": 606,
+            "container": 147,
+            "params": 96,
+            "raw": 2197,
+            "stream": 71780
+          },
+          "bytes": 74826,
+          "coder": "cubic-ctx",
+          "decodeS": 0.06747435400029644,
+          "error": {
+            "bytes": 263260,
+            "encoding": "u8",
+            "file": "muensterland-plain/0.25/cubic-ctx.error.bin",
+            "sha256": "eeabc82b68d175e4a0cd633dfd024b39730ee732b0d769c6ab04b622d5e0e311"
+          },
+          "errorScaleM": 0.25,
+          "family": "multilevel-fixed",
+          "id": "muensterland-plain/0.25/cubic-ctx",
+          "label": "cubic-ctx (fixed multilevel)",
+          "latticeSha256": "2c9f9349d89cc5191a7105904ad13840ebbf4b0033430bd8b218393104f9c0cb",
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.10165170767664686,
+            "maxM": 0.24950000000000472,
+            "p99M": 0.24450000000000216,
+            "rmseM": 0.12206827481504605,
+            "streamJaccard": 0.15042760302185115,
+            "streamTolerantF1": 0.5421137931234284
+          },
+          "model": null,
+          "product": {
+            "bytes": 74826,
+            "encoding": "gnc",
+            "file": "muensterland-plain/0.25/cubic-ctx.gnc",
+            "sha256": "79387796984f3b34c610a81ba3ca72dd43f6b12596290b73d857152437441b7c"
+          },
+          "standaloneBytes": 74826,
+          "streams": {
+            "bytes": 12943,
+            "encoding": "bits",
+            "file": "muensterland-plain/0.25/cubic-ctx.streams.bin",
+            "sha256": "d7e95eb013d4acd8f24a82452f9e5f1f9ff4736e9595cb0db7608bdb81fce1f8"
+          }
+        },
+        {
+          "E": 249,
+          "boundM": 0.25,
+          "breakdown": {
+            "coarse": 606,
+            "container": 147,
+            "params": 0,
+            "raw": 1987,
+            "stream": 56220
+          },
+          "bytes": 58960,
+          "coder": "learned",
+          "decodeS": 0.48796543999924324,
+          "error": {
+            "bytes": 262725,
+            "encoding": "u8",
+            "file": "muensterland-plain/0.25/learned.error.bin",
+            "sha256": "a03fb1e764e3cae253d30da80e4186a0bc06f294e83f172d650ef5000142f7ff"
+          },
+          "errorScaleM": 0.25,
+          "family": "learned",
+          "id": "muensterland-plain/0.25/learned",
+          "label": "learned multilevel",
+          "latticeSha256": "afd9672f3cc6704e5eeb7dbbba76237535a6552fbbd3c5ba0fe6c8d659f42759",
+          "metrics": {
+            "boundViolations": 0,
+            "maeM": 0.09430253642244081,
+            "maxM": 0.24950000000000472,
+            "p99M": 0.24250305175780795,
+            "rmseM": 0.11434237738984558,
+            "streamJaccard": 0.16784535596416786,
+            "streamTolerantF1": 0.5730794415924213
+          },
+          "model": "loro-muensterland-plain-s0",
+          "product": {
+            "bytes": 58960,
+            "encoding": "gnc",
+            "file": "muensterland-plain/0.25/learned.gnc",
+            "sha256": "bf8ef6b73e2c4adb69be818b65dbdfa863f760a24fddd27602147ae9477fea77"
+          },
+          "standaloneBytes": 62647,
+          "streams": {
+            "bytes": 12746,
+            "encoding": "bits",
+            "file": "muensterland-plain/0.25/learned.streams.bin",
+            "sha256": "1d174c484190333a26657699ba09299bfd103c630712ffccba79b4728d88a640"
+          }
+        }
+      ],
+      "reference": {
+        "height": {
+          "bytes": 287815,
+          "encoding": "u16-delta",
+          "file": "muensterland-plain/reference.height.bin",
+          "offsetM": 52.0,
+          "quantumM": 0.01,
+          "sha256": "de925ed9b4397c143867ad9c6b2e6c021d7722e3b374534cb21fbba152b4be37"
+        },
+        "maxM": 77.20750427246094,
+        "minM": 52.17749786376953,
+        "sha256": "fb6b30fc7005ddc534aa0074c8a99a633929c3e14cd1c4524ac9dec8725f9fc6",
+        "streams": {
+          "bytes": 13098,
+          "encoding": "bits",
+          "file": "muensterland-plain/reference.streams.bin",
+          "sha256": "2df572e21ff208a48911f84437f233895d380f289e188b25fdcb344c794ae4e3"
+        }
+      },
+      "side": 1025,
+      "spacingM": 10.0,
+      "title": "M\u00fcnsterland plain (Coesfeld basin), NRW DGM1",
+      "verticalCrs": "EPSG:7837"
+    }
+  ],
+  "schema": "geoneural-codec-bundle-v1",
+  "streamAreaM2": 50000.0,
+  "tableId": "04b9ce00a740d220",
+  "timing": {
+    "note": "Python decode seconds on a shared machine; indicative only",
+    "qualified": false
+  },
+  "versions": {
+    "imagecodecs": "2026.8.16",
+    "lerc": "lerc 4.2.0",
+    "sperr": "sperr 0.8.5",
+    "sz3": "sz3 3.3.2",
+    "zfp": "zfp 1.0.1",
+    "zfpy": "unknown"
+  }
+}

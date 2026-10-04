@@ -1,0 +1,89 @@
+---
+/**
+ * Complete bytes at a 25 cm maximum error in every region: the two strongest
+ * conventional codecs, the multilevel coder with its fixed cubic predictor,
+ * and with the learned predictor (model embedded). One row per region; the
+ * number is the learned coder's saving over the best conventional product.
+ */
+import Plot from '../fer/Plot.astro';
+import { CODER_COLORS, CODER_NAMES, CONF_REGIONS, DEV_REGIONS, STRATUM, bestConventional, fmtBytes, regionName, table } from './geo';
+
+const BOUND = '0.25';
+type Row = { cohort: 'confirmation' | 'development'; region: string; y: number };
+const rows: Row[] = [];
+let y = 0;
+const byLearned = (cohort: 'confirmation' | 'development') => (a: string, b: string) =>
+  table(cohort)[a][BOUND].learned.bytes - table(cohort)[b][BOUND].learned.bytes;
+const headers: { y: number; text: string }[] = [];
+headers.push({ y: y - 0.75, text: 'New regions (relief)' });
+for (const region of [...CONF_REGIONS].sort(byLearned('confirmation'))) rows.push({ cohort: 'confirmation', region, y: y++ });
+y += 1.4;
+headers.push({ y: y - 0.75, text: 'Development regions' });
+for (const region of [...DEV_REGIONS].sort(byLearned('development'))) rows.push({ cohort: 'development', region, y: y++ });
+
+const coders = ['sperr', 'sz3-best', 'cubic-ctx', 'learned'] as const;
+const markers = { sperr: 'ring', 'sz3-best': 'ring', 'cubic-ctx': 'square', learned: 'dot' } as const;
+const get = (r: Row, coder: string) => table(r.cohort)[r.region][BOUND][coder].bytes / 1000;
+const best = (r: Row) => bestConventional(r.cohort, r.region, BOUND);
+const series = [
+  {
+    color: 'var(--line-strong)',
+    kind: 'segments' as const,
+    width: 2,
+    quiet: true,
+    points: rows.flatMap((r) => [[get(r, 'learned'), r.y], [best(r).result.bytes / 1000, r.y]] as [number, number][]),
+  },
+  ...coders.map((coder) => ({
+    label: CODER_NAMES[coder] + (coder === 'learned' ? ', model inside' : ''),
+    color: CODER_COLORS[coder],
+    kind: 'scatter' as const,
+    marker: markers[coder],
+    size: coder === 'learned' ? 4.2 : 3.6,
+    points: rows.map((r) => [get(r, coder), r.y] as [number, number]),
+    tips: rows.map((r) => `${regionName(r.region)}, ${CODER_NAMES[coder]}: ${fmtBytes(get(r, coder) * 1000)}`),
+  })),
+];
+const savings = rows.map((r) => 1 - get(r, 'learned') / (best(r).result.bytes / 1000));
+const XMIN = 34;
+const LEFT = 150;
+const PHONE_LEFT = 146;
+const savingLabels = rows.map((r, i) => ({
+  kind: 'label' as const,
+  x: Math.max(...coders.map((c) => get(r, c))),
+  y: r.y,
+  dx: 10,
+  dy: -0.5,
+  anchor: 'start' as const,
+  text: `−${Math.round(savings[i] * 100)}%`,
+  color: CODER_COLORS.learned,
+}));
+// Group headers start at the drawing's left edge, above the row names.
+const headerLabels = (left: number) =>
+  headers.map((h) => ({
+    kind: 'label' as const, x: XMIN, y: h.y, dx: 4 - left, dy: -0.5, anchor: 'start' as const, row: true,
+    text: h.text,
+  }));
+const annotations = [...savingLabels, ...headerLabels(LEFT)];
+const tickLabels = rows.map((r) => ({
+  at: r.y,
+  label: r.cohort === 'confirmation' ? `${regionName(r.region)}, ${STRATUM[r.region]}` : regionName(r.region),
+}));
+const lo = Math.min(...savings);
+const hi = Math.max(...savings);
+const label = `File size at a largest error of 25 cm in all ${rows.length} regions. The neural predictor makes the smallest file in every region, ${Math.round(lo * 100)} to ${Math.round(hi * 100)}% below the best standard codec.`;
+---
+
+<Plot
+  id="geo-h1-regions"
+  {label}
+  x={{ label: 'file size at 25 cm error (kB)', log: true, min: XMIN, max: 300, ticks: [50, 100, 200] }}
+  y={{ tickLabels, min: y - 0.4, max: -1.6 }}
+  {series}
+  {annotations}
+  left={LEFT}
+  right={44}
+  width={600}
+  height={430}
+  minScale={0.59}
+  phone={{ left: PHONE_LEFT, right: 44, x: { label: 'file size at 25 cm (kB)' }, annotations: [...savingLabels, ...headerLabels(PHONE_LEFT)] }}
+/>

@@ -1,5 +1,6 @@
 ---
 import '@fontsource-variable/inter';
+import '@fontsource-variable/inter/wght-italic.css';
 import '@fontsource-variable/source-code-pro';
 import '../styles/tokens-core.css';
 import '../styles/tokens-academic.css';
@@ -37,9 +38,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {/* Mark JS-capable before first paint so reveal targets can hide without FOUC. */}
+    {/* Mark JS-capable before first paint so reveal targets can hide without FOUC.
+        The client router replaces <html>'s attributes with the next page's on
+        every navigation and runs this script only once, so it marks each new
+        page again right after the swap, before it paints. */}
     <script is:inline>
       document.documentElement.classList.add('has-js');
+      document.addEventListener('astro:after-swap', function () {
+        document.documentElement.classList.add('has-js');
+      });
     </script>
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>

@@ -228,7 +228,7 @@ const toRoutedEntry = (project: ResolvedProject): RoutedEntry => {
     subtitle: data.tagline ?? plain(data.oneLine),
     yearStart: data.yearStart,
     yearEnd: data.yearEnd,
-    yearLabel: yearLabel(data.yearStart, data.yearEnd),
+    yearLabel: data.yearLabel ?? yearLabel(data.yearStart, data.yearEnd),
     status: statusChip(data.lifecycle, data.evidenceLevel),
     kinds: data.kinds,
     focus: data.focus,

@@ -25,6 +25,9 @@
   --w-prose: 38rem;
   --w-content: 74rem;
   --w-stage: 92rem;
+  /* A case study's page: the content rail plus its own rail (12.5rem) and
+     the gap beside it (2.5rem), so its column keeps the content rail's width. */
+  --w-case: 89rem;
   --gutter: clamp(1rem, 2.5vw, 3.25rem);
 
   /* Spacing (4px scale) */
