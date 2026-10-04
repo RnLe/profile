@@ -11,6 +11,14 @@ export interface Part {
   color: string;
 }
 
+interface Phone {
+  width?: number;
+  rowHeight?: number;
+  labelWidth?: number;
+  right?: number;
+  x?: Partial<AxisSpec>;
+}
+
 interface Props {
   label: string;
   rows: { label: string; values: number[]; note?: string; strong?: boolean }[];
@@ -21,76 +29,118 @@ interface Props {
   rowHeight?: number;
   /** Width kept for the row labels. */
   labelWidth?: number;
+  /** Room on the right for the value at the bar's end. */
+  right?: number;
   /** Format of the value at the bar's end (the stack's total). */
   value?: AxisSpec;
   /** A reference value drawn as a dashed line, e.g. the uncompressed model. */
   reference?: { at: number; text: string };
+  /** The smallest the drawing may shrink to before it scrolls sideways. */
+  minScale?: number;
+  /**
+   * A second, narrower drawing for a phone (a container under 26rem), with
+   * larger text: its own width (default 360), row height, label width and
+   * axis, each falling back to the wide drawing's.
+   */
+  phone?: Phone | true;
 }
 
-const { label, rows, parts, stacked = true, x: xs, width = 560, rowHeight = 26, labelWidth = 92, value = xs, reference } = Astro.props;
-const groupH = stacked ? rowHeight : rowHeight * parts.length * 0.62 + 8;
-const top = reference ? 16 : 6;
-const height = top + rows.length * groupH + (xs.label ? 36 : 22);
+const { label, rows, parts, stacked = true, x: xAxis, width = 560, rowHeight = 26, labelWidth = 92, right = 52, value: valueSpec, reference, minScale = 0.72, phone } = Astro.props;
+/** Below this container width the phone drawing replaces the wide one. */
+const PHONE_BELOW = 416;
+/** The narrowest column a chart is given (a 320 px screen); wider minimums scroll. */
+const NARROWEST = 288;
+const value = valueSpec ?? xAxis;
 const totals = rows.map((r) => (stacked ? r.values.reduce((a, b) => a + b, 0) : Math.max(...r.values)));
-const X = scale([0, ...totals, ...(xs.max != null ? [xs.max] : []), ...(reference ? [reference.at] : [])], { ...xs, min: xs.min ?? 0 }, labelWidth, width - 52, 0.02);
-const plotBottom = top + rows.length * groupH;
+
+interface Variant {
+  key: 'wide' | 'phone';
+  width: number;
+  rowHeight: number;
+  labelWidth: number;
+  right: number;
+  xs: AxisSpec;
+  minWidth: number;
+}
+const variants: Variant[] = [{ key: 'wide', width, rowHeight, labelWidth, right, xs: xAxis, minWidth: Math.round(width * minScale) }];
+if (phone) {
+  const p = phone === true ? {} : phone;
+  variants[0].minWidth = Math.min(variants[0].minWidth, PHONE_BELOW);
+  variants.push({ key: 'phone', width: p.width ?? 360, rowHeight: p.rowHeight ?? rowHeight, labelWidth: p.labelWidth ?? labelWidth, right: p.right ?? right, xs: { ...xAxis, ...p.x }, minWidth: 0 });
+}
+
+function layout(v: Variant) {
+  const groupH = stacked ? v.rowHeight : v.rowHeight * parts.length * 0.62 + 8;
+  const top = reference ? (v.key === 'phone' ? 22 : 16) : 6;
+  const height = top + rows.length * groupH + (v.xs.label ? 36 : 22);
+  const X = scale([0, ...totals, ...(v.xs.max != null ? [v.xs.max] : []), ...(reference ? [reference.at] : [])], { ...v.xs, min: v.xs.min ?? 0 }, v.labelWidth, v.width - v.right, 0.02);
+  return { groupH, top, height, X, plotBottom: top + rows.length * groupH };
+}
+const regionName = `${label.split('. ')[0]}, scrolls sideways`;
 ---
 
-<div class="fer-bars" style={`max-width:${Math.round(width * 1.4)}px`}>
-  <div class="scroll">
-  <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} style={`min-width:${Math.round(width * 0.72)}px`}>
-    <g class="grid">
-      {X.ticks.map((t) => <line x1={X(t)} x2={X(t)} y1={top} y2={plotBottom} />)}
-    </g>
-    {rows.map((row, i) => {
-      const y0 = top + i * groupH;
-      let acc = 0;
-      return (
-        <g>
-          <text class:list={['row-label', row.strong && 'strong']} x={labelWidth - 8} y={y0 + groupH / 2 + 4} text-anchor="end">{row.label}</text>
-          {stacked
-            ? row.values.map((v, k) => {
-                const x0 = X(acc);
-                acc += v;
-                return (
-                  <rect x={x0} y={y0 + 4} width={Math.max(0, X(acc) - x0)} height={groupH - 8} fill={parts[k].color} rx="2">
-                    <title>{`${row.label}, ${parts[k].label}: ${format(v, value)}`}</title>
-                  </rect>
-                );
-              })
-            : row.values.map((v, k) => {
-                const h = (groupH - 8) / parts.length;
-                if (!Number.isFinite(v)) {
-                  return <text class="value" x={X(0) + 5} y={y0 + 4 + k * h + h / 2 + 2.5}>n/a</text>;
-                }
-                return (
-                  <g>
-                    <rect x={X(0)} y={y0 + 4 + k * h} width={Math.max(0, X(v) - X(0))} height={h - 2} fill={parts[k].color} rx="2">
-                      <title>{`${row.label}, ${parts[k].label}: ${format(v, value)}`}</title>
-                    </rect>
-                    <text class="value" x={X(v) + 5} y={y0 + 4 + k * h + h / 2 + 2.5}>{format(v, value)}</text>
-                  </g>
-                );
-              })}
-          {stacked && (
-            <text class="value" x={X(totals[i]) + 5} y={y0 + groupH / 2 + 4}>{row.note ?? format(totals[i], value)}</text>
-          )}
+<div class:list={['fer-bars', phone && 'has-phone']} style={`max-width:${Math.round(width * 1.4)}px`}>
+  {variants.map((v) => {
+    const { groupH, top, height, X, plotBottom } = layout(v);
+    const { width: w, labelWidth: lw, xs } = v;
+    const scrolls = v.minWidth > NARROWEST;
+    return (
+      <div class={`scroll variant--${v.key}`} {...(scrolls ? { tabindex: 0, role: 'group', 'aria-label': regionName } : {})}>
+      <svg viewBox={`0 0 ${w} ${height}`} role="img" aria-label={label} style={v.minWidth ? `min-width:${v.minWidth}px` : undefined}>
+        <g class="grid">
+          {X.ticks.map((t) => <line x1={X(t)} x2={X(t)} y1={top} y2={plotBottom} />)}
         </g>
-      );
-    })}
-    {reference && (
-      <g class="reference">
-        <line x1={X(reference.at)} x2={X(reference.at)} y1={top - 6} y2={plotBottom} />
-        <text x={X(reference.at)} y={top - 8} text-anchor="middle">{reference.text}</text>
-      </g>
-    )}
-    <line class="axis" x1={labelWidth} x2={labelWidth} y1={top} y2={plotBottom} />
-    <g class="ticks">
-      {X.ticks.map((t) => <text x={X(t)} y={plotBottom + 14} text-anchor="middle">{format(t, xs, X.ticks)}</text>)}
-    </g>
-    {xs.label && <text class="axis-label" x={(labelWidth + width - 52) / 2} y={height - 6} text-anchor="middle">{xs.label}</text>}
-  </svg>
-  </div>
+        {rows.map((row, i) => {
+          const y0 = top + i * groupH;
+          let acc = 0;
+          return (
+            <g>
+              <text class:list={['row-label', row.strong && 'strong']} x={lw - 8} y={y0 + groupH / 2 + 4} text-anchor="end">{row.label}</text>
+              {stacked
+                ? row.values.map((val, k) => {
+                    const x0 = X(acc);
+                    acc += val;
+                    return (
+                      <rect x={x0} y={y0 + 4} width={Math.max(0, X(acc) - x0)} height={groupH - 8} fill={parts[k].color} rx="2">
+                        <title>{`${row.label}, ${parts[k].label}: ${format(val, value)}`}</title>
+                      </rect>
+                    );
+                  })
+                : row.values.map((val, k) => {
+                    const hh = (groupH - 8) / parts.length;
+                    if (!Number.isFinite(val)) {
+                      return <text class="value" x={X(0) + 5} y={y0 + 4 + k * hh + hh / 2 + 2.5}>n/a</text>;
+                    }
+                    return (
+                      <g>
+                        <rect x={X(0)} y={y0 + 4 + k * hh} width={Math.max(0, X(val) - X(0))} height={hh - 2} fill={parts[k].color} rx="2">
+                          <title>{`${row.label}, ${parts[k].label}: ${format(val, value)}`}</title>
+                        </rect>
+                        <text class="value" x={X(val) + 5} y={y0 + 4 + k * hh + hh / 2 + 2.5}>{format(val, value)}</text>
+                      </g>
+                    );
+                  })}
+              {stacked && (
+                <text class="value" x={X(totals[i]) + 5} y={y0 + groupH / 2 + 4}>{row.note ?? format(totals[i], value)}</text>
+              )}
+            </g>
+          );
+        })}
+        {reference && (
+          <g class="reference">
+            <line x1={X(reference.at)} x2={X(reference.at)} y1={top - 6} y2={plotBottom} />
+            <text x={X(reference.at)} y={top - 8} text-anchor="middle">{reference.text}</text>
+          </g>
+        )}
+        <line class="axis" x1={lw} x2={lw} y1={top} y2={plotBottom} />
+        <g class="ticks">
+          {X.ticks.map((t) => <text x={X(t)} y={plotBottom + 14} text-anchor="middle">{format(t, xs, X.ticks)}</text>)}
+        </g>
+        {xs.label && <text class="axis-label" x={(lw + w - v.right) / 2} y={height - 6} text-anchor="middle">{xs.label}</text>}
+      </svg>
+      </div>
+    );
+  })}
   {parts.length > 1 && (
     <ul class="legend">
       {parts.map((p) => (
@@ -106,6 +156,22 @@ const plotBottom = top + rows.length * groupH;
     flex-direction: column;
     gap: var(--sp-1);
     min-width: 0;
+    container: fer-bars / inline-size;
+  }
+
+  .variant--phone {
+    display: none;
+  }
+
+  /* 26rem: the phone drawing's breakpoint (PHONE_BELOW). */
+  @container fer-bars (max-width: 25.99rem) {
+    .has-phone > .variant--wide {
+      display: none;
+    }
+
+    .has-phone > .variant--phone {
+      display: block;
+    }
   }
 
   svg {
@@ -119,6 +185,11 @@ const plotBottom = top + rows.length * groupH;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
+  }
+
+  .scroll:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
   }
 
   .grid line {
@@ -185,6 +256,17 @@ const plotBottom = top + rows.length * groupH;
     inline-size: 0.8rem;
     block-size: 0.6rem;
     border-radius: 2px;
+  }
+
+  .variant--phone .row-label {
+    font-size: 14px;
+  }
+
+  .variant--phone .value,
+  .variant--phone .ticks text,
+  .variant--phone .axis-label,
+  .variant--phone .reference text {
+    font-size: 13px;
   }
 
   @media (max-width: 40rem) {

@@ -169,7 +169,9 @@ const methodsId = `${data.slug}-methods`;
     font-size: var(--step--1);
     line-height: var(--lh-snug);
     color: var(--accent-strong);
-    white-space: nowrap;
+    /* A tag stays on one line unless it is longer than the whole row, as a
+       long method name is on a small phone; then it wraps inside its box. */
+    max-width: 100%;
   }
 
   .hero-figure {

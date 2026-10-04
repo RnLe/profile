@@ -1,18 +1,23 @@
 ---
 /**
- * A case study told in tabs, for a study with several parts. Each tab opens
- * with its core questions and its lead figure, then a few short paragraphs,
- * its steps, and its references. The first tab is the overview: it also
+ * A case study told in parts, for a study with several. Each part opens with
+ * its number and name, then its core questions set large (Question), its
+ * lead figure, a few short paragraphs, its steps, its references, and a way
+ * on to the neighbouring parts. The first part is the overview: it also
  * carries the Markdown body, the project's own sections and citations, and
- * the novelty scope.
+ * the novelty scope. The rail (CaseRail) lists the parts beside the article.
  *
- * Without JavaScript every panel shows, one after another, each under its
- * own heading. lib/tabs turns them into tabs, delegated from the document so
- * the same markup works on the page and in the landing page's overlay.
+ * Without JavaScript every part shows, one after another, and the rail and
+ * the pager are anchors into them. lib/tabs shows one part at a time,
+ * delegated from the document so the same markup works on the page and in
+ * the landing page's overlay.
  */
+import CaseRail from './CaseRail.astro';
 import FigureRenderer from './FigureRenderer.astro';
 import ProjectSteps from './ProjectSteps.astro';
 import Marked from '../ui/Marked.astro';
+import Question from '../ui/Question.astro';
+import { panelId, partNumber, stepIds, type RailPart } from '../../lib/case-nav';
 import type { ResolvedProject } from '../../lib/publication';
 
 interface Props {
@@ -21,170 +26,115 @@ interface Props {
 
 const { project } = Astro.props;
 const { data } = project;
-const tabs = data.tabs.map((tab, i) => ({
-  ...tab,
-  overview: i === 0,
-  steps: i === 0 ? [...data.sections, ...tab.sections] : tab.sections,
-  citations: i === 0 ? [...data.citations, ...tab.citations] : tab.citations,
-}));
 const uid = data.slug;
+const count = data.tabs.length - 1;
+const tabs = data.tabs.map((tab, i) => {
+  const steps = i === 0 ? [...data.sections, ...tab.sections] : tab.sections;
+  const prefix = tab.id;
+  return {
+    ...tab,
+    overview: i === 0,
+    num: partNumber(i),
+    panel: panelId(uid, tab.id),
+    steps,
+    prefix,
+    stepIds: stepIds(prefix, steps.map((step) => step.heading)),
+    citations: i === 0 ? [...data.citations, ...tab.citations] : tab.citations,
+  };
+});
+const parts: RailPart[] = tabs.map((tab) => ({
+  id: tab.panel,
+  part: tab.id,
+  label: tab.label,
+  num: tab.num,
+  steps: tab.steps.map((step, i) => ({ id: tab.stepIds[i], label: step.heading })),
+}));
+const partTitle = (tab: (typeof tabs)[number]) => (tab.num ? `${tab.num} ${tab.label}` : tab.label);
 ---
 
 <div class="band band--tight case-tabs">
   <div class="wrap">
-    <div class="tabs" data-tabs>
-      <div class="tablist" role="tablist" aria-label={`Parts of the ${data.shortTitle ?? data.title} case study`}>
-        {tabs.map((tab, i) => (
-          <button
-            type="button"
-            role="tab"
-            id={`${uid}-tab-${tab.id}`}
-            aria-controls={`${uid}-panel-${tab.id}`}
-            aria-selected={i === 0 ? 'true' : 'false'}
-            tabindex={i === 0 ? 0 : -1}
-            data-tab={tab.id}
-          >
-            <span class="tab-num" aria-hidden="true">{i === 0 ? '·' : String(i).padStart(2, '0')}</span>
-            {tab.label}
-          </button>
-        ))}
+    <div class="case-layout" data-case="parts" data-tabs>
+      <CaseRail title={data.shortTitle ?? data.title} {parts} />
+
+      <div class="case-main">
+        {tabs.map((tab, i) => {
+          const prev = tabs[i - 1];
+          const next = tabs[i + 1];
+          return (
+            <section class="panel" id={tab.panel} aria-labelledby={`${tab.panel}-title`} data-panel={tab.id}>
+              <h2 class="panel-title" id={`${tab.panel}-title`}>
+                {tab.overview ? (
+                  <span class="panel-num">{tab.label}</span>
+                ) : (
+                  <>
+                    <span class="panel-num">Part {tab.num} of {String(count).padStart(2, '0')}</span>
+                    <span class="panel-name">{tab.label}</span>
+                  </>
+                )}
+              </h2>
+
+              <Question text={tab.questions} />
+
+              {tab.figureId && (
+                <div class="lead-figure">
+                  <FigureRenderer figureId={tab.figureId} />
+                </div>
+              )}
+
+              {(tab.paragraphs.length > 0 || tab.overview) && (
+                <div class="lead-text prose marked">
+                  {tab.paragraphs.map((paragraph) => (
+                    <p><Marked text={paragraph} /></p>
+                  ))}
+                  {tab.overview && <slot />}
+                </div>
+              )}
+
+              <ProjectSteps steps={tab.steps} claims={project.claims} idPrefix={tab.prefix} />
+
+              {tab.citations.length > 0 && (
+                <div class="refs">
+                  <h3>References</h3>
+                  <ol class="citations">
+                    {tab.citations.map((citation) => (
+                      <li>
+                        {citation.href ? <a href={citation.href} rel="noopener">{citation.label}</a> : citation.label}
+                        {citation.note && <span class="cite-note"> · {citation.note}</span>}
+                      </li>
+                    ))}
+                  </ol>
+                  {tab.overview && <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>}
+                </div>
+              )}
+
+              {(prev || next) && (
+              <div class="pager">
+                {prev && (
+                  <a class="pager-link pager-prev" href={`#${prev.panel}`}>
+                    <span class="pager-dir">Previous part</span>
+                    <span class="pager-title">{partTitle(prev)}</span>
+                  </a>
+                )}
+                {next && (
+                  <a class="pager-link pager-next" href={`#${next.panel}`}>
+                    <span class="pager-dir">Next part</span>
+                    <span class="pager-title">{partTitle(next)}</span>
+                  </a>
+                )}
+              </div>
+              )}
+            </section>
+          );
+        })}
       </div>
-
-      {tabs.map((tab) => (
-        <section
-          class="panel"
-          role="tabpanel"
-          id={`${uid}-panel-${tab.id}`}
-          aria-labelledby={`${uid}-tab-${tab.id}`}
-          data-panel={tab.id}
-        >
-          <h2 class="panel-title">{tab.label}</h2>
-
-          <div class="questions">
-            {tab.questions.map((question) => (
-              <p class="question marked"><Marked text={question} /></p>
-            ))}
-          </div>
-
-          {tab.figureId && (
-            <div class="lead-figure">
-              <FigureRenderer figureId={tab.figureId} />
-            </div>
-          )}
-
-          {(tab.paragraphs.length > 0 || tab.overview) && (
-            <div class="lead-text prose marked">
-              {tab.paragraphs.map((paragraph) => (
-                <p><Marked text={paragraph} /></p>
-              ))}
-              {tab.overview && <slot />}
-            </div>
-          )}
-
-          <ProjectSteps steps={tab.steps} claims={project.claims} />
-
-          {tab.citations.length > 0 && (
-            <div class="refs">
-              <h3>References</h3>
-              <ol class="citations">
-                {tab.citations.map((citation) => (
-                  <li>
-                    {citation.href ? <a href={citation.href} rel="noopener">{citation.label}</a> : citation.label}
-                    {citation.note && <span class="cite-note"> · {citation.note}</span>}
-                  </li>
-                ))}
-              </ol>
-              {tab.overview && <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>}
-            </div>
-          )}
-        </section>
-      ))}
     </div>
   </div>
 </div>
 
-<script>
-  import '../../lib/tabs';
-</script>
-
 <style>
   .case-tabs {
     border-bottom: none;
-  }
-
-  .tablist {
-    display: none;
-  }
-
-  /* With scripts on (the page marks itself has-js before it paints): a row
-     of tabs that stays in view under the site header (at the top of the
-     overlay), one panel at a time. Until lib/tabs runs, the first shows. */
-  :global(.has-js) .tablist {
-    position: sticky;
-    top: var(--header-h);
-    z-index: 3;
-    display: flex;
-    gap: var(--sp-1);
-    margin-block-end: var(--sp-8);
-    padding-block: var(--sp-2);
-    border-bottom: 1px solid var(--line);
-    background: var(--paper);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  :global(dialog) .tablist {
-    top: 0;
-  }
-
-  .tablist::-webkit-scrollbar {
-    display: none;
-  }
-
-  [role='tab'] {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: baseline;
-    gap: var(--sp-2);
-    min-height: 2.25rem;
-    padding: var(--sp-1) var(--sp-3);
-    border: 1px solid transparent;
-    border-radius: var(--r-md);
-    background: none;
-    font: inherit;
-    font-size: var(--step--1);
-    font-weight: 560;
-    color: var(--ink-muted);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .tab-num {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--ink-faint);
-  }
-
-  [role='tab'][aria-selected='true'] {
-    border-color: var(--line);
-    background: var(--surface);
-    box-shadow: var(--shadow-card);
-    color: var(--ink-heading);
-  }
-
-  [role='tab'][aria-selected='true'] .tab-num {
-    color: var(--accent);
-  }
-
-  @media (hover: hover) {
-    [role='tab']:hover {
-      color: var(--ink);
-    }
-  }
-
-  [role='tab']:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
   }
 
   .panel {
@@ -193,7 +143,7 @@ const uid = data.slug;
     gap: var(--sp-6);
   }
 
-  /* Stacked panels (no script) are told apart by their headings. */
+  /* Stacked parts (no script) are told apart by their headings. */
   .panel + .panel {
     margin-block-start: var(--sp-16);
   }
@@ -203,42 +153,40 @@ const uid = data.slug;
   }
 
   :global(.has-js) .panel[hidden],
-  :global(.has-js) .tabs:not(.tabs--ready) .panel:not(:first-of-type) {
+  :global(.has-js) [data-tabs]:not(.tabs--ready) .panel:not(:first-of-type) {
     display: none;
   }
 
-  :global(.has-js) .panel-title {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
+  /* The part's number and name, small: its question is the headline. */
   .panel-title {
-    font-size: var(--step-3);
-  }
-
-  /* The core questions: what the part set out to answer, before anything else. */
-  .questions {
     display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
-    max-width: 52rem;
-    padding: var(--sp-4) var(--sp-5);
-    border-inline-start: 4px solid var(--accent);
-    border-radius: 0 var(--r-md) var(--r-md) 0;
-    background: var(--accent-wash);
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-1) var(--sp-3);
+    margin-block-end: calc(var(--sp-2) * -1);
+    font-size: var(--step-0);
+    font-weight: 640;
+    line-height: var(--lh-snug);
+    color: var(--ink-heading);
   }
 
-  .question {
-    margin: 0;
-    font-size: var(--step-1);
-    font-weight: 620;
-    line-height: var(--lh-snug);
-    letter-spacing: -0.008em;
-    color: var(--accent-strong);
+  .panel-title:focus {
+    outline: none;
+  }
+
+  .panel-title:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--r-sm);
+  }
+
+  .panel-num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 560;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
   .lead-figure {
@@ -297,5 +245,77 @@ const uid = data.slug;
     color: var(--ink-muted);
     border-inline-start: 3px solid var(--line-strong);
     padding-inline-start: var(--sp-4);
+  }
+
+  /* On to the neighboring parts, at the end of each: the reader never has
+     to scroll back up to the rail to keep going. Each card fills its share of
+     the row, so wrapped cards reach the column's edge. */
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    margin-block-start: var(--sp-8);
+  }
+
+  .pager-link {
+    flex: 1 1 16rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    text-decoration: none;
+    color: var(--ink-heading);
+  }
+
+  .pager-next {
+    align-items: flex-end;
+    text-align: end;
+  }
+
+  .pager-next:only-child {
+    margin-inline-start: auto;
+  }
+
+  .pager-dir {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+  }
+
+  .pager-prev .pager-dir::before {
+    content: '← ';
+  }
+
+  .pager-next .pager-dir::after {
+    content: ' →';
+  }
+
+  .pager-title {
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+
+  @media (hover: hover) {
+    .pager-link:hover {
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+  }
+
+  .pager-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media print {
+    .pager {
+      display: none;
+    }
   }
 </style>

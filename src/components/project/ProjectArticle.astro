@@ -12,11 +12,13 @@
  * figures alternate sides down the page, and one too wide for a side runs
  * under its text instead.
  */
+import CaseRail from './CaseRail.astro';
 import ProjectHero from './ProjectHero.astro';
 import ProjectSteps from './ProjectSteps.astro';
 import ProjectTabs from './ProjectTabs.astro';
 import FigureRenderer from './FigureRenderer.astro';
 import SectionHeading from '../ui/SectionHeading.astro';
+import { stepIds, type RailLink } from '../../lib/case-nav';
 import type { ResolvedProject } from '../../lib/publication';
 
 interface Props {
@@ -27,6 +29,19 @@ const { project } = Astro.props;
 const { data } = project;
 
 const secondaryFigureIds = data.figureIds.slice(1);
+
+// A single page with a run of steps gets the rail too, listing its sections.
+const bodyId = `${data.slug}-intro`;
+const refsId = `${data.slug}-references`;
+const railLinks: RailLink[] = [
+  { id: bodyId, label: 'Introduction' },
+  ...stepIds('step', data.sections.map((section) => section.heading)).map((id, i) => ({
+    id,
+    label: data.sections[i].heading,
+  })),
+  ...(data.citations.length > 0 ? [{ id: refsId, label: 'References' }] : []),
+];
+const railed = data.sections.length >= 3;
 
 ---
 
@@ -44,42 +59,45 @@ const secondaryFigureIds = data.figureIds.slice(1);
     </ProjectTabs>
   ) : (
     <>
-  <div class="band band--tight">
+  <div class="band band--tight article-body">
     <div class="wrap">
-      <div class="prose project-body marked">
-        <slot />
-      </div>
-      {secondaryFigureIds.length > 0 && (
-        <div class="figure-stack">
-          {secondaryFigureIds.map((figureId) => (
-            <FigureRenderer {figureId} />
-          ))}
+      <div class:list={[railed && 'case-layout']} data-case={railed ? 'page' : undefined}>
+        {railed && <CaseRail title={data.shortTitle ?? data.title} links={railLinks} />}
+        <div class="case-main">
+          <div class="prose project-body marked" id={bodyId}>
+            <slot />
+          </div>
+          {secondaryFigureIds.length > 0 && (
+            <div class="figure-stack">
+              {secondaryFigureIds.map((figureId) => (
+                <FigureRenderer {figureId} />
+              ))}
+            </div>
+          )}
+          <ProjectSteps steps={data.sections} claims={project.claims} />
+
+          {data.citations.length > 0 && (
+            <div class="article-tail" id={refsId}>
+              <SectionHeading eyebrow="Context" title="Primary references" />
+              <ol class="citations">
+                {data.citations.map((citation) => (
+                  <li>
+                    {citation.href ? (
+                      <a href={citation.href} rel="noopener">{citation.label}</a>
+                    ) : (
+                      citation.label
+                    )}
+                    {citation.note && <span class="cite-note"> · {citation.note}</span>}
+                  </li>
+                ))}
+              </ol>
+              <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>
+            </div>
+          )}
         </div>
-      )}
-      <ProjectSteps steps={data.sections} claims={project.claims} />
+      </div>
     </div>
   </div>
-
-  {data.citations.length > 0 && (
-    <div class="band band--tight article-tail">
-      <div class="wrap">
-        <SectionHeading eyebrow="Context" title="Primary references" />
-        <ol class="citations">
-          {data.citations.map((citation) => (
-            <li>
-              {citation.href ? (
-                <a href={citation.href} rel="noopener">{citation.label}</a>
-              ) : (
-                citation.label
-              )}
-              {citation.note && <span class="cite-note"> · {citation.note}</span>}
-            </li>
-          ))}
-        </ol>
-        <p class="novelty"><strong>Novelty scope:</strong> {data.noveltyNote}</p>
-      </div>
-    </div>
-  )}
     </>
   )}
 </article>
@@ -123,7 +141,29 @@ const secondaryFigureIds = data.figureIds.slice(1);
     padding-inline-start: var(--sp-4);
   }
 
-  .article-tail {
+  .article-body {
     border-bottom: none;
+  }
+
+  .article-tail {
+    margin-block-start: var(--sp-16);
+    padding-block-start: var(--sp-10);
+    border-top: 1px solid var(--line);
+  }
+
+  /* A case study and its rail (CaseRail), for both hosts. The main column is
+     the container its steps and figures respond to. */
+  .project-article :global(.case-main) {
+    min-width: 0;
+    container-type: inline-size;
+  }
+
+  @container (min-width: 60rem) {
+    .project-article :global(.case-layout) {
+      display: grid;
+      grid-template-columns: 12.5rem minmax(0, 1fr);
+      gap: var(--sp-10);
+      align-items: start;
+    }
   }
 </style>

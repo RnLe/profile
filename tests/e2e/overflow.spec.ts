@@ -1,9 +1,14 @@
 import { expect, test } from '@playwright/test';
+import { eachPart } from '../helpers/parts';
 import { sitemapPaths } from '../helpers/sitemap';
 
-/** No horizontal overflow at any required viewport; 4K is a smoke test. */
+/**
+ * No horizontal overflow at any required viewport; 4K is a smoke test. A case
+ * study told in parts is checked part by part, since only one part shows.
+ */
 const viewports = [
   { width: 320, height: 568 },
+  { width: 360, height: 780 },
   { width: 375, height: 812 },
   { width: 390, height: 844 },
   { width: 768, height: 1024 },
@@ -16,7 +21,7 @@ const viewports = [
 ];
 
 test('no route scrolls horizontally at any required viewport', { tag: '@sweep' }, async ({ browser, request }) => {
-  test.setTimeout(240_000);
+  test.setTimeout(420_000);
   const paths = await sitemapPaths(request);
   const failures: string[] = [];
 
@@ -25,12 +30,14 @@ test('no route scrolls horizontally at any required viewport', { tag: '@sweep' }
     const page = await context.newPage();
     for (const path of paths) {
       await page.goto(path);
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      if (overflow > 1) {
-        failures.push(`${path} @ ${viewport.width}px: +${overflow}px`);
-      }
+      await eachPart(page, async (part) => {
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        if (overflow > 1) {
+          failures.push(`${path}${part ? `#${part}` : ''} @ ${viewport.width}px: +${overflow}px`);
+        }
+      });
     }
     await context.close();
   }

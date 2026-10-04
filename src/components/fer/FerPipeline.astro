@@ -2,7 +2,7 @@
 /**
  * The study at a glance: its five parts in order, each with the question it
  * asked and its main result, computed from the exported data. Each card opens
- * its tab of the case study.
+ * its part of the case study.
  */
 import data from '../../data/fer/data.json';
 import models from '../../data/fer/models.json';
@@ -10,6 +10,7 @@ import tuning from '../../data/fer/tuning.json';
 import grok from '../../data/fer/grok.json';
 import compress from '../../data/fer/compress.json';
 import { MODEL_NAMES } from './plot';
+import { panelId } from '../../lib/case-nav';
 
 const disgustBefore = data.counts.train_fer.disgust;
 const disgustAfter = data.counts.train_fer.disgust + data.counts.train_raf.disgust;
@@ -79,7 +80,7 @@ const steps = [
 <ol class="fer-pipeline">
   {steps.map((step, i) => (
     <li>
-      <a class="card" href={`#${step.tab}`} data-tab-link={step.tab}>
+      <a class="card" href={`#${panelId('facial-emotion-recognition', step.tab)}`} data-tab-link={step.tab}>
         <span class="num">{String(i + 1).padStart(2, '0')}</span>
         <span class="title">{step.title}</span>
         <span class="question">{step.question}</span>
@@ -182,7 +183,7 @@ const steps = [
     color: var(--accent);
   }
 
-  @container (max-width: 60rem) {
+  @container (max-width: 46rem) {
     .fer-pipeline {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

@@ -4,20 +4,39 @@
  * command to copy, the registered claims it shows, and its figures. A single
  * figure sits beside the text, alternating sides down the page; a wide one,
  * or a pair, runs under its text and breaks the run.
+ *
+ * Each heading carries an id (lib/case-nav) that the rail links to. The
+ * claims are evidence, not decoration: a quiet footnote-like list under the
+ * text, each line word for word from the registry with its scope.
  */
 import FigureRenderer from './FigureRenderer.astro';
 import Icon from '../ui/Icon.astro';
 import Marked from '../ui/Marked.astro';
 import { getFigure } from '../../lib/figures';
+import { stepIds } from '../../lib/case-nav';
 import type { ResolvedProject } from '../../lib/publication';
 import type { ProjectFrontmatter } from '../../lib/schemas';
 
 interface Props {
   steps: ProjectFrontmatter['sections'];
   claims: ResolvedProject['claims'];
+  /** Prefix of the heading ids, the same one the rail is given. */
+  idPrefix?: string;
 }
 
-const { steps, claims: projectClaims } = Astro.props;
+const { steps, claims: projectClaims, idPrefix = 'step' } = Astro.props;
+const ids = stepIds(idPrefix, steps.map((step) => step.heading));
+
+const KIND: Record<string, string> = {
+  result: 'Result',
+  comparison: 'Comparison',
+  limitation: 'Limitation',
+  'negative-result': 'Negative result',
+  scope: 'Scope',
+  status: 'Status',
+  novelty: 'Novelty',
+  restriction: 'Restriction',
+};
 
 // Side figures alternate, starting on the right; a wide one, or a pair,
 // runs under its text and breaks the run.
@@ -29,7 +48,7 @@ const sections = steps.map((section) => {
   const flip = figure && !wide && side++ % 2 === 1;
   const claims = section.claimIds.flatMap((id) => projectClaims.filter((claim) => claim.claim_id === id));
   return { ...section, figure, wide, flip, pair: figures.length > 1, claims };
-});
+}).map((section, i) => ({ ...section, id: ids[i] }));
 ---
 
 {sections.length > 0 && (
@@ -44,7 +63,7 @@ const sections = steps.map((section) => {
               ]}
             >
               <div class="step-text marked">
-                <h2>{section.heading}</h2>
+                <h2 id={section.id}>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
                   <p>
                     <Marked text={paragraph} />
@@ -77,12 +96,17 @@ const sections = steps.map((section) => {
                     <p class="visually-hidden" role="status" data-copy-status></p>
                   </>
                 )}
-                {section.claims.map((claim) => (
-                  <div class="claim" data-claim-id={claim.claim_id}>
-                    <p>{claim.short_copy}</p>
-                    {claim.scope && <p class="claim-scope">{claim.scope}</p>}
-                  </div>
-                ))}
+                {section.claims.length > 0 && (
+                  <ul class="evidence">
+                    {section.claims.map((claim) => (
+                      <li data-claim-id={claim.claim_id}>
+                        <span class="evidence-kind">{KIND[claim.claim_type] ?? 'Claim'}</span>
+                        {claim.short_copy}
+                        {claim.scope && <span class="evidence-scope"> {claim.scope}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               {section.figure && (
                 <div class:list={['step-figure', section.pair && 'step-figure--pair']}>
@@ -151,10 +175,11 @@ const sections = steps.map((section) => {
 
   .step-figure--pair {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-10);
   }
 
-  @container (min-width: 56rem) {
+  @container (min-width: 46rem) {
     .step-figure--pair {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: start;
@@ -243,26 +268,35 @@ const sections = steps.map((section) => {
     outline-offset: 2px;
   }
 
-  /* A registered claim, word for word from the registry, with its scope. */
-  .claim {
+  /* The registered claims: small print under the text, no box. */
+  .evidence {
+    list-style: none;
     display: flex;
     flex-direction: column;
-    gap: var(--sp-1);
-    margin-block-start: var(--sp-2);
-    padding-inline-start: var(--sp-4);
-    border-inline-start: 3px solid var(--accent);
-  }
-
-  .claim p {
-    font-size: var(--step-0);
-    font-weight: 560;
-    line-height: var(--lh-snug);
-    color: var(--ink-heading);
-  }
-
-  .claim .claim-scope {
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 0;
+    padding: var(--sp-3) 0 0;
+    border-top: 1px solid var(--line);
     font-size: var(--step--1);
-    font-weight: 400;
+    line-height: var(--lh-snug);
+    color: var(--ink-muted);
+  }
+
+  .evidence li {
+    margin: 0;
+  }
+
+  .evidence-kind {
+    margin-inline-end: var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 560;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .evidence-scope {
     color: var(--ink-faint);
   }
 

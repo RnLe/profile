@@ -176,6 +176,7 @@ import { withBase } from '../../lib/routes';
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scroll-padding-block-start: var(--sp-4);
   }
 
   .panel-status {
@@ -203,8 +204,9 @@ import { withBase } from '../../lib/routes';
     --lh-body: 1.55;
     --w-prose: 34rem;
     /* The panel is already the measure; content rails fill it and only prose
-       stays bounded, so body text lines up with the title bar above it. */
-    --w-content: 58rem;
+       stays bounded, so body text lines up with the title bar above it, and a
+       case study's rail fits beside it on a laptop screen. */
+    --w-content: 80rem;
     /* Figures get a bounded rail: at full panel width a single hero figure
        would fill the whole modal. */
     --w-stage: 44rem;

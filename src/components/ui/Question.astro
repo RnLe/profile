@@ -1,0 +1,100 @@
+---
+/**
+ * A question set like a pull quote, across the full width of its column:
+ * large calm type between two hairlines, a short accent rule on the top one.
+ * The first line is the question itself; any further lines follow it, a step
+ * smaller and quieter. Text takes the light emphasis of src/lib/marks.ts.
+ *
+ *   <Question text="Does the drainage survive compression?" />
+ *   <Question label="Hypothesis" text={['First line', 'A follow-up']} note="Tested in part 3." />
+ *
+ * Without text, the default slot is the question.
+ */
+import Marked from './Marked.astro';
+
+interface Props {
+  /** One question, or the question and up to a few follow-ups. */
+  text?: string | readonly string[];
+  /** A small label above, such as "Question" or "Hypothesis". */
+  label?: string;
+  /** A quiet line under the question: its scope, its answer, where it is tested. */
+  note?: string;
+  id?: string;
+}
+
+const { text, label, note, id } = Astro.props;
+const lines = text === undefined ? [] : typeof text === 'string' ? [text] : [...text];
+const [lead, ...more] = lines;
+---
+
+<div class="question marked" id={id}>
+  {label && <p class="question-label">{label}</p>}
+  {lead !== undefined ? (
+    <p class="question-lead"><Marked text={lead} /></p>
+  ) : (
+    <p class="question-lead"><slot /></p>
+  )}
+  {more.map((line) => (
+    <p class="question-more"><Marked text={line} /></p>
+  ))}
+  {note && <p class="question-note"><Marked text={note} /></p>}
+</div>
+
+<style>
+  .question {
+    position: relative;
+    padding-block: var(--sp-8);
+    border-block: 1px solid var(--line);
+  }
+
+  .question::before {
+    content: '';
+    position: absolute;
+    inset-block-start: -1px;
+    inset-inline-start: 0;
+    inline-size: 3.5rem;
+    block-size: 2px;
+    background: var(--accent);
+  }
+
+  .question-label,
+  .question-lead,
+  .question-more,
+  .question-note {
+    max-width: none;
+    margin: 0;
+  }
+
+  .question-label {
+    margin-block-end: var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .question-lead {
+    font-size: var(--step-3);
+    font-weight: 540;
+    line-height: 1.24;
+    letter-spacing: -0.016em;
+    color: var(--ink-heading);
+    text-wrap: balance;
+  }
+
+  .question-more {
+    margin-block-start: var(--sp-3);
+    font-size: var(--step-1);
+    line-height: var(--lh-snug);
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  .question-note {
+    margin-block-start: var(--sp-4);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+</style>

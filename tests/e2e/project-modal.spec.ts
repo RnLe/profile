@@ -57,8 +57,49 @@ test.describe('project page', () => {
   });
 });
 
+test.describe('a case study told in parts', () => {
+  const part = (page: Page, id: string) => page.locator(`[data-panel="${id}"]`);
+
+  test('shows one part at a time; the rail, the pager, and the URL agree', async ({ page, viewport }) => {
+    await page.goto('/projects/facial-emotion-recognition/');
+    await expect(part(page, 'overview')).toBeVisible();
+    await expect(part(page, 'tuning')).toBeHidden();
+
+    const tuning = page.locator('a[data-part-link="tuning"]');
+    await tuning.click();
+    await expect(part(page, 'tuning')).toBeVisible();
+    await expect(part(page, 'overview')).toBeHidden();
+    await expect(tuning).toHaveAttribute('aria-current', 'true');
+    await expect(page).toHaveURL(/#tuning$/);
+
+    await part(page, 'tuning').locator('.pager-next').click();
+    await expect(part(page, 'grokking')).toBeVisible();
+    await expect(page).toHaveURL(/#grokking$/);
+
+    // A step named in the URL opens its part.
+    await page.goto('/projects/facial-emotion-recognition/#architectures-size');
+    await expect(part(page, 'architectures')).toBeVisible();
+
+    // Beside the article the rail stays in view; on a phone it scrolls away
+    // with the page instead of covering it.
+    const position = await page.locator('nav.case-rail').evaluate((el) => getComputedStyle(el).position);
+    expect(position).toBe((viewport?.width ?? 1440) >= 960 ? 'sticky' : 'static');
+  });
+});
+
 test.describe('landing overlay', () => {
   test.skip(({ viewport }) => (viewport?.width ?? 1440) < 768, 'phones get the full page instead');
+
+  test('a case study in parts keeps its rail in the overlay and leaves the URL alone', async ({ page }) => {
+    await page.goto('/');
+    await entry(page, 'facial-emotion-recognition').click();
+    const dialog = modal(page);
+    await expect(dialog).toHaveAttribute('data-state', 'ready');
+    await dialog.locator('a[data-part-link="data"]').click();
+    await expect(dialog.locator('[data-panel="data"]')).toBeVisible();
+    await expect(dialog.locator('[data-panel="overview"]')).toBeHidden();
+    await expect(page).toHaveURL(/\/$/);
+  });
 
   test('opens the case study over the list without moving the page or the URL', async ({ page }) => {
     await page.goto('/');

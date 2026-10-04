@@ -41,6 +41,16 @@ export interface Annotation {
   row?: boolean;
 }
 
+interface Phone {
+  width?: number;
+  height?: number;
+  left?: number;
+  right?: number;
+  x?: Partial<AxisSpec>;
+  y?: Partial<AxisSpec>;
+  annotations?: Annotation[];
+}
+
 interface Props {
   id: string;
   label: string;
@@ -54,22 +64,74 @@ interface Props {
   legend?: boolean;
   /** Extra room on the left for long tick labels. */
   left?: number;
+  /** Room on the right, for labels set beside the plot. */
+  right?: number;
   /** The smallest the drawing may shrink to before it scrolls sideways. */
   minScale?: number;
+  /**
+   * A second, narrower drawing for a phone (a container under 26rem), with
+   * larger text: its own width (default 360), height, margins, axes and
+   * annotations, each falling back to the wide drawing's.
+   */
+  phone?: Phone | true;
 }
 
-const { id, label, title, x: xs, y: ys, series, annotations = [], width = 560, height = 300, legend = true, left = 46, minScale = 0.72 } = Astro.props;
-const m = { l: left, r: 14, t: 12, b: xs.label ? 40 : 26 };
-const xv = series.flatMap((s) => s.points.map((p) => p[0])).concat(annotations.flatMap((a) => [a.x, a.x2].filter((v): v is number => v != null)));
-const yv = series.flatMap((s) => s.points.map((p) => p[1])).concat(annotations.flatMap((a) => (a.kind === 'hline' || a.kind === 'hband' ? [a.y, a.y2].filter((v): v is number => v != null) : [])));
-const X = scale(xv, xs, m.l, width - m.r);
-const Y = scale(yv, ys, height - m.b, m.t);
-const xTicks = xs.tickLabels ? xs.tickLabels.map((t) => ({ at: t.at, text: t.label })) : X.ticks.map((t) => ({ at: t, text: format(t, xs, X.ticks) }));
-const yTicks = ys.tickLabels ? ys.tickLabels.map((t) => ({ at: t.at, text: t.label })) : Y.ticks.map((t) => ({ at: t, text: format(t, ys, Y.ticks) }));
-const inX = (v: number) => X(v) >= m.l - 0.5 && X(v) <= width - m.r + 0.5;
-const inY = (v: number) => Y(v) >= m.t - 0.5 && Y(v) <= height - m.b + 0.5;
-const clip = `fer-clip-${id}`;
+const { id, label, title, x, y, series, annotations = [], width = 560, height = 300, legend = true, left = 46, right = 14, minScale = 0.72, phone } = Astro.props;
+/** Below this container width the phone drawing replaces the wide one. */
+const PHONE_BELOW = 416;
+/** The narrowest column a chart is given (a 320 px screen); wider minimums scroll. */
+const NARROWEST = 288;
+
+interface Variant {
+  key: 'wide' | 'phone';
+  width: number;
+  height: number;
+  left: number;
+  right: number;
+  xs: AxisSpec;
+  ys: AxisSpec;
+  annotations: Annotation[];
+  minWidth: number;
+  lineH: number;
+}
+const variants: Variant[] = [
+  { key: 'wide', width, height, left, right, xs: x, ys: y, annotations, minWidth: Math.round(width * minScale), lineH: 13 },
+];
+if (phone) {
+  const p = phone === true ? {} : phone;
+  variants[0].minWidth = Math.min(variants[0].minWidth, PHONE_BELOW);
+  variants.push({
+    key: 'phone',
+    width: p.width ?? 360,
+    height: p.height ?? height,
+    left: p.left ?? left,
+    right: p.right ?? right,
+    xs: { ...x, ...p.x },
+    ys: { ...y, ...p.y },
+    annotations: p.annotations ?? annotations,
+    minWidth: 0,
+    lineH: 15.5,
+  });
+}
+
+/** Scales, ticks and margins of one drawing. */
+function layout(v: Variant) {
+  const { width: w, height: h, xs, ys } = v;
+  const m = { l: v.left, r: v.right, t: 12, b: xs.label ? 40 : 26 };
+  const xv = series.flatMap((s) => s.points.map((p) => p[0])).concat(v.annotations.flatMap((a) => [a.x, a.x2].filter((n): n is number => n != null)));
+  const yv = series.flatMap((s) => s.points.map((p) => p[1])).concat(v.annotations.flatMap((a) => (a.kind === 'hline' || a.kind === 'hband' ? [a.y, a.y2].filter((n): n is number => n != null) : [])));
+  const X = scale(xv, xs, m.l, w - m.r);
+  const Y = scale(yv, ys, h - m.b, m.t);
+  const xTicks = xs.tickLabels ? xs.tickLabels.map((t) => ({ at: t.at, text: t.label })) : X.ticks.map((t) => ({ at: t, text: format(t, xs, X.ticks) }));
+  const yTicks = ys.tickLabels ? ys.tickLabels.map((t) => ({ at: t.at, text: t.label })) : Y.ticks.map((t) => ({ at: t, text: format(t, ys, Y.ticks) }));
+  const inX = (n: number) => X(n) >= m.l - 0.5 && X(n) <= w - m.r + 0.5;
+  const inY = (n: number) => Y(n) >= m.t - 0.5 && Y(n) <= h - m.b + 0.5;
+  return { m, X, Y, xTicks, yTicks, inX, inY, clip: `fer-clip-${id}${v.key === 'phone' ? '-phone' : ''}` };
+}
+
 const shown = series.filter((s) => s.label && !s.quiet);
+/** A name for the scrolling box, when the drawing can be wider than its column. */
+const regionName = `${title ?? label.split('. ')[0]}, scrolls sideways`;
 
 const marker = (s: Series, px: number, py: number) => {
   const r = s.size ?? 3.2;
@@ -88,74 +150,81 @@ const marker = (s: Series, px: number, py: number) => {
 };
 ---
 
-<div class="fer-plot" style={`max-width:${Math.round(width * 1.4)}px`}>
+<div class:list={['fer-plot', phone && 'has-phone']} style={`max-width:${Math.round(width * 1.4)}px`}>
   {title && <p class="fer-plot-title">{title}</p>}
-  <div class="scroll">
-  <svg class="chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} style={`min-width:${Math.round(width * minScale)}px`}>
-    <defs>
-      <clipPath id={clip}><rect x={m.l} y={m.t - 4} width={width - m.l - m.r} height={height - m.t - m.b + 8} /></clipPath>
-    </defs>
-    {annotations.filter((a) => a.kind === 'band' || a.kind === 'hband').map((a) =>
-      a.kind === 'band' ? (
-        <rect class="band" x={X(a.x!)} y={m.t} width={Math.max(0, X(a.x2!) - X(a.x!))} height={height - m.t - m.b} style={a.color ? `fill:${a.color}` : undefined} />
-      ) : (
-        <rect class="band" x={m.l} y={Y(a.y2!)} width={width - m.l - m.r} height={Math.max(0, Y(a.y!) - Y(a.y2!))} style={a.color ? `fill:${a.color}` : undefined} />
-      ),
-    )}
-    <g class="grid">
-      {yTicks.filter((t) => inY(t.at)).map((t) => <line x1={m.l} x2={width - m.r} y1={Y(t.at)} y2={Y(t.at)} />)}
-    </g>
-    <g class="ticks">
-      {!ys.hideLabels && yTicks.filter((t) => inY(t.at)).map((t) => <text x={m.l - 6} y={Y(t.at) + 3.6} text-anchor="end">{t.text}</text>)}
-      {xTicks.filter((t) => inX(t.at)).map((t) => <text x={X(t.at)} y={height - m.b + 15} text-anchor="middle">{t.text}</text>)}
-    </g>
-    <line class="axis" x1={m.l} x2={width - m.r} y1={height - m.b} y2={height - m.b} />
-    {xs.label && <text class="axis-label" x={(m.l + width - m.r) / 2} y={height - 6} text-anchor="middle">{xs.label}</text>}
-    {annotations.filter((a) => a.kind === 'vline' || a.kind === 'hline').map((a) =>
-      a.kind === 'vline' ? (
-        <line class="ref" x1={X(a.x!)} x2={X(a.x!)} y1={m.t} y2={height - m.b} style={a.color ? `stroke:${a.color}` : undefined} />
-      ) : (
-        <line class="ref" x1={m.l} x2={width - m.r} y1={Y(a.y!)} y2={Y(a.y!)} style={a.color ? `stroke:${a.color}` : undefined} />
-      ),
-    )}
-    <g clip-path={`url(#${clip})`}>
-      {series.map((s) =>
-        s.kind === 'segments' ? (
-          s.points.flatMap((p, i) => (i % 2 === 0 && s.points[i + 1] ? [
-            <line x1={X(p[0])} y1={Y(p[1])} x2={X(s.points[i + 1][0])} y2={Y(s.points[i + 1][1])} stroke={s.color} stroke-width={s.width ?? 2} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linecap="round" />,
-          ] : []))
-        ) : s.kind !== 'scatter' ? (
-          <path d={path(s.points, X, Y)} fill="none" stroke={s.color} stroke-width={s.width ?? 1.6} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linejoin="round" stroke-linecap="round" />
-        ) : null,
-      )}
-      {series.filter((s) => s.kind === 'scatter' || s.marker).map((s) =>
-        s.points.filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1])).map((p, i) => {
-          const mk = marker(s, X(p[0]), Y(p[1]));
-          const Tag = mk.tag as 'circle';
-          return (
-            <Tag {...(mk.attrs as Record<string, unknown>)} opacity={s.opacity}>
-              {s.tips?.[i] && <title>{s.tips[i]}</title>}
-            </Tag>
-          );
-        }),
-      )}
-    </g>
-    {annotations.filter((a) => a.kind === 'point' || a.kind === 'label').map((a) => (
-      <g class="note" style={a.color ? `--note:${a.color}` : undefined}>
-        {a.kind === 'point' && <circle cx={X(a.x!)} cy={Y(a.y!)} r="4.5" />}
-        {a.kind === 'point' && (a.dx || a.dy) && (
-          <line x1={X(a.x!)} y1={Y(a.y!)} x2={X(a.x!) + (a.dx ?? 0) * 0.82} y2={Y(a.y!) + (a.dy ?? 0) * 0.82} />
+  {variants.map((v) => {
+    const { m, X, Y, xTicks, yTicks, inX, inY, clip } = layout(v);
+    const { width: w, height: h, xs, ys } = v;
+    const scrolls = v.minWidth > NARROWEST;
+    return (
+      <div class={`scroll variant--${v.key}`} {...(scrolls ? { tabindex: 0, role: 'group', 'aria-label': regionName } : {})}>
+      <svg class="chart" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label} style={v.minWidth ? `min-width:${v.minWidth}px` : undefined}>
+        <defs>
+          <clipPath id={clip}><rect x={m.l} y={m.t - 4} width={w - m.l - m.r} height={h - m.t - m.b + 8} /></clipPath>
+        </defs>
+        {v.annotations.filter((a) => a.kind === 'band' || a.kind === 'hband').map((a) =>
+          a.kind === 'band' ? (
+            <rect class="band" x={X(a.x!)} y={m.t} width={Math.max(0, X(a.x2!) - X(a.x!))} height={h - m.t - m.b} style={a.color ? `fill:${a.color}` : undefined} />
+          ) : (
+            <rect class="band" x={m.l} y={Y(a.y2!)} width={w - m.l - m.r} height={Math.max(0, Y(a.y!) - Y(a.y2!))} style={a.color ? `fill:${a.color}` : undefined} />
+          ),
         )}
-        {a.text && a.text.split('\n').map((line, i) => (
-          <text class:list={[a.row && 'row']} x={X(a.x!) + (a.dx ?? 0)} y={Y(a.y!) + (a.dy ?? 0) + i * 13 + (a.dy && a.dy < 0 ? -2 : 4)} text-anchor={a.anchor ?? 'middle'}>{line}</text>
+        <g class="grid">
+          {yTicks.filter((t) => inY(t.at)).map((t) => <line x1={m.l} x2={w - m.r} y1={Y(t.at)} y2={Y(t.at)} />)}
+        </g>
+        <g class="ticks">
+          {!ys.hideLabels && yTicks.filter((t) => inY(t.at)).map((t) => <text x={m.l - 6} y={Y(t.at) + 3.6} text-anchor="end">{t.text}</text>)}
+          {xTicks.filter((t) => inX(t.at)).map((t) => <text x={X(t.at)} y={h - m.b + 15} text-anchor="middle">{t.text}</text>)}
+        </g>
+        <line class="axis" x1={m.l} x2={w - m.r} y1={h - m.b} y2={h - m.b} />
+        {xs.label && <text class="axis-label" x={(m.l + w - m.r) / 2} y={h - 6} text-anchor="middle">{xs.label}</text>}
+        {v.annotations.filter((a) => a.kind === 'vline' || a.kind === 'hline').map((a) =>
+          a.kind === 'vline' ? (
+            <line class="ref" x1={X(a.x!)} x2={X(a.x!)} y1={m.t} y2={h - m.b} style={a.color ? `stroke:${a.color}` : undefined} />
+          ) : (
+            <line class="ref" x1={m.l} x2={w - m.r} y1={Y(a.y!)} y2={Y(a.y!)} style={a.color ? `stroke:${a.color}` : undefined} />
+          ),
+        )}
+        <g clip-path={`url(#${clip})`}>
+          {series.map((s) =>
+            s.kind === 'segments' ? (
+              s.points.flatMap((p, i) => (i % 2 === 0 && s.points[i + 1] ? [
+                <line x1={X(p[0])} y1={Y(p[1])} x2={X(s.points[i + 1][0])} y2={Y(s.points[i + 1][1])} stroke={s.color} stroke-width={s.width ?? 2} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linecap="round" />,
+              ] : []))
+            ) : s.kind !== 'scatter' ? (
+              <path d={path(s.points, X, Y)} fill="none" stroke={s.color} stroke-width={s.width ?? 1.6} stroke-dasharray={s.dash} opacity={s.opacity} stroke-linejoin="round" stroke-linecap="round" />
+            ) : null,
+          )}
+          {series.filter((s) => s.kind === 'scatter' || s.marker).map((s) =>
+            s.points.filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1])).map((p, i) => {
+              const mk = marker(s, X(p[0]), Y(p[1]));
+              const Tag = mk.tag as 'circle';
+              return (
+                <Tag {...(mk.attrs as Record<string, unknown>)} opacity={s.opacity}>
+                  {s.tips?.[i] && <title>{s.tips[i]}</title>}
+                </Tag>
+              );
+            }),
+          )}
+        </g>
+        {v.annotations.filter((a) => a.kind === 'point' || a.kind === 'label').map((a) => (
+          <g class="note" style={a.color ? `--note:${a.color}` : undefined}>
+            {a.kind === 'point' && <circle cx={X(a.x!)} cy={Y(a.y!)} r="4.5" />}
+            {a.kind === 'point' && (a.dx || a.dy) && (
+              <line x1={X(a.x!)} y1={Y(a.y!)} x2={X(a.x!) + (a.dx ?? 0) * 0.82} y2={Y(a.y!) + (a.dy ?? 0) * 0.82} />
+            )}
+            {a.text && a.text.split('\n').map((line, i) => (
+              <text class:list={[a.row && 'row']} x={X(a.x!) + (a.dx ?? 0)} y={Y(a.y!) + (a.dy ?? 0) + i * v.lineH + (a.dy && a.dy < 0 ? -2 : 4)} text-anchor={a.anchor ?? 'middle'}>{line}</text>
+            ))}
+          </g>
         ))}
-      </g>
-    ))}
-  </svg>
-  </div>
-  {(legend && shown.length > 0) || ys.label ? (
+      </svg>
+      </div>
+    );
+  })}
+  {(legend && shown.length > 0) || y.label ? (
     <div class="fer-plot-foot">
-      {ys.label && <span class="y-name">↑ {ys.label}</span>}
+      {y.label && <span class="y-name">↑ {y.label}</span>}
       {legend && shown.length > 0 && (
         <ul class="legend">
           {shown.map((s) => (
@@ -188,6 +257,22 @@ const marker = (s: Series, px: number, py: number) => {
     flex-direction: column;
     gap: var(--sp-1);
     min-width: 0;
+    container: fer-plot / inline-size;
+  }
+
+  .variant--phone {
+    display: none;
+  }
+
+  /* 26rem: the phone drawing's breakpoint (PHONE_BELOW). */
+  @container fer-plot (max-width: 25.99rem) {
+    .has-phone > .variant--wide {
+      display: none;
+    }
+
+    .has-phone > .variant--phone {
+      display: block;
+    }
   }
 
   .fer-plot-title {
@@ -213,6 +298,11 @@ const marker = (s: Series, px: number, py: number) => {
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
+  }
+
+  .scroll:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
   }
 
   .grid line {
@@ -315,5 +405,11 @@ const marker = (s: Series, px: number, py: number) => {
     .note text {
       font-size: 13.5px;
     }
+  }
+
+  .variant--phone .ticks text,
+  .variant--phone .axis-label,
+  .variant--phone .note text {
+    font-size: 13.5px;
   }
 </style>
