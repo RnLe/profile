@@ -1,0 +1,88 @@
+{
+ "order": [
+  "cnn",
+  "vgg",
+  "resnet",
+  "densenet",
+  "vit",
+  "convnext",
+  "cct"
+ ],
+ "models": [
+  {
+   "name": "cnn",
+   "bytes": 1278124,
+   "parts": [
+    "models/cnn.ferm.0"
+   ],
+   "stage": "final",
+   "seed": 0
+  },
+  {
+   "name": "densenet",
+   "bytes": 1627404,
+   "parts": [
+    "models/densenet.ferm.0"
+   ],
+   "stage": "shape_final",
+   "seed": 2
+  },
+  {
+   "name": "convnext",
+   "bytes": 3479868,
+   "parts": [
+    "models/convnext.ferm.0",
+    "models/convnext.ferm.1"
+   ],
+   "stage": "final",
+   "seed": 0
+  },
+  {
+   "name": "vit",
+   "bytes": 3960524,
+   "parts": [
+    "models/vit.ferm.0",
+    "models/vit.ferm.1"
+   ],
+   "stage": "final",
+   "seed": 1
+  },
+  {
+   "name": "cct",
+   "bytes": 4102764,
+   "parts": [
+    "models/cct.ferm.0",
+    "models/cct.ferm.1"
+   ],
+   "stage": "final",
+   "seed": 0
+  },
+  {
+   "name": "resnet",
+   "bytes": 11201532,
+   "parts": [
+    "models/resnet.ferm.0",
+    "models/resnet.ferm.1",
+    "models/resnet.ferm.2",
+    "models/resnet.ferm.3",
+    "models/resnet.ferm.4"
+   ],
+   "stage": "final",
+   "seed": 1
+  },
+  {
+   "name": "vgg",
+   "bytes": 14833324,
+   "parts": [
+    "models/vgg.ferm.0",
+    "models/vgg.ferm.1",
+    "models/vgg.ferm.2",
+    "models/vgg.ferm.3",
+    "models/vgg.ferm.4",
+    "models/vgg.ferm.5"
+   ],
+   "stage": "shape_final",
+   "seed": 1
+  }
+ ]
+}

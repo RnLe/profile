@@ -19,7 +19,10 @@ import GeoFigure from '../geo-neural/GeoFigure.astro';
 import GeoExplorer from '../islands/GeoExplorer';
 import GeoLab from '../islands/GeoLab';
 import GeoCodec from '../islands/GeoCodec';
+import FerDemo from '../islands/FerDemo';
+import { demoInitial } from '../fer/demo/initial';
 import '../geo-neural/geo-neural.css';
+import '../fer/demo/fer-demo.css';
 import { blazeScale } from '../../data/blaze-scale';
 import { glue } from '../../lib/typography';
 
@@ -29,6 +32,8 @@ interface Props {
 
 const { figureId } = Astro.props;
 const figure = getFigure(figureId);
+// the demo's first face and its precomputed bars, read from the staged sample pack
+const ferDemo = figure?.kind === 'island' && figure.island === 'fer-demo' ? demoInitial() : null;
 ---
 
 {figure.kind === 'placeholder' && (
@@ -110,12 +115,13 @@ const figure = getFigure(figureId);
 )}
 
 {figure.kind === 'island' && (
-  <figure class="figure figure--island">
+  <figure class:list={['figure', 'figure--island', ferDemo && 'figure--wide-caption']}>
     {figure.previewLabel && <p class="preview-label">{figure.previewLabel}</p>}
     {figure.island === 'moire-builder' && <MoireBuilder client:visible />}
     {figure.island === 'geo-explorer' && <GeoExplorer client:visible />}
     {figure.island === 'geo-lab' && <GeoLab client:visible />}
     {figure.island === 'geo-codec' && <GeoCodec client:visible />}
+    {ferDemo && <FerDemo client:visible face={ferDemo.face} classes={ferDemo.classes} models={ferDemo.models} />}
     <noscript>
       <p class="noscript-note">{figure.fallbackText}</p>
     </noscript>
@@ -146,6 +152,11 @@ const figure = getFigure(figureId);
     color: var(--ink-muted);
     margin-block-start: var(--sp-3);
     max-width: var(--w-prose);
+  }
+
+  /* under a figure as wide as the column, the caption runs as wide */
+  .figure--wide-caption figcaption {
+    max-width: none;
   }
 
   figcaption strong {

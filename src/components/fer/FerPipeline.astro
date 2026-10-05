@@ -2,7 +2,8 @@
 /**
  * The study at a glance: its five parts in order, each with the question it
  * asked and its main result, computed from the exported data. Each card opens
- * its part of the case study.
+ * its part of the case study. The cards share their rows (subgrid), so the
+ * figures and results line up and every card is as tall as the tallest.
  */
 import data from '../../data/fer/data.json';
 import models from '../../data/fer/models.json';
@@ -98,6 +99,7 @@ const steps = [
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--sp-3);
+    row-gap: var(--sp-3);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -106,7 +108,10 @@ const steps = [
 
   .fer-pipeline li {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-row: span 6;
+    grid-template-rows: subgrid;
+    row-gap: 0;
     min-width: 0;
   }
 
@@ -121,9 +126,10 @@ const steps = [
   }
 
   .card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
+    display: grid;
+    grid-row: span 6;
+    grid-template-rows: subgrid;
+    row-gap: var(--sp-2);
     inline-size: 100%;
     padding: var(--sp-4);
     border: 1px solid var(--line);
@@ -163,7 +169,7 @@ const steps = [
   }
 
   .figure {
-    margin-block-start: auto;
+    margin-block-start: var(--sp-2);
     font-size: var(--step-3);
     font-weight: 700;
     letter-spacing: -0.02em;

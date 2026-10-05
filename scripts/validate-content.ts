@@ -54,7 +54,11 @@ try {
     for (const mediaId of data.mediaIds) {
       if (!mediaIds.has(mediaId)) report.fail(`${tag}: unknown media '${mediaId}'`);
     }
-    if (body.trim().length < 200) {
+    // A case study in tabs carries its text in the tabs; their paragraphs count with the body.
+    const tabText = (data.tabs ?? [])
+      .flatMap((tab) => [...tab.paragraphs, ...tab.sections.flatMap((section) => section.paragraphs)])
+      .join(' ');
+    if ((body + tabText).trim().length < 200) {
       report.fail(`${tag}: body too short for the project-page contract`);
     }
 

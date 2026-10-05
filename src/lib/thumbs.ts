@@ -17,7 +17,8 @@ import pairedContrast from '../assets/grounded-recovery/paired-contrast.webp';
 import robotArm from '../assets/recover-in-real-time/arm.webp';
 import modelVsMotion from '../assets/residual-worlds/model-vs-motion.webp';
 import sedimentationThumb from '../assets/hard-spheres/sedimentation-thumb.webp';
-import ferThumb from '../assets/fer/thumb.webp';
+import ferDemoLoop from '../assets/fer/demo-loop.webp';
+import ferDemoLoopCard from '../assets/fer/demo-loop-card.webp';
 import geoTerrainLoop from '../assets/geo-neural/terrain-loop.avif';
 
 export interface ThumbImage {
@@ -94,15 +95,17 @@ export const projectThumbs: Record<string, Thumb> = {
     animated: true,
     fit: 'contain',
   },
-  // Training faces from FER2013 (RAF-DB images may not be redistributed), one
-  // column per emotion from angry to surprise.
+  // The case study's demo in miniature: DenseNet reading five FER2013 test faces
+  // (happy, surprise, neutral; RAF-DB images may not be redistributed), drawn by
+  // scripts/26_web.py in the study repository; after each face, DenseNet's occlusion map
+  // fades in over it (where graying out the face lowers its confidence the most). 16:9,
+  // so it fills the frame; only the leading emotion is named, since the frame is small.
+  // Also the case study's lead (figures.ts, fer-demo-loop).
   'facial-emotion-recognition': {
     kind: 'image',
-    src: ferThumb,
-    alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
-    // Shown whole; the blurred copy fills the sides of the frame.
-    fit: 'contain',
-    backdrop: 'blur',
+    src: ferDemoLoop,
+    alt: 'A grayscale test face beside a bar chart of DenseNet’s probability for each of seven emotions; the face changes between happy, surprise and neutral, the bars move with it, and a color map fades in over each face, brightest where graying out the face lowers DenseNet’s confidence the most',
+    animated: true,
   },
   // The terrain map of the case study at 5x height, turning once in 18 s
   // while the layers change every 3 s. Transparent around the terrain, with
@@ -124,10 +127,13 @@ export const projectThumbs: Record<string, Thumb> = {
  * height of the text beside it. Falls back to the list image.
  */
 export const projectCardThumbs: Record<string, ThumbImage> = {
+  // The same loop laid out for the taller column: the face above the bars, every
+  // emotion named. Shown whole; the blurred copy moves with it.
   'facial-emotion-recognition': {
     kind: 'image',
-    src: ferThumb,
-    alt: 'A grid of small grayscale faces from the FER2013 dataset, one column per emotion: angry, disgust, fear, happy, neutral, sad, surprise',
+    src: ferDemoLoopCard,
+    alt: 'A grayscale test face above a bar chart of DenseNet’s probability for each of seven emotions; the face changes between happy, surprise and neutral, the bars move with it, and a color map fades in over each face, brightest where graying out the face lowers DenseNet’s confidence the most',
+    animated: true,
     fit: 'contain',
     backdrop: 'blur',
   },

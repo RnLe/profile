@@ -27,9 +27,11 @@ const codeLinks = links.filter((link) => link.code);
 const split = documentLinks.length > 0 && codeLinks.length > 0;
 const [heroFigureId] = data.figureIds;
 const heroFigure = heroFigureId ? getFigure(heroFigureId) : undefined;
+// A figure may set its own column width; it then keeps the side column.
+const leadWidth = heroFigure?.kind === 'image' ? heroFigure.leadWidth : undefined;
 // Wider than 16:10 (an animation with text in it, a row of panels) takes the
 // wide layout; a photo or a single plot keeps the side column.
-const wide = heroFigure?.kind === 'image' && heroFigure.src.width > 1.7 * heroFigure.src.height;
+const wide = !leadWidth && heroFigure?.kind === 'image' && heroFigure.src.width > 1.7 * heroFigure.src.height;
 const methodsId = `${data.slug}-methods`;
 // A wide case study without a lead figure sets its methods in the figure's
 // column, so the hero stays short and the overview's map shows early.
@@ -37,7 +39,7 @@ const methodsBeside = !heroFigureId && data.wide;
 ---
 
 <header class="project-hero">
-  <div class:list={['wrap', 'hero-grid', wide && 'hero-grid--wide', methodsBeside && 'hero-grid--methods']}>
+  <div class:list={['wrap', 'hero-grid', wide && 'hero-grid--wide', methodsBeside && 'hero-grid--methods']} style={leadWidth ? `--hero-figure: ${leadWidth}` : undefined}>
     <div class="headline">
       <h1>{data.title}</h1>
       <p class="lead marked"><Marked text={data.oneLine} /></p>

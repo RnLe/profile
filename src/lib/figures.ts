@@ -45,6 +45,7 @@ import robotArm from '../assets/recover-in-real-time/arm.webp';
 import assemblyKit from '../assets/recover-in-real-time/assembly-kit.webp';
 import followerLabels from '../assets/recover-in-real-time/follower-labels.webp';
 import servoBuses from '../assets/recover-in-real-time/servo-buses.webp';
+import ferDemoLoop from '../assets/fer/demo-loop.webp';
 
 export type FigureDef =
   | {
@@ -66,6 +67,11 @@ export type FigureDef =
       animated?: boolean;
       /** Too wide for a side column: a case-study section shows it full width. */
       wide?: boolean;
+      /**
+       * As a project's lead figure: the width of its column beside the text (a CSS
+       * length), kept even when the image is wide enough for the wide layout.
+       */
+      leadWidth?: string;
     }
   | {
       kind: 'gallery';
@@ -88,7 +94,7 @@ export type FigureDef =
     }
   | {
       kind: 'island';
-      island: 'moire-builder' | 'geo-explorer' | 'geo-lab' | 'geo-codec';
+      island: 'moire-builder' | 'geo-explorer' | 'geo-lab' | 'geo-codec' | 'fer-demo';
       title?: string;
       caption?: string;
       /** Visible label required for method previews. */
@@ -205,7 +211,25 @@ export const figures: Record<string, FigureDef> = {
   ),
 
   /* ------------------------------------------ Facial emotion recognition --- */
-  'fer-pipeline': fer('fer-pipeline', 'The five parts of the study. Each card opens its part.'),
+  // The landing list's loop (scripts/26_web.py thumb in the study repository), in a
+  // third of the window beside the title.
+  'fer-demo-loop': {
+    kind: 'image',
+    src: ferDemoLoop,
+    alt: 'A grayscale test face beside a bar chart of DenseNet’s probability for each of seven emotions; after each face a color map fades in over it, brightest where graying out the face lowers DenseNet’s confidence the most: the mouth corners, the eyebrows, the nose',
+    caption: 'DenseNet on five FER2013 test faces. In color: how much its confidence in its answer drops when the face is grayed out there, 6 × 6 pixels at a time; from dark (no drop) to yellow (the largest).',
+    animated: true,
+    leadWidth: '33.3vw',
+  },
+  'fer-demo': {
+    kind: 'island',
+    island: 'fer-demo',
+    caption:
+      'One face, seven networks: the bars are each network’s probability for each emotion. A FER2013 test face to start; your own photo or a camera snapshot runs through the same networks, in your browser.',
+    fallbackText: 'Shown is one test face with each network’s precomputed probabilities. Running the networks on other faces needs JavaScript, WebAssembly and Web Workers.',
+    wide: true,
+  },
+  'fer-pipeline': { kind: 'component', component: 'fer-pipeline', wide: true },
   'fer-classes': fer('fer-classes', 'Training faces per emotion. RAF-DB adds the most where FER2013 is thinnest.'),
   'fer-cleaning': fer('fer-cleaning', 'Faces removed in cleaning, by reason, from both datasets.', false),
   'fer-samples': fer('fer-samples', 'Random training faces from FER2013, 48 × 48 pixels. RAF-DB images are not shown: they may not be redistributed.', false),

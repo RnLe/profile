@@ -109,3 +109,49 @@ files:
     sha256: de925ed9b4397c143867ad9c6b2e6c021d7722e3b374534cb21fbba152b4be37
   - path: geo-neural/codec/muensterland-plain/reference.streams.bin
     sha256: 2df572e21ff208a48911f84437f233895d380f289e188b25fdcb344c794ae4e3
+  # The facial emotion demo: the seven winners as model files in parts under 2.5 MiB,
+  # their load order, and FER2013 sample faces (scripts/26_web.py in the study repository).
+  - path: fer/demo/models.json
+    sha256: c46d581f9f3981f3c05909d5fc303bce4f5b2a9f9549f0aaa1d55ded31d88bfc
+  - path: fer/demo/models/cct.ferm.0
+    sha256: a0c4e6749db0006bb0b671752892246e71ababa7ac4be5e01b491651b376f792
+  - path: fer/demo/models/cct.ferm.1
+    sha256: 013f74a7bec8684d22ed1be212b74ce0fbb97110c0379c1569dbc474912d19c0
+  - path: fer/demo/models/cnn.ferm.0
+    sha256: f90185de41743d68487a8a1900a3281a8b39da8f7194f6b12ab1156c96d16fae
+  - path: fer/demo/models/convnext.ferm.0
+    sha256: f734c7d2194065064c57830f92918fa1d897d51d2c662492a45710aeebe9dc51
+  - path: fer/demo/models/convnext.ferm.1
+    sha256: f2b3abbcbd4e8d4043195f99db745d6148f85b52bb7e504b4be0502e46d4bc12
+  - path: fer/demo/models/densenet.ferm.0
+    sha256: 69fce9d6c70a8d09d0816d7be261925f57279d42880307de3e5e9107ddbbf2b6
+  - path: fer/demo/models/resnet.ferm.0
+    sha256: 88b7641b2aee095dce09d8a4fa93b8ff0222944ec65b8f752682065c4e575b48
+  - path: fer/demo/models/resnet.ferm.1
+    sha256: 3463df1c307c609a11d2d94b92dd6ced3949333a617402170d557bacab8d30ac
+  - path: fer/demo/models/resnet.ferm.2
+    sha256: 8da2d68c1f7591ef9a8626c8ce5a80dfb3007715f9a43addf392ac2a8a44e33f
+  - path: fer/demo/models/resnet.ferm.3
+    sha256: d79ec13ac378e44bb55d9372aa4960cac9974e80ce98a26e42042840b036a33a
+  - path: fer/demo/models/resnet.ferm.4
+    sha256: f9313eec1df181bb5d1d17a752df95c0e2781a9d3af2306ad67213b6913ad939
+  - path: fer/demo/models/vgg.ferm.0
+    sha256: 8a25bf79931c20596f31fad14011e8a974e14908ff78eae05c1d55a84b884a5f
+  - path: fer/demo/models/vgg.ferm.1
+    sha256: d1c14486698fc9c9baf9749203faed49ce110d9b24a43723950775b8f0bec02b
+  - path: fer/demo/models/vgg.ferm.2
+    sha256: a1e6065b06c2504f5fa9a918cba7902fbdacae7058ba9dffadb6caa345c2703e
+  - path: fer/demo/models/vgg.ferm.3
+    sha256: 34236b1b6297fe51272107277ca2cb97bf78762b18f920bb9ca86eb832cde894
+  - path: fer/demo/models/vgg.ferm.4
+    sha256: 07e242339360537371d823460a1e7ad69e5097571e1901b135d3ccb031577aaa
+  - path: fer/demo/models/vgg.ferm.5
+    sha256: 87cd5a9bb7134b013efd3c3d1f8a30b7fc8cf093258b18c87102caf86a336386
+  - path: fer/demo/models/vit.ferm.0
+    sha256: d2367384cd07c55809c4d839394228809e3e274adbcd3cff7eab1b9b669318df
+  - path: fer/demo/models/vit.ferm.1
+    sha256: a03dd09b24b50eb7f3322dfb1fea5ab189156c9441b9c54eea896eb67437bcd2
+  - path: fer/demo/samples.json
+    sha256: 8e98bf97a4425dc01d21022dd842e04bfc25e9db264391866ae0ba3023e3108d
+  - path: fer/demo/samples.u8
+    sha256: f74e21613daec9ef289bd885cf71b9461a43135fb9b3cb24d7a6621e997ce508

@@ -7,8 +7,8 @@ oneLine: >-
   Seven architectures on one clean face dataset: ==how much does each gain
   from tuning==, and how small can the best get?
 tagline: >-
-  Computer vision: seven network types learn to read emotions from faces, then
-  get tuned, trained longer and compressed.
+  `Computer vision:` seven network types learn to read emotions from faces,
+  then get tuned, trained longer and compressed.
 activity: archived
 yearStart: 2026
 yearEnd: 2026
@@ -19,7 +19,8 @@ focus:
   learning: 'Computer vision · CNNs and vision transformers · Optuna tuning · grokking · low-rank compression · int8'
 summary: >-
   Can a network tell from a photo whether someone is happy, sad or surprised?
-  I cleaned two public face datasets into one and trained **seven common
+  It began as a 2024 course project with serious flaws in training and
+  validation; I rebuilt it from scratch. I cleaned two public face datasets into one and trained **seven common
   network types** on it, each with the same tuning budget. Classic
   convolutional networks came out on top and ==hardly needed tuning==. The
   best ones then went further: longer training, and **compression** that
@@ -81,22 +82,35 @@ claimIds:
   - FER-COMP-003
 cardClaimIds: []
 mediaIds: []
-figureIds: []
+figureIds:
+  - fer-demo-loop
 tabs:
   - id: overview
     label: Overview
     questions:
       - How much does each architecture ==gain from tuning==?
       - And how far can the best go with longer training, late generalisation, and compression?
-    figureId: fer-pipeline
-    paragraphs:
-      - >-
-        One cleaned dataset, seven architectures, one training pipeline, and
-        the same tuning budget for each. Guesses were written down before every
-        step. Every decision was made on the validation set; the test set only
-        reports results.
+    figureId: fer-demo
     sections:
+      - heading: From a course project to a proper study
+        paragraphs:
+          - >-
+            The study began in 2024 as a course project with a fellow student:
+            one DenseNet, tuned and compared with a plain CNN on FER2013. That
+            project had ==serious flaws in training and validation==: the
+            DenseNet was trained on the test images, the hyperparameter search
+            minimised the training loss, and the two networks were scored on
+            different versions of the data.
+          - >-
+            In 2026 I picked it up again and rebuilt it from scratch, with what
+            I had learned in the two years since. The dataset grew and was
+            cleaned: FER2013 with its FER+ votes, merged with RAF-DB. **Seven
+            architectures** instead of two, each with the same pipeline and the
+            same tuning budget, every decision made on the validation set. Then
+            the study went where it got interesting: **tuning, grokking, and
+            compression**.
       - heading: How the study ran
+        figureIds: [fer-pipeline]
         paragraphs:
           - >-
             **Data:** two public datasets merged and cleaned into 44,296 faces.
@@ -389,9 +403,3 @@ links:
     kind: source
 related: []
 ---
-
-Facial emotion recognition sorts a face into one of seven emotions: angry,
-disgust, fear, happy, neutral, sad, surprise. Papers usually report each model
-after its own tuning, which hides how good an architecture is with sensible
-defaults. Here every architecture gets the same data, the same pipeline, and
-the <mark>same tuning budget</mark>.
