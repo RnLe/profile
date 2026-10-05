@@ -1,12 +1,11 @@
-# Verification pipeline (§104). Inert until pushed; runs on PRs and protected
-# pushes. External link checking is deliberately NOT here; it runs in manual
-# release verification to avoid network flakiness.
+# Verification pipeline (§104). Manual only: run it from the Actions tab or
+# with `gh workflow run CI`; the deploy workflow verifies on its own. External
+# link checking is deliberately NOT here; it runs in manual release
+# verification to avoid network flakiness.
 name: CI
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
