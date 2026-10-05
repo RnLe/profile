@@ -340,6 +340,18 @@ th {
   color: var(--accent-strong);
 }
 
+/* a field's name before the text, as `Computer vision:`; set like inline code */
+.marked .mono-label {
+  padding: 0.1em 0.4em;
+  border-radius: var(--r-sm);
+  background: var(--surface-alt);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--ink);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 .marked mark {
   padding-inline: 0.08em;
   color: inherit;

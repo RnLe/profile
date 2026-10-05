@@ -1,7 +1,7 @@
 ---
 /**
  * A run of copy with its light emphasis (src/lib/marks.ts) as <strong>,
- * <mark>, and links. Styled by the .marked class on an ancestor (global.css).
+ * <mark>, links, and monospace labels. Styled by the .marked class on an ancestor (global.css).
  */
 import { runs } from '../../lib/marks';
 import { withBase } from '../../lib/routes';
@@ -20,6 +20,8 @@ const href = (target: string) => (target.startsWith('/') ? withBase(target) : ta
     <strong>{glue(run.text)}</strong>
   ) : run.kind === 'mark' ? (
     <mark>{glue(run.text)}</mark>
+  ) : run.kind === 'label' ? (
+    <span class="mono-label">{glue(run.text)}</span>
   ) : run.kind === 'link' ? (
     <a href={href(run.href!)} rel={run.href!.startsWith('/') ? undefined : 'noopener'}>{glue(run.text)}</a>
   ) : (

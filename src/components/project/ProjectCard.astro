@@ -80,7 +80,7 @@ const sizes = '(max-width: 64rem) calc(100vw - 2rem), 20rem';
         entry.title
       )}
     </h2>
-    <p class="pcard-subtitle">{entry.kind === 'project' ? entry.subtitle : entry.question}</p>
+    <p class="pcard-subtitle marked">{entry.kind === 'project' ? <Marked text={entry.subtitle} /> : entry.question}</p>
 
     {entry.kind === 'project' ? (
       <>

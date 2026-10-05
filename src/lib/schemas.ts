@@ -5,6 +5,7 @@
  * through `registry-io.ts`; schemas must never fork.
  */
 import { z } from 'astro/zod';
+import { plain } from './marks';
 
 /* ---------------------------------------------------------------- enums --- */
 
@@ -169,8 +170,15 @@ export const projectFrontmatterSchema = z.object({
   shortTitle: z.string().min(1).max(40).optional(),
   /** One-line research question or contribution (card + hero). */
   oneLine: z.string().min(1).max(180),
-  /** Terse list subtitle: one clause, no hedging room. */
-  tagline: z.string().min(1).max(120).optional(),
+  /**
+   * Terse list subtitle: one clause, no hedging room. It may open with a field's
+   * name as a label (`Computer vision:`); the limit counts the visible text.
+   */
+  tagline: z
+    .string()
+    .min(1)
+    .refine((text) => plain(text).length <= 125, 'at most 125 visible characters')
+    .optional(),
   /** A short label over the title in the project lists, e.g. 'Master Thesis'. */
   listLabel: z.string().min(1).max(40).optional(),
   /** The marker at the top right of a list entry: in active research, or archived. */

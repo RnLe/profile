@@ -6,8 +6,8 @@ oneLine: >-
   With a limited budget of expert labels, should a learning agent get more
   demonstrations, or corrections after its own mistakes?
 tagline: >-
-  Are a limited number of expert labels better spent on more examples, or on
-  corrections after mistakes?
+  `Imitation learning:` are a limited number of expert labels better spent on
+  more examples, or on corrections after mistakes?
 caseStudyUrl: 'https://rnle.github.io/recovery-policy-learning/'
 activity: archived
 yearStart: 2026

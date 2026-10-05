@@ -4,7 +4,7 @@
  * the argument, the copy stays out of its way.
  *
  * 1 hero + evidence strip · 2 projects, latest first, each opening its case
- * study as a page · 3 a short band saying the site is still growing
+ * study as a page, with the key to their marks beside the heading
  *
  * Contact lives in the footer alone; a "get in touch" band here would repeat
  * it a screen earlier.
@@ -15,7 +15,7 @@ import EvidenceStrip from '../components/academic/EvidenceStrip.astro';
 import ProjectStripeList from '../components/project/ProjectStripeList.astro';
 import ProjectModal from '../components/project/ProjectModal.astro';
 import SectionHeading from '../components/ui/SectionHeading.astro';
-import ExpansionNote from '../components/ui/ExpansionNote.astro';
+import KindLegend from '../components/project/KindLegend.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
 import { site, evidenceStrip, landingPins } from '../data/site';
 
@@ -95,16 +95,11 @@ const jsonLd = [personSchema(origin)];
   {/* --------------------------------------------------- 2 · the projects --- */}
   <section class="band band--alt" aria-labelledby="projects-heading">
     <div class="wrap wrap--stage">
-      <SectionHeading title="Projects" id="projects-heading" large />
+      <div class="projects-head">
+        <SectionHeading title="Projects" id="projects-heading" large />
+        <KindLegend />
+      </div>
       <ProjectStripeList {entries} />
-    </div>
-  </section>
-
-  {/* --------------------------------------------------- 3 · what is next --- */}
-  <section class="band" aria-labelledby="expanding-heading">
-    <div class="wrap">
-      <SectionHeading title="This site is being expanded" id="expanding-heading" />
-      <ExpansionNote />
     </div>
   </section>
 
@@ -274,6 +269,21 @@ const jsonLd = [personSchema(origin)];
   .hero-portrait {
     width: 100%;
     justify-self: end;
+  }
+
+  /* The heading, and the key to the marks at its right; under it on a phone. */
+  .projects-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3) var(--sp-8);
+    margin-block-end: var(--sp-8);
+  }
+
+  .projects-head :global(.section-heading),
+  .projects-head :global(.legend) {
+    margin: 0;
   }
 
   .strip {

@@ -6,7 +6,7 @@ oneLine: >-
   Can agents that each read only a few randomly drawn neighbors still form one
   swarm, and can multi-agent reinforcement learning teach them to?
 tagline: >-
-  An attempt to form swarms with multi-agent reinforcement learning, and a
+  An attempt to form swarms with `multi-agent reinforcement learning`, and a
   neural-network-friendly Monte Carlo rule.
 listLabel: Bachelor Thesis
 activity: archived

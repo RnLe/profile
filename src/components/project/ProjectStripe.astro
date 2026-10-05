@@ -14,6 +14,7 @@ import { withBase } from '../../lib/routes';
 import Icon from '../ui/Icon.astro';
 import ActivityMark from './ActivityMark.astro';
 import KindMarks from './KindMarks.astro';
+import Marked from '../ui/Marked.astro';
 import ProjectLinks from './ProjectLinks.astro';
 import ProjectThumb from './ProjectThumb.astro';
 
@@ -54,7 +55,7 @@ const gated = entry.kind === 'gated';
         entry.title
       )}
     </h3>
-    <p class="stripe-subtitle">{entry.kind === 'project' ? entry.subtitle : entry.statusText}</p>
+    <p class="stripe-subtitle marked">{entry.kind === 'project' ? <Marked text={entry.subtitle} /> : entry.statusText}</p>
   </div>
   <div class="stripe-meta">
     <span class="stripe-year">{entry.yearLabel}</span>
