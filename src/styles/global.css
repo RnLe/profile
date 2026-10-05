@@ -348,8 +348,6 @@ th {
   font-family: var(--font-mono);
   font-size: 0.86em;
   color: var(--ink);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
 }
 
 .marked mark {
